@@ -69,3 +69,29 @@ void	server::del_client(int fd)
 	client_list.erase(client_list.find(fd));
 	std::cout << "BYE BYE CLIENT\n";
 }
+
+fd_set	server::get_read_fds(void)
+{
+	fd_set	read_fds;
+
+	FD_ZERO(&read_fds);
+	FD_SET(_server_fd, &read_fds);
+	for (std::map<int, client>::iterator it = client_list.begin(); it != client_list.end(); ++it)
+	{
+		FD_SET(it->first, &read_fds);
+	}
+	return (read_fds);
+}
+
+fd_set	server::get_write_fds(void)
+{
+	fd_set	write_fds;
+
+	FD_ZERO(&write_fds);
+
+	// TODO: add behavior here with messages
+	// *if there are messages to send, add them to write_fds, otherwise skip
+	// !for now write_fds will be empty
+
+	return (write_fds);
+}

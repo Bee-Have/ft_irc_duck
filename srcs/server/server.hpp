@@ -31,7 +31,12 @@ public:
 	~server();
 
 	server	&operator=(const server &assign);
-	
+
+	// client managment
 	int		add_client();
 	void	del_client(int fd);
+
+	// select prerequisites
+	fd_set	get_read_fds();
+	fd_set	get_write_fds();
 };
