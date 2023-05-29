@@ -1,8 +1,11 @@
 #include "server.hpp"
+#include "sstream"
 
 int	main(int ac, char **av)
 {
-	std::string	tmp;
+	std::stringstream	ss;
+	std::string			tmp;
+	int					port;
 
 	if (ac < 3 || ac > 3)
 	{
@@ -18,6 +21,9 @@ int	main(int ac, char **av)
 		return (1);
 	}
 
-	server	serv(av[1], av[2]);
+	ss << tmp;
+	ss >> port;
+
+	server	serv(port, av[2]);
 	return (0);
 }

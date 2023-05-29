@@ -28,7 +28,9 @@ server::server(int new_port, char *new_pass): _port(new_port), _pass(new_pass)
 }
 
 server::server(const server &cpy)
-{}
+{
+	(void)cpy;
+}
 
 server::~server(void)
 {}
