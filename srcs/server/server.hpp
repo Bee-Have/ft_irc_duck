@@ -11,6 +11,7 @@
 class server
 {
 private:
+	server();
 	server(const server &cpy);
 
 	int			_port;
@@ -20,7 +21,6 @@ private:
 	struct sockaddr_in	_server_addr;
 
 public:
-	server();
 	server(int new_port, char *new_pass);
 	~server();
 
