@@ -16,7 +16,7 @@ IFLAGS = $(foreach dir, $(SRC_DIR), -I$(dir))
 
 vpath %.cpp $(foreach dir, $(SRC_DIR), $(dir):)
 
-SERVER = server.cpp
+SERVER = server.cpp client.cpp
 
 SRC = main.cpp $(SERVER)
 
