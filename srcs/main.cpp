@@ -1,6 +1,8 @@
 #include "server.hpp"
 #include "sstream"
 
+void	server_loop(server &serv);
+
 int	main(int ac, char **av)
 {
 	std::stringstream	ss;
@@ -25,5 +27,6 @@ int	main(int ac, char **av)
 	ss >> port;
 
 	server	serv(port, av[2]);
+	server_loop(serv);
 	return (0);
 }

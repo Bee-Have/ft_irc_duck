@@ -17,7 +17,7 @@ private:
 	int			_port;
 	std::string	_pass;
 
-	int					_server_fd;
+	int					_socket;
 	struct sockaddr_in	_server_addr;
 	struct sockaddr_in	_client_addr;
 
@@ -32,11 +32,15 @@ public:
 
 	server	&operator=(const server &assign);
 
+	// encapsulation
+	int		get_socket() const;
+
 	// client managment
 	int		add_client();
 	void	del_client(int fd);
 
 	// select prerequisites
+	int		get_max_fd() const;
 	fd_set	get_read_fds();
 	fd_set	get_write_fds();
 };
