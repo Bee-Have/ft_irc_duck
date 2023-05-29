@@ -48,3 +48,24 @@ server	&server::operator=(const server &assign)
 	}
 	return (*this);
 }
+
+int		server::add_client(void)
+{
+	socklen_t	client_addr_len = sizeof(_client_addr);
+	client		new_client(accept(_server_fd, (struct sockaddr *)&_client_addr, &client_addr_len));
+
+	if (new_client.get_socket() < 0)
+	{
+		std::cerr << "Error: could not accept new client connection to server\n";
+		return (1);
+	}
+	std::cout << "NEW CLIENT :D\n";
+	client_list.insert(std::make_pair(new_client.get_socket(), new_client));
+	return (0);
+}
+
+void	server::del_client(int fd)
+{
+	client_list.erase(client_list.find(fd));
+	std::cout << "BYE BYE CLIENT\n";
+}
