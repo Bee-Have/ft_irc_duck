@@ -35,6 +35,7 @@ server::server(const server &cpy)
 server::~server(void)
 {
 	close(_socket);
+	client_list.clear();
 }
 
 server	&server::operator=(const server &assign)

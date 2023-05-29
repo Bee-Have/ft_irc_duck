@@ -5,13 +5,15 @@ void	server_loop(server &serv)
 	while (true)
 	{
 		fd_set read_fds = serv.get_read_fds();
-		fd_set write_fds = serv.get_read_fds();
+		// fd_set write_fds = serv.get_read_fds();
+		fd_set write_fds = serv.get_write_fds();
 
 		std::cout << "about to select()\n";
 		// select : detect anything on all sockets (server + clients) : new connections, messages, ect...
 		// ! this current behavior is not good, the write_fds are useless
 		if (select(serv.get_max_fd() + 1, &read_fds, &write_fds, NULL, NULL) < 0)
 		{
+			std::cout << "clients size:" << serv.client_list.size() << '\n';
 			std::cerr << "Error: select() could not read fds\n";
 			return ;
 		}
@@ -30,6 +32,7 @@ void	server_loop(server &serv)
 				int	valread = read(it->first, buffer, 512);
 				if (valread <= 0)
 				{
+					std::cout << "test deleting client\n";
 					serv.del_client(it->first);
 					if (serv.client_list.empty() == true)
 						break ;
