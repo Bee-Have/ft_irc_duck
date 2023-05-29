@@ -2,10 +2,9 @@
 
 #include <iostream>
 #include <string>
-#include <stdio.h>
-#include <stdlib.h>
 #include <sys/socket.h>
 #include <arpa/inet.h>
+#include <unistd.h>
 
 #define MAX_CLIENT 10
 

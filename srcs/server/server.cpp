@@ -33,7 +33,9 @@ server::server(const server &cpy)
 }
 
 server::~server(void)
-{}
+{
+	close(_server_fd);
+}
 
 server	&server::operator=(const server &assign)
 {
