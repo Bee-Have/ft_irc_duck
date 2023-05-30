@@ -20,33 +20,9 @@ void	server_loop(server &serv)
 			if (serv.add_client() == 1)
 				return ;
 
+		// send messages if there are any
+		
 		// read messages if there are any
-		char		buffer[1024] = {0};
-		for (std::map<int, client>::iterator it = serv.client_list.begin();
-			it != serv.client_list.end(); ++it)
-		{
-			if (FD_ISSET(it->first, &read_fds))
-			{
-				int	valread = read(it->first, buffer, 512);
-				if (valread <= 0)
-				{
-					serv.del_client(it->first);
-					if (serv.client_list.empty() == true)
-						break ;
-					it = serv.client_list.begin();
-				}
-				else
-				{
-					// TODO: implement message handling and saving here
-					// ! this current behavior is not good and should not be kept
-					for (std::map<int, client>::iterator i_send = serv.client_list.begin();
-						i_send != serv.client_list.end(); ++i_send)
-					{
-						if (i_send->first != it->first)
-							send(i_send->first, buffer, valread, 0);
-					}
-				}
-			}
-		}
+
 	}
 }
