@@ -18,5 +18,5 @@ public:
 
 	client	&operator=(const client &assign);
 
-	int		get_socket();
+	int		get_socket() const;
 };

@@ -19,7 +19,7 @@ client	&client::operator=(const client &assign)
 	return (*this);
 }
 
-int	client::get_socket(void)
+int	client::get_socket(void) const
 {
 	return (_socket);
 }
