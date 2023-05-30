@@ -19,7 +19,7 @@ void	server_loop(server &serv)
 		if (FD_ISSET(serv.get_socket(), &read_fds))
 			if (serv.add_client() == 1)
 				return ;
-		
+
 		// read messages if there are any
 		char		buffer[1024] = {0};
 		for (std::map<int, client>::iterator it = serv.client_list.begin();

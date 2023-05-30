@@ -46,6 +46,11 @@ server	&server::operator=(const server &assign)
 		_pass.assign(assign._pass);
 		_socket = assign._socket;
 		_server_addr = assign._server_addr;
+		_client_addr = assign._client_addr;
+		msgs.clear();
+		msgs.insert(msgs.begin(), assign.msgs.begin(), assign.msgs.end());
+		client_list.clear();
+		client_list.insert(assign.client_list.begin(), assign.client_list.end());
 	}
 	return (*this);
 }
@@ -55,6 +60,12 @@ int	server::get_socket(void) const
 	return (_socket);
 }
 
+/*
+	Adds a new client to the server.
+	A new socket will be given to the client using 'accept()'.
+	The socket will then be checked using 'getsockopt()'
+	if everything worked it will be returned.
+*/
 int	server::add_client(void)
 {
 	socklen_t	client_addr_len = sizeof(_client_addr);
@@ -66,13 +77,16 @@ int	server::add_client(void)
 		return (1);
 	}
 
-	// ! TESTING
 	int	socket_error;
 	socklen_t optlen = sizeof(socket_error);
 	if (getsockopt(new_client.get_socket(), SOL_SOCKET, SO_ERROR, &socket_error, &optlen) >= 0)
 	{
 		if (socket_error != 0)
+		{
 			std::cout << "INVALID SOCKET :(" << std::endl;
+			close(new_client.get_socket());
+			return (1);
+		}
 	}
 	else
 		std::cerr << "Error : " << errno << " : " << strerror(errno) << std::endl;
@@ -82,13 +96,30 @@ int	server::add_client(void)
 	return (0);
 }
 
+/*
+	Delete specific client (identified by 'fd') from client list. This implies :
+	- deleting client fd from messages to be sent
+		(if a message send by the client exists, it will only be deleted if they are no target to send the message to)
+	- closing client socket before deleting it's object
+*/
 void	server::del_client(int fd)
 {
+	for (std::vector<message>::iterator it = msgs.begin(); it != msgs.end(); ++it)
+	{
+		if (it->get_emmiter() == fd && (it->target.empty() == true
+			|| (it->target.size() == 1 && it->target.find(fd) != it->target.end())))
+			msgs.erase(it);
+		else if (it->target.find(fd) != it->target.end())
+			it->target.erase(it->target.find(fd));
+	}
 	close(fd);
 	client_list.erase(client_list.find(fd));
 	std::cout << "BYE BYE CLIENT" << std::endl;
 }
 
+/*
+	Finds the maximum value fd existing in all the clients and the server and returns it for select()
+*/
 int	server::get_max_fd(void) const
 {
 	int	max_fd = _socket;
@@ -101,28 +132,41 @@ int	server::get_max_fd(void) const
 	return (max_fd);
 }
 
-fd_set	server::get_read_fds(void)
+/*
+	Adds server fd and all client fds to read_fds for select()
+*/
+fd_set	server::get_read_fds(void) const
 {
 	fd_set	read_fds;
 
 	FD_ZERO(&read_fds);
 	FD_SET(_socket, &read_fds);
-	for (std::map<int, client>::iterator it = client_list.begin(); it != client_list.end(); ++it)
+	for (std::map<int, client>::const_iterator it = client_list.begin()
+		; it != client_list.end(); ++it)
 	{
 		FD_SET(it->first, &read_fds);
 	}
 	return (read_fds);
 }
 
-fd_set	server::get_write_fds(void)
+/*
+	Adds all fds from messages to be sent to write_fds for select()
+*/
+fd_set	server::get_write_fds(void) const
 {
 	fd_set	write_fds;
 
 	FD_ZERO(&write_fds);
 
-	// TODO: add behavior here with messages
-	// *if there are messages to send, add them to write_fds, otherwise skip
-	// !for now write_fds will be empty
-
+	for (std::vector<message>::const_iterator	it_msg = msgs.begin();
+		it_msg != msgs.end(); ++it_msg)
+	{
+		for (std::set<int>::iterator it_fd = it_msg->target.begin();
+			it_fd != it_msg->target.end(); ++it_fd)
+		{
+			if (FD_ISSET(*it_fd, &write_fds) == 0)
+				FD_SET(*it_fd, &write_fds);
+		}
+	}
 	return (write_fds);
 }

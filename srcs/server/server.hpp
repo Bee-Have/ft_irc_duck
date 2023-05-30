@@ -2,6 +2,7 @@
 
 // CONTAINERS
 #include <map>
+#include <vector>
 
 // GENERAL
 #include <iostream>
@@ -18,6 +19,7 @@
 
 // CLASSES
 #include "client.hpp"
+#include "message.hpp"
 
 #define MAX_CLIENT 10
 
@@ -35,6 +37,7 @@ private:
 	server(const server &cpy);
 
 public:
+	std::vector<message>	msgs;
 	std::map<int, client>	client_list;
 
 	server(int new_port, char *new_pass);
@@ -51,6 +54,6 @@ public:
 
 	// select prerequisites
 	int		get_max_fd() const;
-	fd_set	get_read_fds();
-	fd_set	get_write_fds();
+	fd_set	get_read_fds() const;
+	fd_set	get_write_fds() const;
 };
