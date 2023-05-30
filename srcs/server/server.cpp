@@ -77,11 +77,8 @@ int	server::add_client(void)
 	else
 		std::cerr << "Error : " << errno << " : " << strerror(errno) << std::endl;
 
-	std::cout << new_client.get_socket() << std::endl;
 	std::cout << "NEW CLIENT :D" << std::endl;
 	client_list.insert(std::make_pair(new_client.get_socket(), new_client));
-	std::cout << new_client.get_socket() << std::endl;
-
 	return (0);
 }
 
