@@ -6,6 +6,9 @@
 // GENERAL
 #include <string>
 
+// CLASSES
+#include "client.hpp"
+
 class message
 {
 private:
@@ -18,7 +21,8 @@ public:
 	std::string		text;
 
 	message(const message &cpy);
-	message(int new_emmiter);
+	message(const client &emmiter);
+	message(int emmiter);
 	~message();
 
 	message	&operator=(const message &assign);

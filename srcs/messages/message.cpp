@@ -6,7 +6,10 @@ message::message(void)
 message::message(const message &cpy): _emmiter(cpy._emmiter), target(cpy.target), text(cpy.text)
 {}
 
-message::message(int new_emmiter): _emmiter(new_emmiter)
+message::message(const client &emmiter): _emmiter(emmiter.get_socket())
+{}
+
+message::message(int emmiter): _emmiter(emmiter)
 {}
 
 message::~message(void)
