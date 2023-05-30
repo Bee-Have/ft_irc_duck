@@ -1,4 +1,4 @@
-#include "server.hpp"
+#include "ircserv.hpp"
 
 /*
 	Looks for an existing incomplete (whitout a '\r\n') from the client 'emmiter' and returns it's position

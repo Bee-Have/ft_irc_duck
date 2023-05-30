@@ -1,7 +1,5 @@
-#include "server.hpp"
+#include "ircserv.hpp"
 #include "sstream"
-
-void	server_loop(server &serv);
 
 int	main(int ac, char **av)
 {

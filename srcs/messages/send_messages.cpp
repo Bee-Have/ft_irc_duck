@@ -1,4 +1,4 @@
-#include "server.hpp"
+#include "ircserv.hpp"
 
 /*
 	This function messages to the target (msgs->target) if :
