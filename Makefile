@@ -16,11 +16,11 @@ IFLAGS = $(foreach dir, $(SRC_DIR), -I$(dir))
 
 vpath %.cpp $(foreach dir, $(SRC_DIR), $(dir):)
 
-SERVER = server.cpp server_loop.cpp
+SERVER = server.cpp server_loop.cpp client.cpp
 
-CLASSES = client.cpp message.cpp
+MESSAGES = receive_messages.cpp message.cpp
 
-SRC = main.cpp $(SERVER) $(CLASSES)
+SRC = main.cpp $(SERVER) $(MESSAGES)
 
 OBJ = $(addprefix $(OBJ_DIR)/, $(SRC:.cpp=.o))
 
