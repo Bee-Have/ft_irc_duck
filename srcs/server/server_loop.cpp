@@ -35,6 +35,17 @@ void	server_loop(server &serv)
 						break ;
 					it = serv.client_list.begin();
 				}
+				else
+				{
+					// TODO: implement message handling and saving here
+					// ! this current behavior is not good and should not be kept
+					for (std::map<int, client>::iterator i_send = serv.client_list.begin();
+						i_send != serv.client_list.end(); ++i_send)
+					{
+						if (i_send->first != it->first)
+							send(i_send->first, buffer, valread, 0);
+					}
+				}
 			}
 		}
 	}
