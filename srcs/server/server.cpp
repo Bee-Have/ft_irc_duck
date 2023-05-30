@@ -126,8 +126,6 @@ fd_set	server::get_write_fds(void)
 	// TODO: add behavior here with messages
 	// *if there are messages to send, add them to write_fds, otherwise skip
 	// !for now write_fds will be empty
-	// !TMP
-	FD_SET(_socket, &write_fds);
 
 	return (write_fds);
 }
