@@ -10,9 +10,7 @@ client::client(const client &cpy): _socket(cpy._socket)
 {}
 
 client::~client(void)
-{
-	close(_socket);
-}
+{}
 
 client	&client::operator=(const client &assign)
 {

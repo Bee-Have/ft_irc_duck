@@ -1,12 +1,22 @@
 #pragma once
 
+// CONTAINERS
 #include <map>
+
+// GENERAL
 #include <iostream>
 #include <string>
+
+// SOCKETS
 #include <sys/socket.h>
 #include <arpa/inet.h>
 #include <unistd.h>
 
+// ERRNO :
+#include <string.h>
+#include <errno.h>
+
+// CLASSES
 #include "client.hpp"
 
 #define MAX_CLIENT 10

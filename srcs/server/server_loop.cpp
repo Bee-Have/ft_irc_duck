@@ -8,13 +8,13 @@ void	server_loop(server &serv)
 		// fd_set write_fds = serv.get_read_fds();
 		fd_set write_fds = serv.get_write_fds();
 
-		std::cout << "about to select()\n";
+		std::cout << "about to select()" << std::endl;
 		// select : detect anything on all sockets (server + clients) : new connections, messages, ect...
 		// ! this current behavior is not good, the write_fds are useless
+		// if (select(serv.get_max_fd() + 1, &read_fds, NULL, NULL, NULL) < 0)
 		if (select(serv.get_max_fd() + 1, &read_fds, &write_fds, NULL, NULL) < 0)
 		{
-			std::cout << "clients size:" << serv.client_list.size() << '\n';
-			std::cerr << "Error: select() could not read fds\n";
+			std::cerr << "ERRNO:" << errno << ':' << strerror(errno) << std::endl;
 			return ;
 		}
 		// new client connection
@@ -32,23 +32,10 @@ void	server_loop(server &serv)
 				int	valread = read(it->first, buffer, 512);
 				if (valread <= 0)
 				{
-					std::cout << "test deleting client\n";
 					serv.del_client(it->first);
 					if (serv.client_list.empty() == true)
 						break ;
 					it = serv.client_list.begin();
-				}
-				// ! this here can be deleted later to just a "else"
-				else if (valread > 0 && serv.client_list.size() > 1)
-				{
-					// TODO: here will be message behavior with adding messages
-					// !the current behavior is VERY BAD and needs to be updated
-					for (std::map<int, client>::iterator it_send = serv.client_list.begin();
-						it_send != serv.client_list.end(); ++it)
-					{
-						if (it_send->first != it->first)
-							send(it_send->first, buffer, valread, 0);
-					}
 				}
 			}
 		}
