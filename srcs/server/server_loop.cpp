@@ -1,4 +1,4 @@
-#include "server.hpp"
+#include "ircserv.hpp"
 
 void	server_loop(server &serv)
 {
@@ -21,8 +21,9 @@ void	server_loop(server &serv)
 				return ;
 
 		// send messages if there are any
-		
-		// read messages if there are any
+		send_messages(serv, write_fds);
 
+		// read messages if there are any
+		receive_message(serv, read_fds);
 	}
 }
