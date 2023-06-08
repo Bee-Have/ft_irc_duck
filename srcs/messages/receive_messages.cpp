@@ -17,7 +17,7 @@ static int	find_incomplete_msg(server &serv, client emmiter)
 	return (-1);
 }
 
-void	receive_message(server &serv, fd_set read_fds)
+void	receive_messages(server &serv, fd_set read_fds)
 {
 	char		buffer[1024] = {0};
 	int			valread = 0;

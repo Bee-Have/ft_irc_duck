@@ -24,6 +24,6 @@ void	server_loop(server &serv)
 		send_messages(serv, write_fds);
 
 		// read messages if there are any
-		receive_message(serv, read_fds);
+		receive_messages(serv, read_fds);
 	}
 }
