@@ -53,6 +53,7 @@ void	receive_message(server &serv, fd_set read_fds)
 					}
 				}
 				else
+				{
 					while (tmp.find("\n") != std::string::npos)
 					{
 						if (pos_msg != -1)
@@ -62,12 +63,13 @@ void	receive_message(server &serv, fd_set read_fds)
 						}
 						else
 						{
-							new_msg.text.append(0, tmp.find("\n") + 1);
+							new_msg.text.append(tmp.substr(0, tmp.find("\n") + 1));
 							serv.msgs.push_back(new_msg);
 							// TODO : check && handle commands function call
 						}
 						tmp.assign(tmp.substr(tmp.find("\n") + 1, tmp.size()));
 					}
+				}
 			}
 		}
 	}
