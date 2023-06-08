@@ -1,6 +1,6 @@
 #pragma once
 
-#include "ircserv.hpp"
+#include "server.hpp"
 
 // SERVER
 void	server_loop(server &serv);
