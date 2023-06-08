@@ -108,7 +108,11 @@ void	server::del_client(int fd)
 	{
 		if (it->get_emmiter() == fd && (it->target.empty() == true
 			|| (it->target.size() == 1 && it->target.find(fd) != it->target.end())))
-			msgs.erase(it);
+		{
+			it = msgs.erase(it);
+			if (msgs.empty() == true)
+				break ;
+		}
 		else if (it->target.find(fd) != it->target.end())
 			it->target.erase(it->target.find(fd));
 	}
