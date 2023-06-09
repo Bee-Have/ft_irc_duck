@@ -18,7 +18,7 @@ vpath %.cpp $(foreach dir, $(SRC_DIR), $(dir):)
 
 SERVER = server.cpp server_loop.cpp client.cpp
 
-MESSAGES = message.cpp receive_messagess.cpp send_messages.cpp
+MESSAGES = message.cpp receive_messages.cpp send_messages.cpp
 
 SRC = main.cpp $(SERVER) $(MESSAGES)
 
