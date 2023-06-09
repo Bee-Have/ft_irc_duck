@@ -1,6 +1,21 @@
 #include "ircserv.hpp"
 
 /*
+	!THIS IS A TEMPORARY AND BAD BEHAVIOR
+	add all client to message to send to everyone
+	this behavior will just be used in the begining (before te commands) to check if messages can be sent
+*/
+static void	add_all_clients_to_msg(server &serv, message &msg)
+{
+	for (std::map<int, client>::iterator it = serv.client_list.begin();
+		it != serv.client_list.end(); ++it)
+	{
+		if (it->first != msg.get_emmiter())
+			msg.target.insert(it->first);
+	}
+}
+
+/*
 	Looks for an existing incomplete (whitout a '\r\n') from the client 'emmiter' and returns it's position
 	If no such message is found, it returns -1
 */
@@ -58,12 +73,19 @@ void	receive_messages(server &serv, fd_set read_fds)
 					{
 						if (pos_msg != -1)
 						{
+
 							serv.msgs.at(pos_msg).text.append(tmp);
+
+							// TODO : delete this line once commands are implemented
+							add_all_clients_to_msg(serv, serv.msgs.at(pos_msg));
 							// TODO : check && handle commands function call
 						}
 						else
 						{
+							// TODO : delete this line once commands are implemented
+							add_all_clients_to_msg(serv, new_msg);
 							new_msg.text.append(tmp.substr(0, tmp.find("\n") + 1));
+
 							serv.msgs.push_back(new_msg);
 							// TODO : check && handle commands function call
 						}
