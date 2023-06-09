@@ -9,7 +9,7 @@ static void	check_msgs_to_delete(server &serv)
 	for (std::vector<message>::iterator it = serv.msgs.begin();
 		it != serv.msgs.end(); ++it)
 	{
-		if (it->target.empty() == true)
+		if (it->text.find("\r\n") != std::string::npos && it->target.empty() == true)
 		{
 			it = serv.msgs.erase(it);
 			if (serv.msgs.empty() == true)
