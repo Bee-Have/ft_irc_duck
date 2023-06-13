@@ -1,5 +1,9 @@
 #pragma once
 
+// ERRORS
+#include "errors.hpp"
+
+// CLASSES
 #include "server.hpp"
 
 // SERVER
