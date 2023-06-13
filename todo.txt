@@ -1,4 +1,4 @@
-COMMDANS :
+COMMANDS :
 	need :
 	KO- NICK
 	KO- PASS
@@ -29,3 +29,15 @@ COMMDANS :
 	KO- WHO
 	KO- LIST
 	KO- TIME
+
+BEHAVIOR :
+
+KO- messages with bad prfix must be ignored by the server : if the prefix is not the nickname of the client
+KO- empty messages must be ignored
+
+NICKNAME POLICY :
+	-unique
+	-max 9 characters
+
+QUESTIONS :
+	does the server must give a prefix for it's answers ?
