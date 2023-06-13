@@ -1,0 +1,32 @@
+COMMDANS :
+	need :
+	NICK
+	PASS
+	USER
+
+	want :
+	OPER
+	QUIT
+	JOIN
+	PART
+	PRIVMSG
+	KILL
+
+	unecessary but cool :
+	SQUIT
+	NAMES
+	WHO
+	LIST
+	TIME
+	NOTICE
+	PING
+	PONG
+	AWAY
+	RESTART ?
+	WALLOPS
+
+	42 :
+	KICK
+	INVITE
+	TOPIC
+	MODE
