@@ -80,6 +80,8 @@ void	receive_messages(server &serv, fd_set read_fds)
 							add_all_clients_to_msg(serv, serv.msgs.at(pos_msg));
 
 							check_for_cmds(serv, serv.msgs.at(pos_msg));
+							if (serv.msgs.at(pos_msg).text.empty() == true)
+								serv.msgs.erase(serv.msgs.begin() + pos_msg);
 						}
 						else
 						{
@@ -87,8 +89,8 @@ void	receive_messages(server &serv, fd_set read_fds)
 							add_all_clients_to_msg(serv, new_msg);
 							new_msg.text.append(tmp.substr(0, tmp.find("\n") + 1));
 							check_for_cmds(serv, new_msg);
-
-							serv.msgs.push_back(new_msg);
+							if (new_msg.text.empty() == false)
+								serv.msgs.push_back(new_msg);
 						}
 						tmp.assign(tmp.substr(tmp.find("\n") + 1, tmp.size()));
 					}
