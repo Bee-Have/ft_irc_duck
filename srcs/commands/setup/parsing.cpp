@@ -28,8 +28,6 @@ void	check_for_cmds(server &serv, message &msg)
 {
 	std::string	cmds[3] = {"NICK", "PASS", "USER"};
 
-	// TODO : here serv is useless but it will be used for the function pointer
-	(void)serv;
 	for (int i = 0; i != 3; ++i)
 	{
 		if (msg.text.find(cmds[i]) != std::string::npos)
@@ -37,6 +35,7 @@ void	check_for_cmds(server &serv, message &msg)
 			parsing_cmds(msg);
 			std::cout << "CMD FOUND :" << msg.command.name << "->" << msg.command.params << std::endl;
 			// TODO : here call function pointer for the appropriate command
+			(serv.*serv.commands[i])(msg);
 			break ;
 		}
 	}

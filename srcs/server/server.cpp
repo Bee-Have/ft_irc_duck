@@ -25,6 +25,8 @@ server::server(int new_port, char *new_pass): _port(new_port), _pass(new_pass)
 		std::cerr << "Error: socket listen failed" << std::endl;
 		return ;
 	}
+
+	commands[0] = &server::nick;
 }
 
 server::server(const server &cpy)

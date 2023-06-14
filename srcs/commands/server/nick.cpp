@@ -14,7 +14,7 @@ static bool	is_nickname_printable(std::string nickname)
 {
 	for (size_t i = 0; i < nickname.size(); ++i)
 	{
-		if (std::isprint(nickname[i]) != 0)
+		if (std::isprint(nickname[i]) == 0)
 			return (false);
 	}
 	return (true);

@@ -57,6 +57,9 @@ public:
 	fd_set	get_read_fds() const;
 	fd_set	get_write_fds() const;
 
+	// command function pointer
+	void	(server::*commands[10])(message &) ;
+
 	// commands
 	void	nick(message &msg);
 };
