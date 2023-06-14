@@ -30,14 +30,18 @@ COMMANDS :
 	KO- LIST
 	KO- TIME
 
-BEHAVIOR :
-
+OTHER :
 KO- messages with bad prfix must be ignored by the server : if the prefix is not the nickname of the client
 KO- empty messages must be ignored
+KO- behavior issue with "check_for_cmd()" for loop is the same as doing many ifs. make it better
+KO- "receive_messages()" has redundant behavior. make it better
+KO- switch to Pascal case for types (classes etc)
 
 NICKNAME POLICY :
 	-unique
 	-max 9 characters
+	-only printable characters
 
 QUESTIONS :
 	does the server must give a prefix for it's answers ?
+	if a client is connected to multiple channels and sends a message, is the message sent to one channel or all of them
