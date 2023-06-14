@@ -17,7 +17,7 @@ static void	parsing_cmds(message &msg)
 	if (msg.text.find(' ') != std::string::npos)
 	{
 		msg.command.name = msg.text.substr(0, msg.text.find(' '));
-		msg.command.params = msg.text.substr(msg.text.find(' '), msg.text.size());
+		msg.command.params = msg.text.substr(msg.text.find(' ') + 1, msg.text.size());
 	}
 	else
 		msg.command.name = msg.text;
@@ -35,7 +35,7 @@ void	check_for_cmds(server &serv, message &msg)
 		if (msg.text.find(cmds[i]) != std::string::npos)
 		{
 			parsing_cmds(msg);
-			std::cout << "CMD FOUND : " << msg.command.name << std::endl;
+			std::cout << "CMD FOUND :" << msg.command.name << "->" << msg.command.params << std::endl;
 			// TODO : here call function pointer for the appropriate command
 			break ;
 		}
