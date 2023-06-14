@@ -12,7 +12,7 @@ static void	parsing_cmds(message &msg)
 	if (msg.text[0] == ':')
 	{
 		msg.command.prefix = msg.text.substr(0, msg.text.find(' '));
-		msg.text = msg.text.substr(msg.text.find(' '), msg.text.size());
+		msg.text = msg.text.substr(msg.text.find(' ') + 1, msg.text.size());
 	}
 	if (msg.text.find(' ') != std::string::npos)
 	{
