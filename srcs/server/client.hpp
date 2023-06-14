@@ -11,6 +11,7 @@ private:
 	int			_socket;
 
 public:
+	std::string	nickname;
 
 	client(int new_socket);
 	client(const client &cpy);
