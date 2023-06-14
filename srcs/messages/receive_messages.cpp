@@ -75,11 +75,11 @@ void	receive_messages(server &serv, fd_set read_fds)
 						{
 
 							serv.msgs.at(pos_msg).text.append(tmp);
-							check_for_cmds(serv, serv.msgs.at(pos_msg));
 
 							// TODO : delete this line once commands are implemented
 							add_all_clients_to_msg(serv, serv.msgs.at(pos_msg));
-							// TODO : check && handle commands function call
+
+							check_for_cmds(serv, serv.msgs.at(pos_msg));
 						}
 						else
 						{
@@ -89,7 +89,6 @@ void	receive_messages(server &serv, fd_set read_fds)
 							check_for_cmds(serv, new_msg);
 
 							serv.msgs.push_back(new_msg);
-							// TODO : check && handle commands function call
 						}
 						tmp.assign(tmp.substr(tmp.find("\n") + 1, tmp.size()));
 					}
