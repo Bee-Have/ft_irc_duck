@@ -36,7 +36,7 @@ KO- empty messages must be ignored
 KO- behavior issue with "check_for_cmd()" for loop is the same as doing many ifs. make it better
 KO- "receive_messages()" has redundant behavior. make it better
 KO- switch to Pascal case for types (classes etc)
-KO- do we keep "ERR_NICKCOLLISION", if we do, how do we handle it ?
+KO- for NICK : do we use "ERR_NICKCOLLISION", if we do, how do we handle it ?
 
 NICKNAME POLICY :
 	-unique
