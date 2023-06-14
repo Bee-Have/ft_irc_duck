@@ -56,4 +56,7 @@ public:
 	int		get_max_fd() const;
 	fd_set	get_read_fds() const;
 	fd_set	get_write_fds() const;
+
+	// commands
+	void	nick(message &msg);
 };
