@@ -20,7 +20,9 @@ SERVER = server.cpp server_loop.cpp client.cpp
 
 MESSAGES = message.cpp receive_messages.cpp send_messages.cpp
 
-SRC = main.cpp $(SERVER) $(MESSAGES)
+CMDS = parsing.cpp
+
+SRC = main.cpp $(SERVER) $(CMDS) $(MESSAGES)
 
 OBJ = $(addprefix $(OBJ_DIR)/, $(SRC:.cpp=.o))
 

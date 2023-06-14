@@ -13,10 +13,16 @@ class message
 {
 private:
 	int	_emmiter;
+	struct commands {
+		std::string	prefix;
+		std::string	name;
+		std::string	params;
+	};
 
 	message();
 
 public:
+	commands		command;
 	std::set<int>	target;
 	std::string		text;
 

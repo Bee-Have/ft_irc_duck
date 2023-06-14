@@ -75,6 +75,7 @@ void	receive_messages(server &serv, fd_set read_fds)
 						{
 
 							serv.msgs.at(pos_msg).text.append(tmp);
+							check_for_cmds(serv, serv.msgs.at(pos_msg));
 
 							// TODO : delete this line once commands are implemented
 							add_all_clients_to_msg(serv, serv.msgs.at(pos_msg));
@@ -85,6 +86,7 @@ void	receive_messages(server &serv, fd_set read_fds)
 							// TODO : delete this line once commands are implemented
 							add_all_clients_to_msg(serv, new_msg);
 							new_msg.text.append(tmp.substr(0, tmp.find("\n") + 1));
+							check_for_cmds(serv, new_msg);
 
 							serv.msgs.push_back(new_msg);
 							// TODO : check && handle commands function call
