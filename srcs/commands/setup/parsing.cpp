@@ -11,16 +11,16 @@ static void	parsing_cmds(message &msg)
 
 	if (msg.text[0] == ':')
 	{
-		msg.command.prefix = msg.text.substr(0, msg.text.find(' '));
+		msg.cmd.prefix = msg.text.substr(0, msg.text.find(' '));
 		msg.text = msg.text.substr(msg.text.find(' ') + 1, msg.text.size());
 	}
 	if (msg.text.find(' ') != std::string::npos)
 	{
-		msg.command.name = msg.text.substr(0, msg.text.find(' '));
-		msg.command.params = msg.text.substr(msg.text.find(' ') + 1, msg.text.size());
+		msg.cmd.name = msg.text.substr(0, msg.text.find(' '));
+		msg.cmd.params = msg.text.substr(msg.text.find(' ') + 1, msg.text.size());
 	}
 	else
-		msg.command.name = msg.text;
+		msg.cmd.name = msg.text;
 	msg.text.clear();
 }
 
@@ -33,7 +33,7 @@ void	check_for_cmds(server &serv, message &msg)
 		if (msg.text.find(cmds[i]) != std::string::npos)
 		{
 			parsing_cmds(msg);
-			std::cout << "CMD FOUND :" << msg.command.name << "->" << msg.command.params << std::endl;
+			std::cout << "CMD FOUND :" << msg.cmd.name << "->" << msg.cmd.params << std::endl;
 			// TODO : here call function pointer for the appropriate command
 			(serv.*serv.commands[i])(msg);
 			break ;

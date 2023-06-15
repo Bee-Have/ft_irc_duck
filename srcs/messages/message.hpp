@@ -13,7 +13,7 @@ class message
 {
 private:
 	int	_emmiter;
-	struct commands {
+	struct command {
 		std::string	prefix;
 		std::string	name;
 		std::string	params;
@@ -22,7 +22,7 @@ private:
 	message();
 
 public:
-	commands		command;
+	command			cmd;
 	std::set<int>	target;
 	std::string		text;
 

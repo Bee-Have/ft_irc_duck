@@ -15,12 +15,12 @@ void	server::nick(message &msg)
 {
 	std::string	nickname;
 
-	if (msg.command.params.empty() == true)
+	if (msg.cmd.params.empty() == true)
 	{
-		error_message(msg, msg.command.name, ERR_NONICKNAMEGIVEN);
+		error_message(msg, msg.cmd.name, ERR_NONICKNAMEGIVEN);
 		return ;
 	}
-	nickname = msg.command.params.substr(0, msg.command.params.find(' '));
+	nickname = msg.cmd.params.substr(0, msg.cmd.params.find(' '));
 	if (nickname.size() > 9 || is_nickname_printable(nickname) == false)
 	{
 		error_message(msg, nickname, ERR_ERRONEUSNICKNAME);
