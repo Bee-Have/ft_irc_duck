@@ -12,6 +12,7 @@ private:
 
 public:
 	std::string	nickname;
+	bool		registered;
 
 	client(int new_socket);
 	client(const client &cpy);

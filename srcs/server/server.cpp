@@ -27,6 +27,7 @@ server::server(int new_port, char *new_pass): _port(new_port), _pass(new_pass)
 	}
 
 	commands[0] = &server::nick;
+	commands[1] = &server::pass;
 }
 
 server::server(const server &cpy)
@@ -223,4 +224,25 @@ void	server::nick(message &msg)
 	client_list.find(msg.get_emmiter())->second.nickname = nickname;
 	msg.text.clear();
 	std::cout << "worked:" << client_list.find(msg.get_emmiter())->second.nickname << std::endl;
+}
+
+void	server::pass(message &msg)
+{
+	if (msg.cmd.params.empty() == true)
+	{
+		_error_message(msg, msg.cmd.name, ERR_NEEDMOREPARAMS);
+		return ;
+	}
+	if (client_list.find(msg.get_emmiter())->second.registered == true)
+	{
+		_error_message(msg, "", ERR_ALREADYREGISTRED);
+		return ;
+	}
+	if (_pass.compare(msg.cmd.params) != 0)
+	{
+		_error_message(msg, msg.cmd.name, ERR_BADPASS);
+		return ;
+	}
+	client_list.find(msg.get_emmiter())->second.registered = true;
+	msg.text.clear();
 }

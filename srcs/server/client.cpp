@@ -3,10 +3,10 @@
 client::client(void)
 {}
 
-client::client(int new_socket): _socket(new_socket)
+client::client(int new_socket): _socket(new_socket), registered(false)
 {}
 
-client::client(const client &cpy): _socket(cpy._socket)
+client::client(const client &cpy): _socket(cpy._socket), registered(cpy.registered)
 {}
 
 client::~client(void)

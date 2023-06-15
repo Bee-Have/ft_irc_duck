@@ -64,4 +64,5 @@ public:
 
 	// commands
 	void	nick(message &msg);
+	void	pass(message &msg);
 };
