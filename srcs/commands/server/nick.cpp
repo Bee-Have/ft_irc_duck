@@ -17,13 +17,13 @@ void	server::nick(message &msg)
 
 	if (msg.cmd.params.empty() == true)
 	{
-		error_message(msg, msg.cmd.name, ERR_NONICKNAMEGIVEN);
+		_error_message(msg, msg.cmd.name, ERR_NONICKNAMEGIVEN);
 		return ;
 	}
 	nickname = msg.cmd.params.substr(0, msg.cmd.params.find(' '));
 	if (nickname.size() > 9 || is_nickname_printable(nickname) == false)
 	{
-		error_message(msg, nickname, ERR_ERRONEUSNICKNAME);
+		_error_message(msg, nickname, ERR_ERRONEUSNICKNAME);
 		return ;
 	}
 	for (std::map<int, client>::iterator it = client_list.begin();
@@ -31,7 +31,7 @@ void	server::nick(message &msg)
 	{
 		if (nickname.compare(it->second.nickname) == 0)
 		{
-			error_message(msg, nickname, ERR_NICKNAMEINUSE);
+			_error_message(msg, nickname, ERR_NICKNAMEINUSE);
 			return ;
 		}
 	}

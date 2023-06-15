@@ -57,6 +57,14 @@ server	&server::operator=(const server &assign)
 	return (*this);
 }
 
+void	server::_error_message(message &msg, std::string prefix, std::string error)
+{
+	msg.target.clear();
+	msg.target.insert(msg.get_emmiter());
+	msg.text = prefix;
+	msg.text.append(error);
+}
+
 int	server::get_socket(void) const
 {
 	return (_socket);

@@ -35,6 +35,7 @@ private:
 
 	server();
 	server(const server &cpy);
+	void	_error_message(message &msg, std::string prefix, std::string error);
 
 public:
 	std::vector<message>	msgs;
