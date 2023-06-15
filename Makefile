@@ -20,7 +20,7 @@ SERVER = server.cpp server_loop.cpp client.cpp
 
 MESSAGES = message.cpp receive_messages.cpp send_messages.cpp
 
-CMDS = parsing.cpp nick.cpp
+CMDS = parsing.cpp
 
 SRC = main.cpp $(SERVER) $(CMDS) $(MESSAGES)
 
