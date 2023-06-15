@@ -13,9 +13,10 @@
 #include <arpa/inet.h>
 #include <unistd.h>
 
-// ERRNO :
+// ERRORS :
 #include <string.h>
 #include <errno.h>
+#include "errors.hpp"
 
 // CLASSES
 #include "client.hpp"

@@ -57,6 +57,7 @@ server	&server::operator=(const server &assign)
 	return (*this);
 }
 
+// private
 void	server::_error_message(message &msg, std::string prefix, std::string error)
 {
 	msg.target.clear();
@@ -183,4 +184,43 @@ fd_set	server::get_write_fds(void) const
 		}
 	}
 	return (write_fds);
+}
+
+static bool	is_nickname_printable(std::string nickname)
+{
+	for (size_t i = 0; i < nickname.size(); ++i)
+	{
+		if (std::isprint(nickname[i]) == 0)
+			return (false);
+	}
+	return (true);
+}
+
+void	server::nick(message &msg)
+{
+	std::string	nickname;
+
+	if (msg.cmd.params.empty() == true)
+	{
+		_error_message(msg, msg.cmd.name, ERR_NONICKNAMEGIVEN);
+		return ;
+	}
+	nickname = msg.cmd.params.substr(0, msg.cmd.params.find(' '));
+	if (nickname.size() > 9 || is_nickname_printable(nickname) == false)
+	{
+		_error_message(msg, nickname, ERR_ERRONEUSNICKNAME);
+		return ;
+	}
+	for (std::map<int, client>::iterator it = client_list.begin();
+		it != client_list.end(); ++it)
+	{
+		if (nickname.compare(it->second.nickname) == 0)
+		{
+			_error_message(msg, nickname, ERR_NICKNAMEINUSE);
+			return ;
+		}
+	}
+	client_list.find(msg.get_emmiter())->second.nickname = nickname;
+	msg.text.clear();
+	std::cout << "worked:" << client_list.find(msg.get_emmiter())->second.nickname << std::endl;
 }
