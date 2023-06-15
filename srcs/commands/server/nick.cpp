@@ -1,14 +1,5 @@
-#include "server.hpp"
+#include "ircserv.hpp"
 #include "errors.hpp"
-
-static void	setup_error(message &msg, std::string prefix, std::string error)
-{
-	msg.target.clear();
-	msg.target.insert(msg.get_emmiter());
-	msg.text = prefix;
-	msg.text.append(error);
-	std::cout << "error:" << msg.text;
-}
 
 static bool	is_nickname_printable(std::string nickname)
 {
@@ -26,13 +17,13 @@ void	server::nick(message &msg)
 
 	if (msg.command.params.empty() == true)
 	{
-		setup_error(msg, msg.command.name, ERR_NONICKNAMEGIVEN);
+		error_message(msg, msg.command.name, ERR_NONICKNAMEGIVEN);
 		return ;
 	}
 	nickname = msg.command.params.substr(0, msg.command.params.find(' '));
 	if (nickname.size() > 9 || is_nickname_printable(nickname) == false)
 	{
-		setup_error(msg, nickname, ERR_ERRONEUSNICKNAME);
+		error_message(msg, nickname, ERR_ERRONEUSNICKNAME);
 		return ;
 	}
 	for (std::map<int, client>::iterator it = client_list.begin();
@@ -40,7 +31,7 @@ void	server::nick(message &msg)
 	{
 		if (nickname.compare(it->second.nickname) == 0)
 		{
-			setup_error(msg, nickname, ERR_NICKNAMEINUSE);
+			error_message(msg, nickname, ERR_NICKNAMEINUSE);
 			return ;
 		}
 	}
