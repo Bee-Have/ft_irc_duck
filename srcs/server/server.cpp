@@ -29,6 +29,7 @@ server::server(int new_port, char *new_pass): _port(new_port), _pass(new_pass)
 
 	commands[0] = &server::nick;
 	commands[1] = &server::pass;
+	commands[2] = &server::user;
 }
 
 server::server(const server &cpy)
@@ -248,14 +249,31 @@ void	server::pass(message &msg)
 	msg.text.clear();
 }
 
-// void	server::user(message &msg)
-// {
-// 	std::string	tmp;
-// 	if (msg.cmd.params.empty() == true
-// 		|| msg.cmd.params.find(':') == std::string::npos
-// 		|| msg.cmd.params.find(' ') == std::string::npos)
-// 	{
-// 		_error_message(msg, msg.cmd.name, ERR_NEEDMOREPARAMS);
-// 		return ;
-// 	}
-// }
+void	server::user(message &msg)
+{
+	server::client &tmp = client_list.find(msg.get_emmiter())->second;
+
+	if (msg.cmd.params.empty() == true
+		|| msg.cmd.params.find(':') == std::string::npos
+		|| msg.cmd.params.find(' ') == std::string::npos)
+	{
+		_error_message(msg, msg.cmd.name, ERR_NEEDMOREPARAMS);
+		return ;
+	}
+	if (tmp._realname.empty() == false)
+	{
+		_error_message(msg, "", ERR_ALREADYREGISTRED);
+		return ;
+	}
+	tmp._username = msg.cmd.params.substr(0, msg.cmd.params.find(' '));
+	msg.cmd.params = msg.cmd.params.substr(msg.cmd.params.find(' ') + 1, msg.cmd.params.size());
+	tmp._hostname = msg.cmd.params.substr(0, msg.cmd.params.find(' '));
+	msg.cmd.params = msg.cmd.params.substr(msg.cmd.params.find(' ') + 1, msg.cmd.params.size());
+	tmp._servername = msg.cmd.params.substr(0, msg.cmd.params.find(' '));
+	tmp._realname = msg.cmd.params.substr(msg.cmd.params.find(':') + 1, msg.cmd.params.size());
+
+	std::cout << "username:"<< tmp._username
+		<< "|hostname:" << tmp._hostname
+		<< "|servername:"<< tmp._servername
+		<< "|realname:"<< tmp._realname << std::endl;
+}

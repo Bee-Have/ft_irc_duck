@@ -35,12 +35,12 @@ public:
 		client(int new_socket);
 
 		int			_socket;
-		std::string	_realname;
+		std::string	_nickname;
+		bool		_is_registered;
 		std::string	_username;
 		std::string	_hostname;
 		std::string	_servername;
-		std::string	_nickname;
-		bool		_is_registered;
+		std::string	_realname;
 
 	public:
 		client(const client &cpy);
@@ -89,5 +89,5 @@ public:
 	// commands
 	void	nick(message &msg);
 	void	pass(message &msg);
-	// void	user(message &msg);
+	void	user(message &msg);
 };
