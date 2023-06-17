@@ -38,7 +38,10 @@ KO- "receive_messages()" has redundant behavior. make it better
 KO- switch to Pascal case for types (classes etc)
 KO- for NICK : do we use "ERR_NICKCOLLISION", if we do, how do we handle it ?
 KO- comment all functions for potential teamates
+KO- redundancies in server::user() command (with the substr)
 
 QUESTIONS :
+	should i have more failsafes for the USER command ?
+	after using the NICK command for the first time, do all the other calls have a prefix with the current nickname ? should i take this into account ?
 	does the server must give a prefix for it's answers ?
 	if a client is connected to multiple channels and sends a message, is the message sent to one channel or all of them
