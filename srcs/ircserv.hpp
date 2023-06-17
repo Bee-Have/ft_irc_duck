@@ -5,6 +5,7 @@
 
 // CLASSES
 #include "server.hpp"
+#include "message.hpp"
 
 // SERVER
 void	server_loop(server &serv);

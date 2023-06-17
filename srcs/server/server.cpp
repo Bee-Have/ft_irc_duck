@@ -1,4 +1,5 @@
 #include "server.hpp"
+#include "message.hpp"
 
 server::server(void)
 {}
@@ -80,10 +81,10 @@ int	server::get_socket(void) const
 */
 int	server::add_client(void)
 {
-	socklen_t	client_addr_len = sizeof(_client_addr);
-	client		new_client(accept(_socket, (struct sockaddr *)&_client_addr, &client_addr_len));
+	socklen_t		client_addr_len = sizeof(_client_addr);
+	server::client	new_client(accept(_socket, (struct sockaddr *)&_client_addr, &client_addr_len));
 
-	if (new_client.get_socket() < 0)
+	if (new_client._socket < 0)
 	{
 		std::cerr << "Error : " << errno << " : " << strerror(errno) << std::endl;
 		return (1);
@@ -91,12 +92,12 @@ int	server::add_client(void)
 
 	int	socket_error;
 	socklen_t optlen = sizeof(socket_error);
-	if (getsockopt(new_client.get_socket(), SOL_SOCKET, SO_ERROR, &socket_error, &optlen) >= 0)
+	if (getsockopt(new_client._socket, SOL_SOCKET, SO_ERROR, &socket_error, &optlen) >= 0)
 	{
 		if (socket_error != 0)
 		{
 			std::cout << "INVALID SOCKET :(" << std::endl;
-			close(new_client.get_socket());
+			close(new_client._socket);
 			return (1);
 		}
 	}
@@ -104,7 +105,7 @@ int	server::add_client(void)
 		std::cerr << "Error : " << errno << " : " << strerror(errno) << std::endl;
 
 	std::cout << "NEW CLIENT :D" << std::endl;
-	client_list.insert(std::make_pair(new_client.get_socket(), new_client));
+	client_list.insert(std::make_pair(new_client._socket, new_client));
 	return (0);
 }
 
@@ -140,7 +141,7 @@ int	server::get_max_fd(void) const
 {
 	int	max_fd = _socket;
 
-	for (std::map<int, client>::const_iterator it = client_list.begin(); it != client_list.end(); ++it)
+	for (std::map<int, server::client>::const_iterator it = client_list.begin(); it != client_list.end(); ++it)
 	{
 		if (it->first > max_fd)
 			max_fd = it->first;
@@ -157,7 +158,7 @@ fd_set	server::get_read_fds(void) const
 
 	FD_ZERO(&read_fds);
 	FD_SET(_socket, &read_fds);
-	for (std::map<int, client>::const_iterator it = client_list.begin()
+	for (std::map<int, server::client>::const_iterator it = client_list.begin()
 		; it != client_list.end(); ++it)
 	{
 		FD_SET(it->first, &read_fds);
@@ -212,18 +213,18 @@ void	server::nick(message &msg)
 		_error_message(msg, nickname, ERR_ERRONEUSNICKNAME);
 		return ;
 	}
-	for (std::map<int, client>::iterator it = client_list.begin();
+	for (std::map<int, server::client>::iterator it = client_list.begin();
 		it != client_list.end(); ++it)
 	{
-		if (nickname.compare(it->second.nickname) == 0)
+		if (nickname.compare(it->second._nickname) == 0)
 		{
 			_error_message(msg, nickname, ERR_NICKNAMEINUSE);
 			return ;
 		}
 	}
-	client_list.find(msg.get_emmiter())->second.nickname = nickname;
+	client_list.find(msg.get_emmiter())->second._nickname = nickname;
 	msg.text.clear();
-	std::cout << "worked:" << client_list.find(msg.get_emmiter())->second.nickname << std::endl;
+	std::cout << "worked:" << client_list.find(msg.get_emmiter())->second._nickname << std::endl;
 }
 
 void	server::pass(message &msg)
@@ -233,7 +234,7 @@ void	server::pass(message &msg)
 		_error_message(msg, msg.cmd.name, ERR_NEEDMOREPARAMS);
 		return ;
 	}
-	if (client_list.find(msg.get_emmiter())->second.registered == true)
+	if (client_list.find(msg.get_emmiter())->second._is_registered == true)
 	{
 		_error_message(msg, "", ERR_ALREADYREGISTRED);
 		return ;
@@ -243,6 +244,18 @@ void	server::pass(message &msg)
 		_error_message(msg, msg.cmd.name, ERR_BADPASS);
 		return ;
 	}
-	client_list.find(msg.get_emmiter())->second.registered = true;
+	client_list.find(msg.get_emmiter())->second._is_registered = true;
 	msg.text.clear();
 }
+
+// void	server::user(message &msg)
+// {
+// 	std::string	tmp;
+// 	if (msg.cmd.params.empty() == true
+// 		|| msg.cmd.params.find(':') == std::string::npos
+// 		|| msg.cmd.params.find(' ') == std::string::npos)
+// 	{
+// 		_error_message(msg, msg.cmd.name, ERR_NEEDMOREPARAMS);
+// 		return ;
+// 	}
+// }

@@ -4,7 +4,7 @@
 	Looks for an existing incomplete (whitout a '\r\n') from the client 'emmiter' and returns it's position
 	If no such message is found, it returns -1
 */
-static int	find_incomplete_msg(server &serv, client emmiter)
+static int	find_incomplete_msg(server &serv, server::client emmiter)
 {
 	for (std::vector<message>::iterator it = serv.msgs.begin(); it != serv.msgs.end(); ++it)
 	{
@@ -23,7 +23,7 @@ void	receive_messages(server &serv, fd_set read_fds)
 	int			valread = 0;
 	std::string	tmp;
 
-	for (std::map<int, client>::iterator it = serv.client_list.begin();
+	for (std::map<int, server::client>::iterator it = serv.client_list.begin();
 		it != serv.client_list.end(); ++it)
 	{
 		if (FD_ISSET(it->first, &read_fds) != 0)

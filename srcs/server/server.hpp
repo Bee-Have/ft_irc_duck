@@ -19,13 +19,37 @@
 #include "errors.hpp"
 
 // CLASSES
-#include "client.hpp"
-#include "message.hpp"
+// #include "message.hpp"
+class message;
 
 #define MAX_CLIENT 10
 
 class server
 {
+public:
+	class client
+	{
+	friend class server;
+	private:
+		client();
+		client(int new_socket);
+
+		int			_socket;
+		std::string	_realname;
+		std::string	_username;
+		std::string	_hostname;
+		std::string	_servername;
+		std::string	_nickname;
+		bool		_is_registered;
+
+	public:
+		client(const client &cpy);
+		~client();
+
+		client	&operator=(const client &assign);
+
+		int		get_socket() const;
+	};
 private:
 	int			_port;
 	std::string	_pass;
@@ -40,7 +64,7 @@ private:
 
 public:
 	std::vector<message>	msgs;
-	std::map<int, client>	client_list;
+	std::map<int, server::client>	client_list;
 
 	server(int new_port, char *new_pass);
 	~server();
@@ -65,4 +89,5 @@ public:
 	// commands
 	void	nick(message &msg);
 	void	pass(message &msg);
+	// void	user(message &msg);
 };

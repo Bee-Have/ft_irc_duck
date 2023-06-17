@@ -7,7 +7,8 @@
 #include <string>
 
 // CLASSES
-#include "client.hpp"
+#include "server.hpp"
+// class server;
 
 class message
 {
@@ -27,7 +28,7 @@ public:
 	std::string		text;
 
 	message(const message &cpy);
-	message(const client &emmiter);
+	message(const server::client &emmiter);
 	message(int emmiter);
 	~message();
 

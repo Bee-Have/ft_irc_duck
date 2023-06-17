@@ -1,25 +1,33 @@
-#include "client.hpp"
+#include "server.hpp"
 
-client::client(void)
+server::client::client(void)
 {}
 
-client::client(int new_socket): _socket(new_socket), registered(false)
+server::client::client(int new_socket): _socket(new_socket), _is_registered(false)
 {}
 
-client::client(const client &cpy): _socket(cpy._socket), registered(cpy.registered)
+server::client::client(const server::client &cpy): _socket(cpy._socket), _is_registered(cpy._is_registered)
 {}
 
-client::~client(void)
+server::client::~client(void)
 {}
 
-client	&client::operator=(const client &assign)
+server::client	&server::client::operator=(const server::client &assign)
 {
 	if (this != &assign)
+	{
 		_socket = assign._socket;
+		_is_registered = assign._is_registered;
+		_nickname.assign(assign._nickname);
+		_realname.assign(assign._realname);
+		_username.assign(assign._username);
+		_hostname.assign(assign._hostname);
+		_nickname.assign(assign._nickname);
+	}
 	return (*this);
 }
 
-int	client::get_socket(void) const
+int	server::client::get_socket(void) const
 {
 	return (_socket);
 }
