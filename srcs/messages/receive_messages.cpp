@@ -68,7 +68,7 @@ void	receive_messages(server &serv, fd_set read_fds)
 						{
 							new_msg.text.append(tmp.substr(0, tmp.find("\n") + 1));
 							check_for_cmds(serv, new_msg);
-							if (new_msg.text.empty() == false)
+							if (new_msg.text.empty() == false && new_msg.target.empty() == false)
 								serv.msgs.push_back(new_msg);
 						}
 						tmp.assign(tmp.substr(tmp.find("\n") + 1, tmp.size()));

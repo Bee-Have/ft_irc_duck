@@ -189,13 +189,14 @@ fd_set	server::get_write_fds(void) const
 	return (write_fds);
 }
 
-static bool	is_nickname_printable(std::string nickname)
+static bool	is_nickname_allowed(std::string nickname)
 {
-	for (size_t i = 0; i < nickname.size(); ++i)
-	{
-		if (std::isprint(nickname[i]) == 0)
-			return (false);
-	}
+	if (nickname.size() > 9)
+		return (false);
+	if (std::isdigit(nickname[0]) != 0 || nickname[0] == '-')
+		return (false);
+	if (nickname.find_first_not_of(NICK_GOOD_CHARACTERS) != std::string::npos)
+		return (false);
 	return (true);
 }
 
@@ -209,7 +210,7 @@ void	server::nick(message &msg)
 		return ;
 	}
 	nickname = msg.cmd.params.substr(0, msg.cmd.params.find(' '));
-	if (nickname.size() > 9 || is_nickname_printable(nickname) == false)
+	if (is_nickname_allowed(nickname) == false)
 	{
 		_error_message(msg, nickname, ERR_ERRONEUSNICKNAME);
 		return ;
@@ -225,7 +226,7 @@ void	server::nick(message &msg)
 	}
 	client_list.find(msg.get_emmiter())->second._nickname = nickname;
 	msg.text.clear();
-	std::cout << "worked:" << client_list.find(msg.get_emmiter())->second._nickname << std::endl;
+	// std::cout << "worked:" << client_list.find(msg.get_emmiter())->second._nickname << std::endl;
 }
 
 void	server::pass(message &msg)
@@ -266,14 +267,17 @@ void	server::user(message &msg)
 		return ;
 	}
 	tmp._username = msg.cmd.params.substr(0, msg.cmd.params.find(' '));
-	msg.cmd.params = msg.cmd.params.substr(msg.cmd.params.find(' ') + 1, msg.cmd.params.size());
-	tmp._hostname = msg.cmd.params.substr(0, msg.cmd.params.find(' '));
-	msg.cmd.params = msg.cmd.params.substr(msg.cmd.params.find(' ') + 1, msg.cmd.params.size());
-	tmp._servername = msg.cmd.params.substr(0, msg.cmd.params.find(' '));
 	tmp._realname = msg.cmd.params.substr(msg.cmd.params.find(':') + 1, msg.cmd.params.size());
 
-	std::cout << "username:"<< tmp._username
-		<< "|hostname:" << tmp._hostname
-		<< "|servername:"<< tmp._servername
-		<< "|realname:"<< tmp._realname << std::endl;
+	msg.text = RPL_WELCOME;
+	msg.text.replace(msg.text.find("nick"), 4, tmp._nickname);
+	msg.text.replace(msg.text.find("user"), 4, tmp._username);
+	msg.text.replace(msg.text.find("host"), 4, HOST);
+
+	msg.target.clear();
+	msg.target.insert(msg.get_emmiter());
+
+	// std::cout << msg.text << '|';
+
+	// std::cout << "username:"<< tmp._username << "|realname:"<< tmp._realname << std::endl;
 }

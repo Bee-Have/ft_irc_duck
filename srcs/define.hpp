@@ -1,5 +1,9 @@
 #pragma once
 
+// OTHER
+#define HOST "ircserv"
+#define NICK_GOOD_CHARACTERS "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-[]\\`_{}|"
+
 // ERRORS
 #define ERR_NONICKNAMEGIVEN " :No nickname given\r\n"
 #define ERR_ERRONEUSNICKNAME " :Erroneus nickname\r\n"
@@ -10,4 +14,4 @@
 #define ERR_BADPASS " :Password does not match\r\n"
 
 // REPLIES
-#define RPL_WELCOME "Welcome to the Internet Relay Network nick!user@host"
+#define RPL_WELCOME "Welcome to the Internet Relay Network nick!user@host\r\n"

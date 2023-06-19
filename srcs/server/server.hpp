@@ -35,11 +35,9 @@ public:
 		client(int new_socket);
 
 		int			_socket;
-		std::string	_nickname;
 		bool		_is_registered;
+		std::string	_nickname;
 		std::string	_username;
-		std::string	_hostname;
-		std::string	_servername;
 		std::string	_realname;
 
 	public:

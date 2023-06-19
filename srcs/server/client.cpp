@@ -21,8 +21,6 @@ server::client	&server::client::operator=(const server::client &assign)
 		_nickname.assign(assign._nickname);
 		_realname.assign(assign._realname);
 		_username.assign(assign._username);
-		_hostname.assign(assign._hostname);
-		_nickname.assign(assign._nickname);
 	}
 	return (*this);
 }
