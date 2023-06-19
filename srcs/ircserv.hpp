@@ -1,7 +1,7 @@
 #pragma once
 
 // ERRORS
-#include "errors.hpp"
+#include "define.hpp"
 
 // CLASSES
 #include "server.hpp"

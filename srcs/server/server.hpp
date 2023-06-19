@@ -16,7 +16,7 @@
 // ERRORS :
 #include <string.h>
 #include <errno.h>
-#include "errors.hpp"
+#include "define.hpp"
 
 // CLASSES
 // #include "message.hpp"
