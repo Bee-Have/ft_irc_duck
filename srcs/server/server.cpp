@@ -69,6 +69,23 @@ void	server::_error_message(message &msg, std::string prefix, std::string error)
 	msg.text.append(error);
 }
 
+void	server::_reply_message(message &msg, std::string reply, std::string replace)
+{
+	int	begin;
+	int	end;
+
+	msg.target.clear();
+	msg.target.insert(msg.get_emmiter());
+	msg.text = reply;
+	if (replace.empty() == false)
+	{
+		begin = msg.text.find('<');
+		end = msg.text.find('>') + 1;
+		msg.text.replace(begin, end - begin, replace);
+	}
+}
+
+
 int	server::get_socket(void) const
 {
 	return (_socket);
@@ -257,8 +274,15 @@ void	server::nick(message &msg)
 
 void	server::user(message &msg)
 {
-	server::client &tmp(client_list.find(msg.get_emmiter())->second);
+	server::client		&tmp(client_list.find(msg.get_emmiter())->second);
+	message				reply(msg.get_emmiter());
+	std::time_t			time = std::time(0);
+	std::tm				*now = std::localtime(&time);
+	std::stringstream	ss;
+	std::string			date;
 
+	ss << (now->tm_year + 1900) << '-' << (now->tm_mon + 1) << '-' << now->tm_mday;
+	ss >> date;
 	if (tmp._is_registered == false)
 	{
 		_error_message(msg, "", ERR_UNREGISTERED);
@@ -285,13 +309,12 @@ void	server::user(message &msg)
 	tmp._username = msg.cmd.params.substr(0, msg.cmd.params.find(' '));
 	tmp._realname = msg.cmd.params.substr(msg.cmd.params.find(':') + 1, msg.cmd.params.size());
 
-	msg.text = RPL_WELCOME;
-	msg.text.replace(msg.text.find("nick"), 4, tmp._nickname);
-	msg.text.replace(msg.text.find("user"), 4, tmp._username);
-	msg.text.replace(msg.text.find("host"), 4, HOST);
-
-	msg.target.clear();
-	msg.target.insert(msg.get_emmiter());
+	_reply_message(msg, RPL_WELCOME, tmp._nickname);
+	msg.text.append(RPL_YOURHOST);
+	_reply_message(reply, RPL_CREATED, date);
+	msg.text.append(reply.text);
+	msg.text.append(RPL_MYINFO);
+	msg.text.append(RPL_ISUPPORT);
 
 	// std::cout << msg.text << '|';
 

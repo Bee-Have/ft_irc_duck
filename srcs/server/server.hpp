@@ -7,11 +7,13 @@
 // GENERAL
 #include <iostream>
 #include <string>
+#include <sstream>
 
-// SOCKETS
+// IRSSI && SOCKETS
 #include <sys/socket.h>
 #include <arpa/inet.h>
 #include <unistd.h>
+#include <ctime>
 
 // ERRORS :
 #include <string.h>
@@ -59,6 +61,7 @@ private:
 	server();
 	server(const server &cpy);
 	void	_error_message(message &msg, std::string prefix, std::string error);
+	void	_reply_message(message &msg, std::string reply, std::string replace);
 
 public:
 	std::vector<message>			msgs;
