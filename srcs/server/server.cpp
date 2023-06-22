@@ -69,23 +69,6 @@ void	server::_error_message(message &msg, std::string prefix, std::string error)
 	msg.text.append(error);
 }
 
-void	server::_reply_message(message &msg, std::string reply, std::string replace)
-{
-	int	begin;
-	int	end;
-
-	msg.target.clear();
-	msg.target.insert(msg.get_emmiter());
-	msg.text = reply;
-	if (replace.empty() == false)
-	{
-		begin = msg.text.find('<');
-		end = msg.text.find('>') + 1;
-		msg.text.replace(begin, end - begin, replace);
-	}
-}
-
-
 int	server::get_socket(void) const
 {
 	return (_socket);
@@ -309,14 +292,26 @@ void	server::user(message &msg)
 	tmp._username = msg.cmd.params.substr(0, msg.cmd.params.find(' '));
 	tmp._realname = msg.cmd.params.substr(msg.cmd.params.find(':') + 1, msg.cmd.params.size());
 
-	_reply_message(msg, RPL_WELCOME, tmp._nickname);
+	msg.target.clear();
+	msg.target.insert(msg.get_emmiter());
+
+	msg.text = RPL_WELCOME;
+	msg.text.replace(msg.text.find("<nick>"), 6, tmp._nickname);
 	msg.text.append(RPL_YOURHOST);
-	_reply_message(reply, RPL_CREATED, date);
-	msg.text.append(reply.text);
+	msg.text.append(RPL_CREATED);
+	msg.text.replace(msg.text.find("<datetime>"), 10, date);
 	msg.text.append(RPL_MYINFO);
 	msg.text.append(RPL_ISUPPORT);
+
+	while (msg.text.find("<client>") != std::string::npos)
+		msg.text.replace(msg.text.find("<client>"), 8, tmp._nickname);
 
 	// std::cout << msg.text << '|';
 
 	// std::cout << "username:"<< tmp._username << "|realname:"<< tmp._realname << std::endl;
 }
+
+// void	server::lusers(message &msg)
+// {
+
+// }

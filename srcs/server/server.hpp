@@ -61,7 +61,6 @@ private:
 	server();
 	server(const server &cpy);
 	void	_error_message(message &msg, std::string prefix, std::string error);
-	void	_reply_message(message &msg, std::string reply, std::string replace);
 
 public:
 	std::vector<message>			msgs;
@@ -91,4 +90,6 @@ public:
 	void	pass(message &msg);
 	void	nick(message &msg);
 	void	user(message &msg);
+
+	// void	lusers(message &msg);
 };
