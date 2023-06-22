@@ -1,8 +1,9 @@
 COMMANDS :
 	need :
-	OK- NICK
 	OK- PASS
-	OK- USER
+	OK- NICK : need NICK
+	OK- USER : need PASS NICK LUSERS
+	KO- LUSERS
 
 	42 : need OPER
 	KO- KICK
