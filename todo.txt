@@ -37,6 +37,8 @@ OTHER :
 OK- refacto commands to fit irssi specific irc protocol "https://modern.ircdocs.horse/"
 OK- add condition to user to check nick and pass have been done first
 
+KO- connect to IRSSI
+KO- when channels will be implemented, add channel count to LUSERS command reply
 KO- messages with bad prfix must be ignored by the server : if the prefix is not the nickname of the client
 KO- empty messages must be ignored
 KO- behavior issue with "check_for_cmd()" for loop is the same as doing many ifs. make it better
