@@ -61,7 +61,7 @@ private:
 	void	_error_message(message &msg, std::string prefix, std::string error);
 
 public:
-	std::vector<message>	msgs;
+	std::vector<message>			msgs;
 	std::map<int, server::client>	client_list;
 
 	server(int new_port, char *new_pass);
@@ -85,7 +85,7 @@ public:
 	void	(server::*commands[10])(message &) ;
 
 	// commands
-	void	nick(message &msg);
 	void	pass(message &msg);
+	void	nick(message &msg);
 	void	user(message &msg);
 };

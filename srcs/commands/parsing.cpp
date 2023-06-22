@@ -28,7 +28,7 @@ void	check_for_cmds(server &serv, message &msg)
 {
 	std::string	cmds[3] = {"NICK", "PASS", "USER"};
 
-	std::cout << "msg:" << msg.text << '|' << std::endl;
+	std::cout << "MSG:" << msg.text << '|' << std::endl;
 
 	for (int i = 0; i != 3; ++i)
 	{

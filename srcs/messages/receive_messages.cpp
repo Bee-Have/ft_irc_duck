@@ -61,17 +61,22 @@ void	receive_messages(server &serv, fd_set read_fds)
 							serv.msgs.at(pos_msg).text.append(tmp);
 
 							check_for_cmds(serv, serv.msgs.at(pos_msg));
-							if (serv.msgs.at(pos_msg).text.empty() == true)
+							if (serv.msgs.at(pos_msg).text.empty() == true || new_msg.target.empty() == true)
 								serv.msgs.erase(serv.msgs.begin() + pos_msg);
 						}
 						else
 						{
-							new_msg.text.append(tmp.substr(0, tmp.find("\n") + 1));
+							new_msg.text.assign(tmp.substr(0, tmp.find("\n") + 1));
+							// std::cout << "string::msg:" << new_msg.text << '|' << std::endl;
 							check_for_cmds(serv, new_msg);
 							if (new_msg.text.empty() == false && new_msg.target.empty() == false)
+							{
+								// std::cout << "SAVING MSG TO SEND" << std::endl;
 								serv.msgs.push_back(new_msg);
+							}
 						}
-						tmp.assign(tmp.substr(tmp.find("\n") + 1, tmp.size()));
+						tmp = tmp.substr(tmp.find("\n") + 1, tmp.size());
+						// std::cout << "string::tmp:" << tmp << '|' << std::endl;
 					}
 				}
 			}

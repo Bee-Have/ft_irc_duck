@@ -189,6 +189,27 @@ fd_set	server::get_write_fds(void) const
 	return (write_fds);
 }
 
+void	server::pass(message &msg)
+{
+	if (msg.cmd.params.empty() == true)
+	{
+		_error_message(msg, msg.cmd.name, ERR_NEEDMOREPARAMS);
+		return ;
+	}
+	if (client_list.find(msg.get_emmiter())->second._is_registered == true)
+	{
+		_error_message(msg, "", ERR_ALREADYREGISTRED);
+		return ;
+	}
+	if (_pass.compare(msg.cmd.params) != 0)
+	{
+		_error_message(msg, msg.cmd.name, ERR_BADPASS);
+		return ;
+	}
+	client_list.find(msg.get_emmiter())->second._is_registered = true;
+	msg.text.clear();
+}
+
 static bool	is_nickname_allowed(std::string nickname)
 {
 	if (nickname.size() > 9)
@@ -204,6 +225,11 @@ void	server::nick(message &msg)
 {
 	std::string	nickname;
 
+	if (client_list.find(msg.get_emmiter())->second._is_registered == false)
+	{
+		_error_message(msg, "", ERR_UNREGISTERED);
+		return ;
+	}
 	if (msg.cmd.params.empty() == true)
 	{
 		_error_message(msg, msg.cmd.name, ERR_NONICKNAMEGIVEN);
@@ -229,31 +255,20 @@ void	server::nick(message &msg)
 	// std::cout << "worked:" << client_list.find(msg.get_emmiter())->second._nickname << std::endl;
 }
 
-void	server::pass(message &msg)
-{
-	if (msg.cmd.params.empty() == true)
-	{
-		_error_message(msg, msg.cmd.name, ERR_NEEDMOREPARAMS);
-		return ;
-	}
-	if (client_list.find(msg.get_emmiter())->second._is_registered == true)
-	{
-		_error_message(msg, "", ERR_ALREADYREGISTRED);
-		return ;
-	}
-	if (_pass.compare(msg.cmd.params) != 0)
-	{
-		_error_message(msg, msg.cmd.name, ERR_BADPASS);
-		return ;
-	}
-	client_list.find(msg.get_emmiter())->second._is_registered = true;
-	msg.text.clear();
-}
-
 void	server::user(message &msg)
 {
-	server::client &tmp = client_list.find(msg.get_emmiter())->second;
+	server::client &tmp(client_list.find(msg.get_emmiter())->second);
 
+	if (tmp._is_registered == false)
+	{
+		_error_message(msg, "", ERR_UNREGISTERED);
+		return ;
+	}
+	if (tmp._nickname.empty() == true)
+	{
+		_error_message(msg, msg.cmd.name, ERR_NONICKNAMEGIVEN);
+		return ;
+	}
 	if (msg.cmd.params.empty() == true
 		|| msg.cmd.params.find(':') == std::string::npos
 		|| msg.cmd.params.find(' ') == std::string::npos)
@@ -266,6 +281,7 @@ void	server::user(message &msg)
 		_error_message(msg, "", ERR_ALREADYREGISTRED);
 		return ;
 	}
+
 	tmp._username = msg.cmd.params.substr(0, msg.cmd.params.find(' '));
 	tmp._realname = msg.cmd.params.substr(msg.cmd.params.find(':') + 1, msg.cmd.params.size());
 

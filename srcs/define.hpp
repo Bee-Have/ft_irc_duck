@@ -12,6 +12,7 @@
 #define ERR_ALREADYREGISTRED ":You may not reregister\r\n"
 // CUSTOM
 #define ERR_BADPASS " :Password does not match\r\n"
+#define ERR_UNREGISTERED "Client must be registered to proceed\r\n"
 
 // REPLIES
 #define RPL_WELCOME "Welcome to the Internet Relay Network nick!user@host\r\n"
