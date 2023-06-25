@@ -1,9 +1,13 @@
 #include "ircserv.hpp"
 
-/*
-	Looks for an existing incomplete (whitout a '\r\n') from the client 'emmiter' and returns it's position
-	If no such message is found, it returns -1
-*/
+/**
+ * @brief looks for incomplete messages from a specific client. incomplete means there is no tailing "\r\n"
+ * 
+ * @param serv the server, which contains all the messages
+ * @param emmiter the specific client to check incomplete messages from
+ * @return either the position of an incomplete message in server::msgs
+ * or -1 if no incomplete message is found
+ */
 static int	find_incomplete_msg(server &serv, server::client emmiter)
 {
 	for (std::vector<message>::iterator it = serv.msgs.begin(); it != serv.msgs.end(); ++it)
@@ -17,6 +21,12 @@ static int	find_incomplete_msg(server &serv, server::client emmiter)
 	return (-1);
 }
 
+/**
+ * @brief register any new messages from each of the clients in server::client_list
+ * 
+ * @param serv the server, which contains all the clients and messages
+ * @param read_fds the fds changed by "select()". Only the fds we can read on will be in read_fds
+ */
 void	receive_messages(server &serv, fd_set read_fds)
 {
 	char		buffer[1024] = {0};
