@@ -1,9 +1,10 @@
 #include "ircserv.hpp"
 
-/*
-	This function will check if there are any empty messages.
-	empty here means it has noone to send its message to
-*/
+/**
+ * @brief checks for any empty messages. By empty means msg.target is empty AND there is no tailing "\r\n"
+ * 
+ * @param serv the server, which has all the messages
+ */
 static void	check_msgs_to_delete(server &serv)
 {
 	for (std::vector<message>::iterator it = serv.msgs.begin();
@@ -17,7 +18,12 @@ static void	check_msgs_to_delete(server &serv)
 		}
 	}
 }
-
+/**
+ * @brief merge messages if they have the same target.
+ * @note current behavior only merges messages with identical targets. This behavior should be tweaked later
+ * 
+ * @param serv the server, wich has all the messages
+ */
 static void	merge_msgs(server &serv)
 {
 	if (serv.msgs.size() <= 1)
@@ -38,6 +44,9 @@ static void	merge_msgs(server &serv)
 	}
 }
 
+/**
+ * @brief temprorary debug function to print all messages
+ */
 // static void	print_msgs(server &serv)
 // {
 // 	std::cout << "START PRINT MSGS:";
@@ -47,14 +56,17 @@ static void	merge_msgs(server &serv)
 // 	}
 // }
 
-/*
-	This function messages to the target (msgs->target) if :
-		-the target fd is present in write_fds (allowed list of fds given by select())
-		-the message contains an end of message : '\r\n'
-	After sending a message the target fd will be deleted from the message targets.
-	If there are no targets in the message, the message will be deleted
-	If there are no messages to send does nothing
-*/
+/**
+ * @brief This function messages to the target (server::msgs->target) if :
+ * 1.the target fd is present in write_fds (allowed list of fds given by select()).
+ * 2.the message contains an end of message : '\r\n'
+ * @note After sending a message the target fd will be deleted from the message targets.
+ * If the message target are empty, delete the message.
+ * If there are no messages to send does nothing
+ * 
+ * @param serv the server, which has all the messages
+ * @param write_fds the fds after "select()" which are the fds we can "send()" messages to
+ */
 void	send_messages(server &serv, fd_set &write_fds)
 {
 	check_msgs_to_delete(serv);
