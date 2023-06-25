@@ -87,9 +87,10 @@ public:
 	void	(server::*commands[10])(message &) ;
 
 	// commands
+	//		connect to IRSSI
 	void	pass(message &msg);
 	void	nick(message &msg);
 	void	user(message &msg);
-
-	// void	lusers(message &msg);
+	//		noice
+	void	ping(message &msg);
 };

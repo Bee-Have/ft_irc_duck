@@ -30,6 +30,7 @@ server::server(int new_port, char *new_pass): _port(new_port), _pass(new_pass)
 	commands[0] = &server::nick;
 	commands[1] = &server::pass;
 	commands[2] = &server::user;
+	commands[3] = &server::ping;
 }
 
 server::server(const server &cpy)
@@ -322,5 +323,12 @@ void	server::ping(message &msg)
 	if (msg.cmd.params.empty() == true)
 	{
 		_error_message(msg, msg.cmd.name, ERR_NEEDMOREPARAMS);
+		return ;
 	}
+	msg.target.clear();
+	msg.target.insert(msg.get_emmiter());
+	msg.text.assign("PONG ");
+	msg.text.append(SERVERNAME);
+	msg.text.append(" ");
+	msg.text.append(msg.cmd.params);
 }
