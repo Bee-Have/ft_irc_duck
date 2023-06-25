@@ -9,7 +9,7 @@ server::server(int new_port, char *new_pass): _port(new_port), _pass(new_pass)
 	_socket = socket(AF_INET, SOCK_STREAM, 0);
 	if (_socket < 0)
 	{
-		std::cerr << "Error: server socket creation failed" << std::endl;
+		std::cerr << ERR_SOCKCREATEFAIL;
 		return ;
 	}
 	_server_addr.sin_family = AF_INET;
@@ -18,12 +18,12 @@ server::server(int new_port, char *new_pass): _port(new_port), _pass(new_pass)
 
 	if (bind(_socket, (struct sockaddr *)&_server_addr, sizeof(_server_addr)) < 0)
 	{
-		std::cerr << "Error: bind socket to PORT failed" << std::endl;
+		std::cerr << ERR_SOCKBINDFAIL;
 		return ;
 	}
 	if (listen(_socket, MAX_CLIENT) < 0)
 	{
-		std::cerr << "Error: socket listen failed" << std::endl;
+		std::cerr << ERR_SOCKLISTENFAIL;
 		return ;
 	}
 
@@ -63,10 +63,20 @@ server	&server::operator=(const server &assign)
 // private
 void	server::_error_message(message &msg, std::string prefix, std::string error)
 {
+	int	begin = 0;
+	int	end = 0;
+
 	msg.target.clear();
 	msg.target.insert(msg.get_emmiter());
-	msg.text = prefix;
-	msg.text.append(error);
+
+	msg.text = error;
+	msg.text.replace(msg.text.find("<client>"), 8, client_list.find(msg.get_emmiter())->second._nickname);
+	if (prefix.empty() == false)
+	{
+		begin = msg.text.find('<');
+		end = msg.text.find('>') - begin;
+		msg.text.replace(begin, end, prefix);
+	}
 }
 
 int	server::get_socket(void) const
@@ -203,7 +213,7 @@ void	server::pass(message &msg)
 	}
 	if (_pass.compare(msg.cmd.params) != 0)
 	{
-		_error_message(msg, msg.cmd.name, ERR_BADPASS);
+		_error_message(msg, "", ERR_BADPASS);
 		return ;
 	}
 	client_list.find(msg.get_emmiter())->second._is_registered = true;
@@ -232,7 +242,7 @@ void	server::nick(message &msg)
 	}
 	if (msg.cmd.params.empty() == true)
 	{
-		_error_message(msg, msg.cmd.name, ERR_NONICKNAMEGIVEN);
+		_error_message(msg, "", ERR_NONICKNAMEGIVEN);
 		return ;
 	}
 	nickname = msg.cmd.params.substr(0, msg.cmd.params.find(' '));
@@ -273,7 +283,7 @@ void	server::user(message &msg)
 	}
 	if (tmp._nickname.empty() == true)
 	{
-		_error_message(msg, msg.cmd.name, ERR_NONICKNAMEGIVEN);
+		_error_message(msg, "", ERR_NONICKNAMEGIVEN);
 		return ;
 	}
 	if (msg.cmd.params.empty() == true
@@ -305,13 +315,12 @@ void	server::user(message &msg)
 
 	while (msg.text.find("<client>") != std::string::npos)
 		msg.text.replace(msg.text.find("<client>"), 8, tmp._nickname);
-
-	// std::cout << msg.text << '|';
-
-	// std::cout << "username:"<< tmp._username << "|realname:"<< tmp._realname << std::endl;
 }
 
-// void	server::lusers(message &msg)
-// {
-
-// }
+void	server::ping(message &msg)
+{
+	if (msg.cmd.params.empty() == true)
+	{
+		_error_message(msg, msg.cmd.name, ERR_NEEDMOREPARAMS);
+	}
+}

@@ -9,15 +9,13 @@ int	main(int ac, char **av)
 
 	if (ac < 3 || ac > 3)
 	{
-		std::cerr << "Error: wrong number of arguments\n";
-		std::cerr << "Usage: ./ircserv port password\n";
+		std::cerr << ERR_BADSERVERPARAM << RPL_USAGE;
 		return (1);
 	}
 	tmp.append(av[1]);
 	if (tmp.find_first_not_of("0123456789") != std::string::npos)
 	{
-		std::cerr << "Error: port must be a number\n";
-		std::cerr << "Usage: ./ircserv port password\n";
+		std::cerr << ERR_PORTNOTANUMBER << RPL_USAGE;
 		return (1);
 	}
 
