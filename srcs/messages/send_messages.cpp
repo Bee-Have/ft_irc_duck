@@ -18,23 +18,34 @@ static void	check_msgs_to_delete(server &serv)
 	}
 }
 
-// static void	merge_msgs(server &serv)
-// {
-// 	if (serv.msgs.size() > 1)
-// 		return ;
-// 	for (std::vector<message>::iterator it_a = serv.msgs.begin();
-// 		it_a != serv.msgs.end(); ++it_a)
-// 	{
-// 		for (std::vector<message>::iterator it_b = it_a + 1;
-// 			it_b != serv.msgs.end(); ++it_b)
-// 		{
-// 			if (it_a->target == it_b->target)
-// 			{
+static void	merge_msgs(server &serv)
+{
+	if (serv.msgs.size() <= 1)
+		return ;
+	for (std::vector<message>::iterator it_a = serv.msgs.begin();
+		it_a != serv.msgs.end(); ++it_a)
+	{
+		for (std::vector<message>::iterator it_b = it_a + 1;
+			it_b != serv.msgs.end(); ++it_b)
+		{
+			if (it_a->target == it_b->target)
+			{
+				it_a->text.append(it_b->text);
+				it_a = serv.msgs.erase(it_b) - 1;
+				break ;
+			}
+		}
+	}
+}
 
-// 			}
-// 		}
-// 	}
-// }
+static void	print_msgs(server &serv)
+{
+	std::cout << "START PRINT MSGS:";
+	for (std::vector<message>::iterator it = serv.msgs.begin(); it != serv.msgs.end(); ++it)
+	{
+		std::cout << "it:" << it->text;
+	}
+}
 
 /*
 	This function messages to the target (msgs->target) if :
@@ -44,20 +55,13 @@ static void	check_msgs_to_delete(server &serv)
 	If there are no targets in the message, the message will be deleted
 	If there are no messages to send does nothing
 */
-
-static void	print_msgs(server &serv)
-{
-	for (std::vector<message>::iterator it = serv.msgs.begin(); it != serv.msgs.end(); ++it)
-	{
-		std::cout << "it:" << it->text;
-	}
-}
-
 void	send_messages(server &serv, fd_set &write_fds)
 {
 	check_msgs_to_delete(serv);
 	if (serv.msgs.empty() == true)
 		return ;
+	print_msgs(serv);
+	merge_msgs(serv);
 	print_msgs(serv);
 	std::cout << "gonna send msg" << std::endl;
 	for (std::vector<message>::iterator it_msg = serv.msgs.begin();
@@ -83,8 +87,6 @@ void	send_messages(server &serv, fd_set &write_fds)
 				}
 				it_fd = it_msg->target.begin();
 			}
-			// else
-			// 	++it_fd;
 		}
 	}
 }
