@@ -1,9 +1,21 @@
 #include "server.hpp"
 #include "message.hpp"
 
+/**
+ * This should never be used. Server MUST be created with a PORT and PASSWORD
+ */
 server::server(void)
 {}
 
+/**
+ * @brief Construct a new server::server object.
+ * It also opens and bind the server socket
+ * as well as start to listen on said socket.
+ * It will also setup the function pointer for all the commands
+ * 
+ * @param new_port the new port of the server
+ * @param new_pass the password of the server
+ */
 server::server(int new_port, char *new_pass): _port(new_port), _pass(new_pass)
 {
 	_socket = socket(AF_INET, SOCK_STREAM, 0);
@@ -38,6 +50,10 @@ server::server(const server &cpy)
 	(void)cpy;
 }
 
+/**
+ * @brief Destroy the server::server object
+ * @note It also closes all client sockets as well as the server socket
+ */
 server::~server(void)
 {
 	close(_socket);
@@ -61,7 +77,14 @@ server	&server::operator=(const server &assign)
 	return (*this);
 }
 
-// private
+/**
+ * private fuction
+ * @brief Setup an error message with the parameters
+ * 
+ * @param msg the message to turn into an error
+ * @param prefix if there is something to replace in the prefix of the error
+ * @param error the error declared in : "define.hpp"
+ */
 void	server::_error_message(message &msg, std::string prefix, std::string error)
 {
 	int	begin = 0;
@@ -85,12 +108,15 @@ int	server::get_socket(void) const
 	return (_socket);
 }
 
-/*
-	Adds a new client to the server.
-	A new socket will be given to the client using 'accept()'.
-	The socket will then be checked using 'getsockopt()'
-	if everything worked it will be returned.
-*/
+/**
+ * @brief Adds a new client to the server::client_list
+
+ * @note A new socket will be given to the client using "accept()".
+ * The socket will then be checked using "getsockopt()"
+ * 
+ * @return 0 if a client is successfully added.
+ * 1 if "accept()" or "getsockopt()" fails
+ */
 int	server::add_client(void)
 {
 	socklen_t		client_addr_len = sizeof(_client_addr);
@@ -98,7 +124,7 @@ int	server::add_client(void)
 
 	if (new_client._socket < 0)
 	{
-		std::cerr << "Error : " << errno << " : " << strerror(errno) << std::endl;
+		std::cerr << errno << ' ' << SERVERNAME << " :" << strerror(errno) << "\r\n";
 		return (1);
 	}
 
@@ -121,12 +147,16 @@ int	server::add_client(void)
 	return (0);
 }
 
-/*
-	Delete specific client (identified by 'fd') from client list. This implies :
-	- deleting client fd from messages to be sent
-		(if a message send by the client exists, it will only be deleted if they are no target to send the message to)
-	- closing client socket before deleting it's object
-*/
+/**
+ * @brief Delete specific client from client list.
+ * 
+ * @note This implies :
+ * 1.deleting client fd from messages to be sent.
+ * 2.closing client socket before deleting it's object
+ * !(if a message send by the client exists, it will only be deleted if they are no target to send the message to)
+ * 
+ * @param fd the client defined by it's socket
+ */
 void	server::del_client(int fd)
 {
 	for (std::vector<message>::iterator it = msgs.begin(); it != msgs.end(); ++it)
@@ -146,9 +176,11 @@ void	server::del_client(int fd)
 	std::cout << "BYE BYE CLIENT" << std::endl;
 }
 
-/*
-	Finds the maximum value fd existing in all the clients and the server and returns it for select()
-*/
+/**
+ * @brief Finds the maximum value fd existing in server::client_list and returns it for "select()"
+ * 
+ * @return the maximum fd found in server::client_list
+ */
 int	server::get_max_fd(void) const
 {
 	int	max_fd = _socket;
@@ -161,9 +193,12 @@ int	server::get_max_fd(void) const
 	return (max_fd);
 }
 
-/*
-	Adds server fd and all client fds to read_fds for select()
-*/
+/**
+ * @brief Adds server fd and all client fd we wish to read on for "select()"
+ * @note (this will always return all fds in server::client_list)
+ * 
+ * @return fd_set of the client fd and server socket
+ */
 fd_set	server::get_read_fds(void) const
 {
 	fd_set	read_fds;
@@ -178,9 +213,12 @@ fd_set	server::get_read_fds(void) const
 	return (read_fds);
 }
 
-/*
-	Adds all fds from messages to be sent to write_fds for select()
-*/
+/**
+ * @brief Adds all fds from messages to be sent for "select()"
+ * @note this is based on the fd found in message::target
+ * 
+ * @return fd_set of the clients fd we want to write on
+ */
 fd_set	server::get_write_fds(void) const
 {
 	fd_set	write_fds;
@@ -200,6 +238,12 @@ fd_set	server::get_write_fds(void) const
 	return (write_fds);
 }
 
+/**
+ * @brief Attempts to register a client into our server
+ * 
+ * @param msg the message containing the command.
+ * this command will call "_error_message()" if msg.cmd.param does not fit server password
+ */
 void	server::pass(message &msg)
 {
 	if (msg.cmd.params.empty() == true)
@@ -221,6 +265,15 @@ void	server::pass(message &msg)
 	msg.text.clear();
 }
 
+/**
+ * @brief checks wether nickname is allowed.
+ * @note check irssi RFC for specification of nickname policy.
+ * This function is only called and used by "nick()"
+ * 
+ * @param nickname the nickname to check
+ * @return true if the nickname is allowed
+ * @return false if the nickname isn't allowed
+ */
 static bool	is_nickname_allowed(std::string nickname)
 {
 	if (nickname.size() > 9)
@@ -232,6 +285,12 @@ static bool	is_nickname_allowed(std::string nickname)
 	return (true);
 }
 
+/**
+ * @brief changes the nickname of a user ("msg.get_emmiter()")
+ * 
+ * @param msg the message containing the command
+ * @note if the nickname in msg.cmd.param is not allowed or missing or already in use, "_error_message()" will be called
+ */
 void	server::nick(message &msg)
 {
 	std::string	nickname;
@@ -266,6 +325,13 @@ void	server::nick(message &msg)
 	// std::cout << "worked:" << client_list.find(msg.get_emmiter())->second._nickname << std::endl;
 }
 
+/**
+ * @brief assigns a username and realname to a specific client ("msg.get_emmiter()")
+ * 
+ * @param msg the message containing the command
+ * @note if client is unregistered of no username or realname is given, call "_error_message()".
+ * Likewise if everything is here replies will be added to msg.text as an answer
+ */
 void	server::user(message &msg)
 {
 	server::client		&tmp(client_list.find(msg.get_emmiter())->second);
@@ -318,6 +384,12 @@ void	server::user(message &msg)
 		msg.text.replace(msg.text.find("<client>"), 8, tmp._nickname);
 }
 
+/**
+ * @brief upon receiving PING, the server answers "PONG" with msg.cmd.param
+ * 
+ * @param msg the message containing the command
+ * @note if there is no msg.cmd.param "_error_message()" will be called
+ */
 void	server::ping(message &msg)
 {
 	if (msg.cmd.params.empty() == true)
