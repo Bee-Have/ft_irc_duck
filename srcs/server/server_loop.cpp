@@ -1,5 +1,11 @@
 #include "ircserv.hpp"
 
+/**
+ * @brief general loop of the server.
+ * Everything passes through here as this is the main logic of the server
+ * 
+ * @param serv serv is setup in main and should not pose any problems
+ */
 void	server_loop(server &serv)
 {
 	while (true)
