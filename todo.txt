@@ -9,16 +9,16 @@ COMMANDS :
 	KO- PONG
 
 	42 : need OPER
+	KO- MODE : WALLOPS
 	KO- KICK
 	KO- INVITE : need JOIN
 	KO- TOPIC
-	KO- MODE : WALLOPS
 
 	want :
 	KO- OPER
+	KO- JOIN
 	KO- WALLOPS
 	KO- QUIT : need PART
-	KO- JOIN
 	KO- PART
 	KO- PRIVMSG : can need OPER
 	KO- PING
@@ -41,6 +41,8 @@ OK- refacto commands to fit irssi specific irc protocol "https://modern.ircdocs.
 OK- add condition to user to check nick and pass have been done first
 OK- connect to IRSSI
 
+KO- change merge_msgs(): il concateneras les messages due a des targets uniques.
+	ex: si un message doit etre envoyer a 0, 1, 2 et un message prive a 2. il concateneras le message a 2 et supprimeras 2 du message global.
 KO- catch "Ctrl-C" signal and close all sockets properly to avoid errors when relaunching server
 KO- comment all functions for potential teamates and myself
 KO- when channels will be implemented, add channel count to LUSERS command reply
