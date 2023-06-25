@@ -14,6 +14,7 @@
 // CUSTOM
 #define ERR_BADPASS " :Password does not match\r\n"
 #define ERR_UNREGISTERED "Client must be registered to proceed\r\n"
+#define ERR_CMDUNKNOWN " :Command is unknown\r\n"
 
 // REPLIES USER
 #define RPL_WELCOME "<client> :Welcome to the Internet Relay Network <nick>!\r\n"

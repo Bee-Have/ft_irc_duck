@@ -30,6 +30,14 @@ void	check_for_cmds(server &serv, message &msg)
 
 	std::cout << "MSG:" << msg.text << '|' << std::endl;
 
+	if (msg.text.find("CAP LS") != std::string::npos)
+	{
+		msg.target.clear();
+		msg.target.insert(msg.get_emmiter());
+		msg.text.assign("CAP LS");
+		msg.text.append(ERR_CMDUNKNOWN);
+		return ;
+	}
 	for (int i = 0; i != 3; ++i)
 	{
 		if (msg.text.find(cmds[i]) != std::string::npos)

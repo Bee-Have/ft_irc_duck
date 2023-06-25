@@ -42,6 +42,7 @@ void	receive_messages(server &serv, fd_set read_fds)
 				int		pos_msg = find_incomplete_msg(serv, it->second);
 
 				tmp.assign(buffer);
+				std::cout << "NEW MSG:" << tmp << '|' << std::endl;
 				if (tmp.find("\n") == std::string::npos)
 				{
 					if (pos_msg != -1)
