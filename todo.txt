@@ -41,6 +41,11 @@ OK- refacto commands to fit irssi specific irc protocol "https://modern.ircdocs.
 OK- add condition to user to check nick and pass have been done first
 OK- connect to IRSSI
 
+KO- add prefix to RPL && error
+KO- delete prefix from struct command, prefix is only in answers
+KO- should i use recv instead of read for receiving msgs ?
+KO- should server have timeout ?
+KO- should server quit if a new client fails to be added ?
 KO- change merge_msgs(): il concateneras les messages due a des targets uniques.
 	ex: si un message doit etre envoyer a 0, 1, 2 et un message prive a 2. il concateneras le message a 2 et supprimeras 2 du message global.
 KO- catch "Ctrl-C" signal and close all sockets properly to avoid errors when relaunching server
