@@ -31,21 +31,21 @@ static void	merge_msgs(server &serv)
 			if (it_a->target == it_b->target)
 			{
 				it_a->text.append(it_b->text);
-				it_a = serv.msgs.erase(it_b) - 1;
+				it_a = serv.msgs.erase(it_b) - 2;
 				break ;
 			}
 		}
 	}
 }
 
-static void	print_msgs(server &serv)
-{
-	std::cout << "START PRINT MSGS:";
-	for (std::vector<message>::iterator it = serv.msgs.begin(); it != serv.msgs.end(); ++it)
-	{
-		std::cout << "it:" << it->text;
-	}
-}
+// static void	print_msgs(server &serv)
+// {
+// 	std::cout << "START PRINT MSGS:";
+// 	for (std::vector<message>::iterator it = serv.msgs.begin(); it != serv.msgs.end(); ++it)
+// 	{
+// 		std::cout << "it:" << it->text;
+// 	}
+// }
 
 /*
 	This function messages to the target (msgs->target) if :
@@ -60,9 +60,7 @@ void	send_messages(server &serv, fd_set &write_fds)
 	check_msgs_to_delete(serv);
 	if (serv.msgs.empty() == true)
 		return ;
-	print_msgs(serv);
 	merge_msgs(serv);
-	print_msgs(serv);
 	std::cout << "gonna send msg" << std::endl;
 	for (std::vector<message>::iterator it_msg = serv.msgs.begin();
 		it_msg != serv.msgs.end(); ++it_msg)
@@ -71,13 +69,12 @@ void	send_messages(server &serv, fd_set &write_fds)
 		for (std::set<int>::iterator it_fd = it_msg->target.begin();
 			it_fd != it_msg->target.end(); ++it_fd)
 		{
-			std::cout << "|MSG|" << std::endl;
+			std::cout << "TARGET" << std::endl;
 			if (FD_ISSET(*it_fd, &write_fds) != 0
 				&& it_msg->text.find("\r\n") != std::string::npos)
 			{
 				std::cout << "about to send" << std::endl;
 				send(*it_fd, it_msg->text.c_str(), it_msg->text.size(), 0);
-				std::cout << "test" << std::endl;
 				FD_CLR(*it_fd, &write_fds);
 				it_msg->target.erase(it_fd);
 				if (it_msg->target.empty() == true)
