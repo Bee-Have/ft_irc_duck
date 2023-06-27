@@ -1,26 +1,7 @@
 COMMANDS :
-	need :
-	OK- PASS
-	OK- NICK : need NICK
-	OK- USER : need PASS NICK LUSERS
-
-	should :
-	OK- PING
-	KO- PONG
-
-	42 : need OPER
-	KO- MODE : WALLOPS
-	KO- KICK
-	KO- INVITE : need JOIN
-	KO- TOPIC
-
 	want :
-	KO- OPER
-	KO- JOIN
 	KO- WALLOPS
 	KO- QUIT : need PART
-	KO- PART
-	KO- PRIVMSG : can need OPER
 	KO- PING
 	KO- PONG
 
@@ -42,20 +23,11 @@ OK- add condition to user to check nick and pass have been done first
 OK- connect to IRSSI
 OK- comment all functions for potential teamates and myself
 
-KO- add prefix to RPL && error
-KO- delete prefix from struct command, prefix is only in answers. should i keep the struct ? make them private and server friend ?
 KO- should i use recv instead of read for receiving msgs ?
 KO- should server have timeout ?
-KO- should server quit if a new client fails to be added ?
-KO- change merge_msgs(): il concateneras les messages due a des targets uniques.
-	ex: si un message doit etre envoyer a 0, 1, 2 et un message prive a 2. il concateneras le message a 2 et supprimeras 2 du message global.
-KO- catch "Ctrl-C" signal and close all sockets properly to avoid errors when relaunching server
 KO- when channels will be implemented, add channel count to LUSERS command reply
 KO- messages with bad prfix must be ignored by the server : if the prefix is not the nickname of the client
 KO- empty messages must be ignored
-KO- behavior issue with "check_for_cmd()" for loop is the same as doing many ifs. make it better
-KO- refacto "receive_messages()" has redundant behavior. make it better
-KO- switch to Pascal case for types (classes etc)
 OK- redundancies in server::user() command (with the substr)
 
 QUESTIONS :
