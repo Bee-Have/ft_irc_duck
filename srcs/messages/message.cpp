@@ -1,6 +1,11 @@
 #include "message.hpp"
 // #include "server.hpp"
 
+/**
+ * @brief Construct a new message::message object
+ * @note this construction should never be called by anyone.
+ * Message should always be instanciated with am _emmiter
+ */
 message::message(void)
 {}
 
