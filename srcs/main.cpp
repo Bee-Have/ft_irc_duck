@@ -7,7 +7,7 @@ int	main(int ac, char **av)
 	std::string			tmp;
 	int					port;
 
-	if (ac < 3 || ac > 3)
+	if (ac != 3)
 	{
 		std::cerr << ERR_BADSERVERPARAM << RPL_USAGE;
 		return (1);
