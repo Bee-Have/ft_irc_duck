@@ -40,27 +40,27 @@ OTHER :
 OK- refacto commands to fit irssi specific irc protocol "https://modern.ircdocs.horse/"
 OK- add condition to user to check nick and pass have been done first
 OK- connect to IRSSI
+OK- comment all functions for potential teamates and myself
 
 KO- add prefix to RPL && error
-KO- delete prefix from struct command, prefix is only in answers
+KO- delete prefix from struct command, prefix is only in answers. should i keep the struct ? make them private and server friend ?
 KO- should i use recv instead of read for receiving msgs ?
 KO- should server have timeout ?
 KO- should server quit if a new client fails to be added ?
 KO- change merge_msgs(): il concateneras les messages due a des targets uniques.
 	ex: si un message doit etre envoyer a 0, 1, 2 et un message prive a 2. il concateneras le message a 2 et supprimeras 2 du message global.
 KO- catch "Ctrl-C" signal and close all sockets properly to avoid errors when relaunching server
-KO- comment all functions for potential teamates and myself
 KO- when channels will be implemented, add channel count to LUSERS command reply
 KO- messages with bad prfix must be ignored by the server : if the prefix is not the nickname of the client
 KO- empty messages must be ignored
 KO- behavior issue with "check_for_cmd()" for loop is the same as doing many ifs. make it better
-KO- "receive_messages()" has redundant behavior. make it better
+KO- refacto "receive_messages()" has redundant behavior. make it better
 KO- switch to Pascal case for types (classes etc)
-KO- for NICK : do we use "ERR_NICKCOLLISION", if we do, how do we handle it ?
 OK- redundancies in server::user() command (with the substr)
 
 QUESTIONS :
 	OK- should i have more failsafes for the USER command ?
-	after using the NICK command for the first time, do all the other calls have a prefix with the current nickname ? should i take this into account ?
-	does the server must give a prefix for it's answers ?
-	if a client is connected to multiple channels and sends a message, is the message sent to one channel or all of them
+	KO- for NICK : do we use "ERR_NICKCOLLISION", if we do, how do we handle it ?
+	KO- after using the NICK command for the first time, do all the other calls have a prefix with the current nickname ? should i take this into account ?
+	KO- does the server must give a prefix for it's answers ?
+	KO- if a client is connected to multiple channels and sends a message, is the message sent to one channel or all of them
