@@ -113,11 +113,8 @@ int	server::get_socket(void) const
 
  * @note A new socket will be given to the client using "accept()".
  * The socket will then be checked using "getsockopt()"
- * 
- * @return 0 if a client is successfully added.
- * 1 if "accept()" or "getsockopt()" fails
  */
-int	server::add_client(void)
+void	server::add_client(void)
 {
 	socklen_t		client_addr_len = sizeof(_client_addr);
 	server::client	new_client(accept(_socket, (struct sockaddr *)&_client_addr, &client_addr_len));
@@ -125,7 +122,7 @@ int	server::add_client(void)
 	if (new_client._socket < 0)
 	{
 		std::cerr << errno << ' ' << SERVERNAME << " :" << strerror(errno) << "\r\n";
-		return (1);
+		return ;
 	}
 
 	int	socket_error;
@@ -136,7 +133,7 @@ int	server::add_client(void)
 		{
 			std::cout << "INVALID SOCKET :(" << std::endl;
 			close(new_client._socket);
-			return (1);
+			return ;
 		}
 	}
 	else
@@ -144,7 +141,6 @@ int	server::add_client(void)
 
 	std::cout << "NEW CLIENT :D" << std::endl;
 	client_list.insert(std::make_pair(new_client._socket, new_client));
-	return (0);
 }
 
 /**

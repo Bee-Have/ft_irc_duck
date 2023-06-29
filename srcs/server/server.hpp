@@ -75,7 +75,7 @@ public:
 	int		get_socket() const;
 
 	// client managment
-	int		add_client();
+	void	add_client();
 	void	del_client(int fd);
 
 	// select prerequisites
