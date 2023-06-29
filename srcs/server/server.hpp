@@ -60,7 +60,6 @@ private:
 
 	server();
 	server(const server &cpy);
-	void	_error_message(message &msg, std::string prefix, std::string error);
 
 public:
 	std::vector<message>			msgs;
@@ -74,6 +73,7 @@ public:
 	// encapsulation
 	int		get_socket() const;
 
+	void	error_message(message &msg, std::string prefix, std::string error);
 	// client managment
 	void	add_client();
 	void	del_client(int fd);

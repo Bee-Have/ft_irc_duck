@@ -85,7 +85,7 @@ server	&server::operator=(const server &assign)
  * @param prefix if there is something to replace in the prefix of the error
  * @param error the error declared in : "define.hpp"
  */
-void	server::_error_message(message &msg, std::string prefix, std::string error)
+void	server::error_message(message &msg, std::string prefix, std::string error)
 {
 	int	begin = 0;
 	int	end = 0;
@@ -238,23 +238,23 @@ fd_set	server::get_write_fds(void) const
  * @brief Attempts to register a client into our server
  * 
  * @param msg the message containing the command.
- * this command will call "_error_message()" if msg.cmd.param does not fit server password
+ * this command will call "error_message()" if msg.cmd.param does not fit server password
  */
 void	server::pass(message &msg)
 {
 	if (msg.cmd.params.empty() == true)
 	{
-		_error_message(msg, msg.cmd.name, ERR_NEEDMOREPARAMS);
+		error_message(msg, msg.cmd.name, ERR_NEEDMOREPARAMS);
 		return ;
 	}
 	if (client_list.find(msg.get_emmiter())->second._is_registered == true)
 	{
-		_error_message(msg, "", ERR_ALREADYREGISTRED);
+		error_message(msg, "", ERR_ALREADYREGISTRED);
 		return ;
 	}
 	if (_pass.compare(msg.cmd.params) != 0)
 	{
-		_error_message(msg, "", ERR_BADPASS);
+		error_message(msg, "", ERR_BADPASS);
 		return ;
 	}
 	client_list.find(msg.get_emmiter())->second._is_registered = true;
@@ -285,7 +285,7 @@ static bool	is_nickname_allowed(std::string nickname)
  * @brief changes the nickname of a user ("msg.get_emmiter()")
  * 
  * @param msg the message containing the command
- * @note if the nickname in msg.cmd.param is not allowed or missing or already in use, "_error_message()" will be called
+ * @note if the nickname in msg.cmd.param is not allowed or missing or already in use, "error_message()" will be called
  */
 void	server::nick(message &msg)
 {
@@ -293,18 +293,18 @@ void	server::nick(message &msg)
 
 	if (client_list.find(msg.get_emmiter())->second._is_registered == false)
 	{
-		_error_message(msg, "", ERR_UNREGISTERED);
+		error_message(msg, "", ERR_UNREGISTERED);
 		return ;
 	}
 	if (msg.cmd.params.empty() == true)
 	{
-		_error_message(msg, "", ERR_NONICKNAMEGIVEN);
+		error_message(msg, "", ERR_NONICKNAMEGIVEN);
 		return ;
 	}
 	nickname = msg.cmd.params.substr(0, msg.cmd.params.find(' '));
 	if (is_nickname_allowed(nickname) == false)
 	{
-		_error_message(msg, nickname, ERR_ERRONEUSNICKNAME);
+		error_message(msg, nickname, ERR_ERRONEUSNICKNAME);
 		return ;
 	}
 	for (std::map<int, server::client>::iterator it = client_list.begin();
@@ -312,7 +312,7 @@ void	server::nick(message &msg)
 	{
 		if (nickname.compare(it->second._nickname) == 0)
 		{
-			_error_message(msg, nickname, ERR_NICKNAMEINUSE);
+			error_message(msg, nickname, ERR_NICKNAMEINUSE);
 			return ;
 		}
 	}
@@ -325,7 +325,7 @@ void	server::nick(message &msg)
  * @brief assigns a username and realname to a specific client ("msg.get_emmiter()")
  * 
  * @param msg the message containing the command
- * @note if client is unregistered of no username or realname is given, call "_error_message()".
+ * @note if client is unregistered of no username or realname is given, call "error_message()".
  * Likewise if everything is here replies will be added to msg.text as an answer
  */
 void	server::user(message &msg)
@@ -341,24 +341,24 @@ void	server::user(message &msg)
 	ss >> date;
 	if (tmp._is_registered == false)
 	{
-		_error_message(msg, "", ERR_UNREGISTERED);
+		error_message(msg, "", ERR_UNREGISTERED);
 		return ;
 	}
 	if (tmp._nickname.empty() == true)
 	{
-		_error_message(msg, "", ERR_NONICKNAMEGIVEN);
+		error_message(msg, "", ERR_NONICKNAMEGIVEN);
 		return ;
 	}
 	if (msg.cmd.params.empty() == true
 		|| msg.cmd.params.find(':') == std::string::npos
 		|| msg.cmd.params.find(' ') == std::string::npos)
 	{
-		_error_message(msg, msg.cmd.name, ERR_NEEDMOREPARAMS);
+		error_message(msg, msg.cmd.name, ERR_NEEDMOREPARAMS);
 		return ;
 	}
 	if (tmp._realname.empty() == false)
 	{
-		_error_message(msg, "", ERR_ALREADYREGISTRED);
+		error_message(msg, "", ERR_ALREADYREGISTRED);
 		return ;
 	}
 
@@ -384,13 +384,13 @@ void	server::user(message &msg)
  * @brief upon receiving PING, the server answers "PONG" with msg.cmd.param
  * 
  * @param msg the message containing the command
- * @note if there is no msg.cmd.param "_error_message()" will be called
+ * @note if there is no msg.cmd.param "error_message()" will be called
  */
 void	server::ping(message &msg)
 {
 	if (msg.cmd.params.empty() == true)
 	{
-		_error_message(msg, msg.cmd.name, ERR_NEEDMOREPARAMS);
+		error_message(msg, msg.cmd.name, ERR_NEEDMOREPARAMS);
 		return ;
 	}
 	msg.target.clear();
