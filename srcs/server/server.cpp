@@ -242,11 +242,6 @@ fd_set	server::get_write_fds(void) const
  */
 void	server::pass(message &msg)
 {
-	if (msg.cmd.params.empty() == true)
-	{
-		error_message(msg, msg.cmd.name, ERR_NEEDMOREPARAMS);
-		return ;
-	}
 	if (client_list.find(msg.get_emmiter())->second._is_registered == true)
 	{
 		error_message(msg, "", ERR_ALREADYREGISTRED);
@@ -349,8 +344,7 @@ void	server::user(message &msg)
 		error_message(msg, "", ERR_NONICKNAMEGIVEN);
 		return ;
 	}
-	if (msg.cmd.params.empty() == true
-		|| msg.cmd.params.find(':') == std::string::npos
+	if (msg.cmd.params.find(':') == std::string::npos
 		|| msg.cmd.params.find(' ') == std::string::npos)
 	{
 		error_message(msg, msg.cmd.name, ERR_NEEDMOREPARAMS);
@@ -388,11 +382,6 @@ void	server::user(message &msg)
  */
 void	server::ping(message &msg)
 {
-	if (msg.cmd.params.empty() == true)
-	{
-		error_message(msg, msg.cmd.name, ERR_NEEDMOREPARAMS);
-		return ;
-	}
 	msg.target.clear();
 	msg.target.insert(msg.get_emmiter());
 	msg.text.assign("PONG ");

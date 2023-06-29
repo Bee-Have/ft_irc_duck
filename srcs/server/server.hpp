@@ -73,7 +73,6 @@ public:
 	// encapsulation
 	int		get_socket() const;
 
-	void	error_message(message &msg, std::string prefix, std::string error);
 	// client managment
 	void	add_client();
 	void	del_client(int fd);
@@ -87,6 +86,7 @@ public:
 	void	(server::*commands[10])(message &) ;
 
 	// commands
+	void	error_message(message &msg, std::string prefix, std::string error);
 	//		connect to IRSSI
 	void	pass(message &msg);
 	void	nick(message &msg);

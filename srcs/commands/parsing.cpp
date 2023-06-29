@@ -10,8 +10,9 @@
  * 
  * @param msg the message with the raw text inside to parse and split into the command
  */
-static void	parsing_cmds(message &msg)
+static void	parsing_cmds(server &serv, message &msg)
 {
+	std::cout << "PARSING" << std::endl;
 	if (msg.text.find("\n") != std::string::npos)
 	{
 		msg.text.erase(msg.text.find("\n"));
@@ -19,18 +20,16 @@ static void	parsing_cmds(message &msg)
 			msg.text.erase(msg.text.find("\r"));
 	}
 
-	if (msg.text[0] == ':')
+	if (msg.text.find(' ') == std::string::npos)
 	{
-		msg.cmd.prefix = msg.text.substr(0, msg.text.find(' '));
-		msg.text = msg.text.substr(msg.text.find(' ') + 1, msg.text.size());
+		serv.error_message(msg, msg.text, ERR_NEEDMOREPARAMS);
+		return ;
 	}
-	if (msg.text.find(' ') != std::string::npos)
+	else
 	{
 		msg.cmd.name = msg.text.substr(0, msg.text.find(' '));
 		msg.cmd.params = msg.text.substr(msg.text.find(' ') + 1, msg.text.size());
 	}
-	else
-		msg.cmd.name = msg.text;
 	msg.text.clear();
 }
 
@@ -50,7 +49,9 @@ void	check_for_cmds(server &serv, message &msg)
 	{
 		if (msg.text.find(cmds[i]) != std::string::npos)
 		{
-			parsing_cmds(msg);
+			parsing_cmds(serv, msg);
+			if (msg.target.empty() == false)
+				break ;
 			std::cout << "CMD FOUND :" << msg.cmd.name << std::endl;
 			(serv.*serv.commands[i])(msg);
 			break ;
