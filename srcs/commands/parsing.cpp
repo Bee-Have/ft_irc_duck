@@ -42,19 +42,13 @@ static void	parsing_cmds(server &serv, message &msg)
  */
 void	check_for_cmds(server &serv, message &msg)
 {
-	std::string	cmds[4] = {"NICK", "PASS", "USER", "PING"};
 
 	std::cout << "MSG:" << msg.text << '|' << std::endl;
-	for (int i = 0; i != 3; ++i)
-	{
-		if (msg.text.find(cmds[i]) != std::string::npos)
-		{
-			parsing_cmds(serv, msg);
-			if (msg.target.empty() == false)
-				break ;
-			std::cout << "CMD FOUND :" << msg.cmd.name << std::endl;
-			(serv.*serv.commands[i])(msg);
-			break ;
-		}
-	}
+	parsing_cmds(serv, msg);
+	if (msg.target.empty() == false)
+		return ;
+	if (serv.commands.find(msg.cmd.name) == serv.commands.end())
+		return ;
+	std::cout << "CMD FOUND :" << msg.cmd.name << std::endl;
+	(serv.*serv.commands[msg.cmd.name])(msg);
 }

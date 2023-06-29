@@ -39,10 +39,10 @@ server::server(int new_port, char *new_pass): _port(new_port), _pass(new_pass)
 		return ;
 	}
 
-	commands[0] = &server::nick;
-	commands[1] = &server::pass;
-	commands[2] = &server::user;
-	commands[3] = &server::ping;
+	commands["PASS"] = &server::pass;
+	commands["NICK"] = &server::nick;
+	commands["USER"] = &server::user;
+	commands["PING"] = &server::ping;
 }
 
 server::server(const server &cpy)
@@ -388,4 +388,5 @@ void	server::ping(message &msg)
 	msg.text.append(SERVERNAME);
 	msg.text.append(" ");
 	msg.text.append(msg.cmd.params);
+	msg.text.append("\r\n");
 }
