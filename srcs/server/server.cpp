@@ -388,4 +388,5 @@ void	server::ping(message &msg)
 	msg.text.append(SERVERNAME);
 	msg.text.append(" ");
 	msg.text.append(msg.cmd.params);
+	msg.text.append("\r\n");
 }
