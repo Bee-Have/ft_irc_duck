@@ -25,6 +25,7 @@ OK- comment all functions for potential teamates and myself
 OK- redundancies in server::user() command (with the substr)
 OK- should i have more failsafes for the USER command ?
 
+KO- nc doesn't always send \n, how df do i treat this ?
 KO- should i use recv instead of read for receiving msgs ?
 KO- should server have timeout ?
 KO- when channels will be implemented, add channel count to LUSERS command reply
@@ -34,4 +35,5 @@ KO- for NICK : do we use "ERR_NICKCOLLISION", if we do, how do we handle it ?
 KO- after using the NICK command for the first time, do all the other calls have a prefix with the current nickname ? should i take this into account ?
 KO- does the server must give a prefix for it's answers ?
 KO- if a client is connected to multiple channels and sends a message, is the message sent to one channel or all of them
+KO- look into accept errors to see if we must really ignore it
 KO- should we add a log file for errors we don't catch but don't want to stop the server ?
