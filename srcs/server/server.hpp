@@ -82,8 +82,10 @@ public:
 	fd_set	get_read_fds() const;
 	fd_set	get_write_fds() const;
 
+
 	// command function pointer
-	void	(server::*commands[10])(message &) ;
+	typedef void(server::*command)(message &);
+	std::map<std::string, command>	commands;
 
 	// commands
 	void	error_message(message &msg, std::string prefix, std::string error);
