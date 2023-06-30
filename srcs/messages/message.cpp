@@ -9,7 +9,7 @@
 message::message(void)
 {}
 
-message::message(const message &cpy): _emmiter(cpy._emmiter), target(cpy.target), text(cpy.text)
+message::message(const message &cpy): _emmiter(cpy._emmiter), target(cpy.target), text(cpy.text), cmd(cpy.cmd), cmd_param(cpy.cmd_param)
 {}
 
 message::message(const server::client &emmiter): _emmiter(emmiter.get_socket())
@@ -28,9 +28,11 @@ message	&message::operator=(const message &assign)
 	if (this != &assign)
 	{
 		_emmiter = assign._emmiter;
-		text.assign(assign.text);
 		target.clear();
 		target.insert(assign.target.begin(), assign.target.end());
+		text.assign(assign.text);
+		cmd.assign(assign.cmd);
+		cmd_param.assign(assign.cmd_param);
 	}
 	return (*this);
 }

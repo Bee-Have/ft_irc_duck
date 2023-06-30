@@ -27,8 +27,8 @@ static void	parsing_cmds(server &serv, message &msg)
 	}
 	else
 	{
-		msg.cmd.name = msg.text.substr(0, msg.text.find(' '));
-		msg.cmd.params = msg.text.substr(msg.text.find(' ') + 1, msg.text.size());
+		msg.cmd = msg.text.substr(0, msg.text.find(' '));
+		msg.cmd_param = msg.text.substr(msg.text.find(' ') + 1, msg.text.size());
 	}
 	msg.text.clear();
 }
@@ -47,8 +47,8 @@ void	check_for_cmds(server &serv, message &msg)
 	parsing_cmds(serv, msg);
 	if (msg.target.empty() == false)
 		return ;
-	if (serv.commands.find(msg.cmd.name) == serv.commands.end())
+	if (serv.commands.find(msg.cmd) == serv.commands.end())
 		return ;
-	std::cout << "CMD FOUND :" << msg.cmd.name << std::endl;
-	(serv.*serv.commands[msg.cmd.name])(msg);
+	std::cout << "CMD FOUND :" << msg.cmd << std::endl;
+	(serv.*serv.commands[msg.cmd])(msg);
 }
