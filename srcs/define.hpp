@@ -23,6 +23,8 @@
 #define RPL_MYINFO "004 <client> " SERVERNAME " " VERSION " NO modes\r\n"
 #define RPL_ISUPPORT "005 <client> 0 :are supported by this server\r\n"
 //		ERRORS
+#define ERR_NOSUCHNICK "401 <client> :<nickname> :No such nick/channel\r\n"
+#define ERR_NOTEXTTOSEND "412 <client> :No text to send\r\n"
 #define ERR_NONICKNAMEGIVEN "431 <client> :No nickname given\r\n"
 #define ERR_ERRONEUSNICKNAME "432 <client> <nick> :Erroneus nickname\r\n"
 #define ERR_NICKNAMEINUSE "433 <client> <nick> :Nickname is already in use\r\n"

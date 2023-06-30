@@ -42,6 +42,7 @@ server::server(int new_port, char *new_pass): _port(new_port), _pass(new_pass)
 	commands["PASS"] = &server::pass;
 	commands["NICK"] = &server::nick;
 	commands["USER"] = &server::user;
+	commands["PRIVMSG"] = &server::privmsg;
 	commands["PING"] = &server::ping;
 }
 
@@ -75,32 +76,6 @@ server	&server::operator=(const server &assign)
 		client_list.insert(assign.client_list.begin(), assign.client_list.end());
 	}
 	return (*this);
-}
-
-/**
- * private fuction
- * @brief Setup an error message with the parameters
- * 
- * @param msg the message to turn into an error
- * @param prefix if there is something to replace in the prefix of the error
- * @param error the error declared in : "define.hpp"
- */
-void	server::error_message(message &msg, std::string prefix, std::string error)
-{
-	int	begin = 0;
-	int	end = 0;
-
-	msg.target.clear();
-	msg.target.insert(msg.get_emmiter());
-
-	msg.text = error;
-	msg.text.replace(msg.text.find("<client>"), 8, client_list.find(msg.get_emmiter())->second._nickname);
-	if (prefix.empty() == false)
-	{
-		begin = msg.text.find('<');
-		end = msg.text.find('>') - begin;
-		msg.text.replace(begin, end, prefix);
-	}
 }
 
 int	server::get_socket(void) const
@@ -235,6 +210,50 @@ fd_set	server::get_write_fds(void) const
 }
 
 /**
+ * @brief Checks wethere param nickname exists in server::client_list
+ * 
+ * @param nickname the nickname to check
+ * @return int -1 if no client is found.
+ * else it will return the fd/socket of the client
+ */
+int	server::_get_client_by_nickname(std::string nickname)
+{
+	for (std::map<int, server::client>::iterator it = client_list.begin();
+		it != client_list.end(); ++it)
+	{
+		if (nickname.compare(it->second._nickname) == 0)
+			return (it->first);
+	}
+	return (-1);
+}
+
+/**
+ * private fuction
+ * @brief Setup an error message with the parameters
+ * 
+ * @param msg the message to turn into an error
+ * @param prefix if there is something to replace in the prefix of the error
+ * @param error the error declared in : "define.hpp"
+ */
+void	server::error_message(message &msg, std::string prefix, std::string error)
+{
+	int	begin = 0;
+	int	end = 0;
+
+	msg.target.clear();
+	msg.target.insert(msg.get_emmiter());
+
+	msg.text = error;
+	msg.text.replace(msg.text.find("<client>"), 8, client_list.find(msg.get_emmiter())->second._nickname);
+	if (prefix.empty() == false)
+	{
+		begin = msg.text.find('<');
+		end = msg.text.find('>') - begin;
+		msg.text.replace(begin, end, prefix);
+	}
+}
+
+/**
  * @brief Attempts to register a client into our server
  * 
  * @param msg the message containing the command.
@@ -302,14 +321,10 @@ void	server::nick(message &msg)
 		error_message(msg, nickname, ERR_ERRONEUSNICKNAME);
 		return ;
 	}
-	for (std::map<int, server::client>::iterator it = client_list.begin();
-		it != client_list.end(); ++it)
+	if (_get_client_by_nickname(nickname) != -1)
 	{
-		if (nickname.compare(it->second._nickname) == 0)
-		{
-			error_message(msg, nickname, ERR_NICKNAMEINUSE);
-			return ;
-		}
+		error_message(msg, nickname, ERR_NICKNAMEINUSE);
+		return ;
 	}
 	client_list.find(msg.get_emmiter())->second._nickname = nickname;
 	msg.text.clear();
@@ -372,6 +387,38 @@ void	server::user(message &msg)
 
 	while (msg.text.find("<client>") != std::string::npos)
 		msg.text.replace(msg.text.find("<client>"), 8, tmp._nickname);
+}
+
+void	server::privmsg(message &msg)
+{
+	std::pair<int, std::string>	target;
+	std::string	text;
+
+	if (msg.cmd.params.find(':') == std::string::npos)
+	{
+		error_message(msg, "", ERR_NOTEXTTOSEND);
+		return ;
+	}
+	if (msg.cmd.params[0] == ':')
+	{
+		error_message(msg, "", ERR_NONICKNAMEGIVEN);
+		return ;
+	}
+	target.second = msg.cmd.params.substr(0, msg.cmd.params.find(':') - 1);
+	target.first = _get_client_by_nickname(target.second);
+	text = msg.cmd.params.substr(msg.cmd.params.find(':'), msg.cmd.params.size());
+	if (target.first == -1)
+	{
+		error_message(msg, target.second, ERR_NOSUCHNICK);
+		return ;
+	}
+	msg.target.clear();
+	msg.target.insert(target.first);
+	msg.text = ":";
+	msg.text.append(client_list.find(msg.get_emmiter())->second._nickname);
+	msg.text.append(" PRIVMSG ");
+	msg.text.append(text);
+	msg.text.append("\r\n");
 }
 
 /**

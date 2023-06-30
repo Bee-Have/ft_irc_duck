@@ -60,6 +60,8 @@ private:
 
 	server();
 	server(const server &cpy);
+	// tools
+	int	_get_client_by_nickname(std::string nickname);
 
 public:
 	std::vector<message>			msgs;
@@ -82,17 +84,18 @@ public:
 	fd_set	get_read_fds() const;
 	fd_set	get_write_fds() const;
 
-
 	// command function pointer
 	typedef void(server::*command)(message &);
 	std::map<std::string, command>	commands;
-
 	// commands
 	void	error_message(message &msg, std::string prefix, std::string error);
 	//		connect to IRSSI
 	void	pass(message &msg);
 	void	nick(message &msg);
 	void	user(message &msg);
+	// Requirements
+	void	privmsg(message &msg);
+
 	//		noice
 	void	ping(message &msg);
 };
