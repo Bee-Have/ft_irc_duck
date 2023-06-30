@@ -60,6 +60,8 @@ private:
 
 	server();
 	server(const server &cpy);
+	// tools
+	bool	is_nickname_in_use(std::string nickname);
 
 public:
 	std::vector<message>			msgs;

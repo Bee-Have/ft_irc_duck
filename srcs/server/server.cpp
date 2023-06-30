@@ -77,32 +77,6 @@ server	&server::operator=(const server &assign)
 	return (*this);
 }
 
-/**
- * private fuction
- * @brief Setup an error message with the parameters
- * 
- * @param msg the message to turn into an error
- * @param prefix if there is something to replace in the prefix of the error
- * @param error the error declared in : "define.hpp"
- */
-void	server::error_message(message &msg, std::string prefix, std::string error)
-{
-	int	begin = 0;
-	int	end = 0;
-
-	msg.target.clear();
-	msg.target.insert(msg.get_emmiter());
-
-	msg.text = error;
-	msg.text.replace(msg.text.find("<client>"), 8, client_list.find(msg.get_emmiter())->second._nickname);
-	if (prefix.empty() == false)
-	{
-		begin = msg.text.find('<');
-		end = msg.text.find('>') - begin;
-		msg.text.replace(begin, end, prefix);
-	}
-}
-
 int	server::get_socket(void) const
 {
 	return (_socket);
@@ -235,6 +209,50 @@ fd_set	server::get_write_fds(void) const
 }
 
 /**
+ * @brief Checks wethere param nickname exists in server::client_list
+ * 
+ * @param nickname the nickname to check
+ * @return true if the nickname is found in server::client_list
+ * @return false if the the nickname is NOT in server::client_list
+ */
+bool	server::is_nickname_in_use(std::string nickname)
+{
+	for (std::map<int, server::client>::iterator it = client_list.begin();
+		it != client_list.end(); ++it)
+	{
+		if (nickname.compare(it->second._nickname) == 0)
+			return (true);
+	}
+	return (false);
+}
+
+/**
+ * private fuction
+ * @brief Setup an error message with the parameters
+ * 
+ * @param msg the message to turn into an error
+ * @param prefix if there is something to replace in the prefix of the error
+ * @param error the error declared in : "define.hpp"
+ */
+void	server::error_message(message &msg, std::string prefix, std::string error)
+{
+	int	begin = 0;
+	int	end = 0;
+
+	msg.target.clear();
+	msg.target.insert(msg.get_emmiter());
+
+	msg.text = error;
+	msg.text.replace(msg.text.find("<client>"), 8, client_list.find(msg.get_emmiter())->second._nickname);
+	if (prefix.empty() == false)
+	{
+		begin = msg.text.find('<');
+		end = msg.text.find('>') - begin;
+		msg.text.replace(begin, end, prefix);
+	}
+}
+
+/**
  * @brief Attempts to register a client into our server
  * 
  * @param msg the message containing the command.
@@ -302,14 +320,10 @@ void	server::nick(message &msg)
 		error_message(msg, nickname, ERR_ERRONEUSNICKNAME);
 		return ;
 	}
-	for (std::map<int, server::client>::iterator it = client_list.begin();
-		it != client_list.end(); ++it)
+	if (is_nickname_in_use(nickname) == true)
 	{
-		if (nickname.compare(it->second._nickname) == 0)
-		{
-			error_message(msg, nickname, ERR_NICKNAMEINUSE);
-			return ;
-		}
+		error_message(msg, nickname, ERR_NICKNAMEINUSE);
+		return ;
 	}
 	client_list.find(msg.get_emmiter())->second._nickname = nickname;
 	msg.text.clear();
