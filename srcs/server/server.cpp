@@ -42,6 +42,7 @@ server::server(int new_port, char *new_pass): _port(new_port), _pass(new_pass)
 	commands["PASS"] = &server::pass;
 	commands["NICK"] = &server::nick;
 	commands["USER"] = &server::user;
+	commands["PRIVMSG"] = &server::privmsg;
 	commands["PING"] = &server::ping;
 }
 
@@ -212,18 +213,18 @@ fd_set	server::get_write_fds(void) const
  * @brief Checks wethere param nickname exists in server::client_list
  * 
  * @param nickname the nickname to check
- * @return true if the nickname is found in server::client_list
- * @return false if the the nickname is NOT in server::client_list
+ * @return int -1 if no client is found.
+ * else it will return the fd/socket of the client
  */
-bool	server::is_nickname_in_use(std::string nickname)
+int	server::_get_client_by_nickname(std::string nickname)
 {
 	for (std::map<int, server::client>::iterator it = client_list.begin();
 		it != client_list.end(); ++it)
 	{
 		if (nickname.compare(it->second._nickname) == 0)
-			return (true);
+			return (it->first);
 	}
-	return (false);
+	return (-1);
 }
 
 /**
@@ -320,7 +321,7 @@ void	server::nick(message &msg)
 		error_message(msg, nickname, ERR_ERRONEUSNICKNAME);
 		return ;
 	}
-	if (is_nickname_in_use(nickname) == true)
+	if (_get_client_by_nickname(nickname) != -1)
 	{
 		error_message(msg, nickname, ERR_NICKNAMEINUSE);
 		return ;
@@ -386,6 +387,38 @@ void	server::user(message &msg)
 
 	while (msg.text.find("<client>") != std::string::npos)
 		msg.text.replace(msg.text.find("<client>"), 8, tmp._nickname);
+}
+
+void	server::privmsg(message &msg)
+{
+	std::pair<int, std::string>	target;
+	std::string	text;
+
+	if (msg.cmd.params.find(':') == std::string::npos)
+	{
+		error_message(msg, "", ERR_NOTEXTTOSEND);
+		return ;
+	}
+	if (msg.cmd.params[0] == ':')
+	{
+		error_message(msg, "", ERR_NONICKNAMEGIVEN);
+		return ;
+	}
+	target.second = msg.cmd.params.substr(0, msg.cmd.params.find(':') - 1);
+	target.first = _get_client_by_nickname(target.second);
+	text = msg.cmd.params.substr(msg.cmd.params.find(':'), msg.cmd.params.size());
+	if (target.first == -1)
+	{
+		error_message(msg, target.second, ERR_NOSUCHNICK);
+		return ;
+	}
+	msg.target.clear();
+	msg.target.insert(target.first);
+	msg.text = ":";
+	msg.text.append(client_list.find(msg.get_emmiter())->second._nickname);
+	msg.text.append(" PRIVMSG ");
+	msg.text.append(text);
+	msg.text.append("\r\n");
 }
 
 /**
