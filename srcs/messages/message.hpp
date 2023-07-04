@@ -14,18 +14,14 @@ class message
 {
 private:
 	int	_emmiter;
-	struct command {
-		std::string	prefix;
-		std::string	name;
-		std::string	params;
-	};
 
 	message();
 
 public:
-	command			cmd;
 	std::set<int>	target;
 	std::string		text;
+	std::string		cmd;
+	std::string		cmd_param;
 
 	message(const message &cpy);
 	message(const server::client &emmiter);
