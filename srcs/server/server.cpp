@@ -16,7 +16,7 @@ server::server(void)
  * @param new_port the new port of the server
  * @param new_pass the password of the server
  */
-server::server(int new_port, char *new_pass): _port(new_port), _pass(new_pass), _oper_name("Cthulhu"), _oper_pass("R'lyeh")
+server::server(int new_port, char *new_pass): _port(new_port), _pass(new_pass), _oper_name("Cthulhu"), _oper_pass("R'lyeh"), _oper_is_registered(false)
 {
 	_socket = socket(AF_INET, SOCK_STREAM, 0);
 	if (_socket < 0)
@@ -268,7 +268,7 @@ void	server::pass(message &msg)
 	}
 	if (_pass.compare(msg.cmd_param) != 0)
 	{
-		error_message(msg, "", ERR_BADPASS);
+		error_message(msg, "", ERR_PASSWDMISMATCH);
 		return ;
 	}
 	client_list.find(msg.get_emmiter())->second._is_registered = true;
@@ -387,6 +387,15 @@ void	server::user(message &msg)
 
 	while (msg.text.find("<client>") != std::string::npos)
 		msg.text.replace(msg.text.find("<client>"), 8, tmp._nickname);
+}
+
+void	server::oper(message &msg)
+{
+	if (msg.cmd_param.find(' ') == std::string::npos)
+	{
+		error_message(msg, "", ERR_PASSWDMISMATCH);
+		return ;
+	}
 }
 
 /**

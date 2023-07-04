@@ -30,6 +30,6 @@
 #define ERR_NICKNAMEINUSE "433 <client> <nick> :Nickname is already in use\r\n"
 #define ERR_NEEDMOREPARAMS "461 <client> <command> :Not enough parameters\r\n"
 #define ERR_ALREADYREGISTRED "462 <client> :You may not reregister\r\n"
+#define ERR_PASSWDMISMATCH "464 <client> :Password incorrect\r\n"
 //		CUSTOM
-#define ERR_BADPASS "909 <client> :Password does not match\r\n"
 #define ERR_UNREGISTERED "910 <client> :Client must be registered to proceed\r\n"

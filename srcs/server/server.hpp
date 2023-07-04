@@ -60,9 +60,10 @@ private:
 	struct sockaddr_in	_server_addr;
 	struct sockaddr_in	_client_addr;
 
-	// client operators
+	// server operator
 	const std::string	_oper_name;
 	const std::string	_oper_pass;
+	bool				_oper_is_registered;
 
 	server();
 	server(const server &cpy);
@@ -100,6 +101,7 @@ public:
 	void	nick(message &msg);
 	void	user(message &msg);
 	// Requirements
+	void	oper(message &msg);
 	void	privmsg(message &msg);
 
 	//		noice
