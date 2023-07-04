@@ -16,7 +16,7 @@ server::server(void)
  * @param new_port the new port of the server
  * @param new_pass the password of the server
  */
-server::server(int new_port, char *new_pass): _port(new_port), _pass(new_pass)
+server::server(int new_port, char *new_pass): _port(new_port), _pass(new_pass), _oper_name("Cthulhu"), _oper_pass("R'lyeh")
 {
 	_socket = socket(AF_INET, SOCK_STREAM, 0);
 	if (_socket < 0)

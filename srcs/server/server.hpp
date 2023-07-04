@@ -51,12 +51,18 @@ public:
 		int		get_socket() const;
 	};
 private:
+	// server authentification
 	int			_port;
 	std::string	_pass;
 
+	// server socket creation and identification
 	int					_socket;
 	struct sockaddr_in	_server_addr;
 	struct sockaddr_in	_client_addr;
+
+	// client operators
+	const std::string	_oper_name;
+	const std::string	_oper_pass;
 
 	server();
 	server(const server &cpy);
