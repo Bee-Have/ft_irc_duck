@@ -389,6 +389,11 @@ void	server::user(message &msg)
 		msg.text.replace(msg.text.find("<client>"), 8, tmp._nickname);
 }
 
+/**
+ * @brief sends a message to a specific user.
+ * 
+ * @param msg the message to send
+ */
 void	server::privmsg(message &msg)
 {
 	std::pair<int, std::string>	target;
