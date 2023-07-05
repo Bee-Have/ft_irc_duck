@@ -16,7 +16,7 @@ server::server(void)
  * @param new_port the new port of the server
  * @param new_pass the password of the server
  */
-server::server(int new_port, char *new_pass): _port(new_port), _pass(new_pass), _oper_name("Cthulhu"), _oper_pass("R'lyeh"), _oper_is_registered(false)
+server::server(int new_port, char *new_pass): _port(new_port), _pass(new_pass), _oper_name("Cthulhu"), _oper_pass("R'lyeh"), _oper_socket(-1)
 {
 	_socket = socket(AF_INET, SOCK_STREAM, 0);
 	if (_socket < 0)
@@ -42,6 +42,7 @@ server::server(int new_port, char *new_pass): _port(new_port), _pass(new_pass), 
 	commands["PASS"] = &server::pass;
 	commands["NICK"] = &server::nick;
 	commands["USER"] = &server::user;
+	commands["OPER"] = &server::oper;
 	commands["PRIVMSG"] = &server::privmsg;
 	commands["PING"] = &server::ping;
 }
@@ -227,6 +228,16 @@ int	server::_get_client_by_nickname(std::string nickname)
 	return (-1);
 }
 
+static void	replace_rpl_err_text(message &msg, std::string replace)
+{
+	int	begin = 0;
+	int	end = 0;
+
+	begin = msg.text.find('<');
+	end = (msg.text.find('>') + 1) - begin;
+	msg.text.replace(begin, end, replace);
+}
+
 /**
  * private fuction
  * @brief Setup an error message with the parameters
@@ -237,19 +248,44 @@ int	server::_get_client_by_nickname(std::string nickname)
  */
 void	server::error_message(message &msg, std::string prefix, std::string error)
 {
-	int	begin = 0;
-	int	end = 0;
-
 	msg.target.clear();
 	msg.target.insert(msg.get_emmiter());
 
 	msg.text = error;
-	msg.text.replace(msg.text.find("<client>"), 8, client_list.find(msg.get_emmiter())->second._nickname);
+	replace_rpl_err_text(msg, client_list.find(msg.get_emmiter())->second._nickname);
 	if (prefix.empty() == false)
+		replace_rpl_err_text(msg, prefix);
+}
+
+void	server::reply_message(message &msg, std::string reply, std::string replace)
+{
+	msg.target.clear();
+	msg.target.insert(msg.get_emmiter());
+
+	msg.text.clear();
+	msg.text.append(reply);
+	replace_rpl_err_text(msg, client_list.find(msg.get_emmiter())->second._nickname);
+	if (msg.text.find('<') != std::string::npos)
+		replace_rpl_err_text(msg, replace);
+}
+
+void	server::reply_message(message &msg, std::vector<std::string> &replies, std::vector<std::string> &replace)
+{
+	std::vector<std::string>::iterator it_replace = replace.begin();
+
+	msg.target.clear();
+	msg.target.insert(msg.get_emmiter());
+
+	msg.text.clear();
+	for (std::vector<std::string>::iterator it = replies.begin(); it != replies.end(); ++it)
 	{
-		begin = msg.text.find('<');
-		end = msg.text.find('>') - begin;
-		msg.text.replace(begin, end, prefix);
+		msg.text.append(*it);
+		replace_rpl_err_text(msg, client_list.find(msg.get_emmiter())->second._nickname);
+		if (msg.text.find('<') != std::string::npos)
+		{
+			replace_rpl_err_text(msg, *it_replace);
+			++it_replace;
+		}
 	}
 }
 
@@ -340,12 +376,13 @@ void	server::nick(message &msg)
  */
 void	server::user(message &msg)
 {
-	server::client		&tmp(client_list.find(msg.get_emmiter())->second);
-	message				reply(msg.get_emmiter());
-	std::time_t			time = std::time(0);
-	std::tm				*now = std::localtime(&time);
-	std::stringstream	ss;
-	std::string			date;
+	server::client				&tmp(client_list.find(msg.get_emmiter())->second);
+	std::vector<std::string>	replies;
+	std::vector<std::string>	rpl_replace;
+	std::time_t					time = std::time(0);
+	std::tm						*now = std::localtime(&time);
+	std::stringstream			ss;
+	std::string					date;
 
 	ss << (now->tm_year + 1900) << '-' << (now->tm_mon + 1) << '-' << now->tm_mday;
 	ss >> date;
@@ -374,28 +411,36 @@ void	server::user(message &msg)
 	tmp._username = msg.cmd_param.substr(0, msg.cmd_param.find(' '));
 	tmp._realname = msg.cmd_param.substr(msg.cmd_param.find(':') + 1, msg.cmd_param.size());
 
-	msg.target.clear();
-	msg.target.insert(msg.get_emmiter());
+	replies.push_back(RPL_WELCOME);
+	replies.push_back(RPL_YOURHOST);
+	replies.push_back(RPL_CREATED);
+	replies.push_back(RPL_MYINFO);
+	replies.push_back(RPL_ISUPPORT);
 
-	msg.text = RPL_WELCOME;
-	msg.text.replace(msg.text.find("<nick>"), 6, tmp._nickname);
-	msg.text.append(RPL_YOURHOST);
-	msg.text.append(RPL_CREATED);
-	msg.text.replace(msg.text.find("<datetime>"), 10, date);
-	msg.text.append(RPL_MYINFO);
-	msg.text.append(RPL_ISUPPORT);
+	rpl_replace.push_back(tmp._nickname);
+	rpl_replace.push_back(date);
 
-	while (msg.text.find("<client>") != std::string::npos)
-		msg.text.replace(msg.text.find("<client>"), 8, tmp._nickname);
+	reply_message(msg, replies, rpl_replace);
 }
 
 void	server::oper(message &msg)
 {
+	std::string	oper;
+	std::string	pass;
+
+	if (_oper_socket != -1)
+		return (error_message(msg, "", ERR_CANNOTBECOMEOPER));
 	if (msg.cmd_param.find(' ') == std::string::npos)
-	{
-		error_message(msg, "", ERR_PASSWDMISMATCH);
-		return ;
-	}
+		return (error_message(msg, "", ERR_PASSWDMISMATCH));
+	oper = msg.cmd_param.substr(0, msg.cmd_param.find(' '));
+	if (_oper_name != oper)
+		return (error_message(msg, oper, ERR_NOSUCHOPER));
+	pass = msg.cmd_param.substr(msg.cmd_param.find(' ') + 1, msg.cmd_param.size());
+	if (_oper_pass != pass)
+		return (error_message(msg, "", ERR_PASSWDMISMATCH));
+	
+	_oper_socket = msg.get_emmiter();
+	reply_message(msg, RPL_YOUREOPER, "");
 }
 
 /**

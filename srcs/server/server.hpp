@@ -63,7 +63,7 @@ private:
 	// server operator
 	const std::string	_oper_name;
 	const std::string	_oper_pass;
-	bool				_oper_is_registered;
+	int					_oper_socket;
 
 	server();
 	server(const server &cpy);
@@ -96,6 +96,8 @@ public:
 	std::map<std::string, command>	commands;
 	// commands
 	void	error_message(message &msg, std::string prefix, std::string error);
+	void	reply_message(message &msg, std::string reply, std::string replace);
+	void	reply_message(message &msg, std::vector<std::string> &errors, std::vector<std::string> &replace);
 	//		connect to IRSSI
 	void	pass(message &msg);
 	void	nick(message &msg);
