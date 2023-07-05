@@ -298,15 +298,9 @@ void	server::reply_message(message &msg, std::vector<std::string> &replies, std:
 void	server::pass(message &msg)
 {
 	if (client_list.find(msg.get_emmiter())->second._is_registered == true)
-	{
-		error_message(msg, "", ERR_ALREADYREGISTRED);
-		return ;
-	}
+		return (error_message(msg, "", ERR_ALREADYREGISTRED));
 	if (_pass.compare(msg.cmd_param) != 0)
-	{
-		error_message(msg, "", ERR_PASSWDMISMATCH);
-		return ;
-	}
+		return (error_message(msg, "", ERR_PASSWDMISMATCH));
 	client_list.find(msg.get_emmiter())->second._is_registered = true;
 	msg.text.clear();
 }
@@ -342,26 +336,14 @@ void	server::nick(message &msg)
 	std::string	nickname;
 
 	if (client_list.find(msg.get_emmiter())->second._is_registered == false)
-	{
-		error_message(msg, "", ERR_UNREGISTERED);
-		return ;
-	}
+		return (error_message(msg, "", ERR_UNREGISTERED));
 	if (msg.cmd_param.empty() == true)
-	{
-		error_message(msg, "", ERR_NONICKNAMEGIVEN);
-		return ;
-	}
+		return (error_message(msg, "", ERR_NONICKNAMEGIVEN));
 	nickname = msg.cmd_param.substr(0, msg.cmd_param.find(' '));
 	if (is_nickname_allowed(nickname) == false)
-	{
-		error_message(msg, nickname, ERR_ERRONEUSNICKNAME);
-		return ;
-	}
+		return (error_message(msg, nickname, ERR_ERRONEUSNICKNAME));
 	if (_get_client_by_nickname(nickname) != -1)
-	{
-		error_message(msg, nickname, ERR_NICKNAMEINUSE);
-		return ;
-	}
+		return (error_message(msg, nickname, ERR_NICKNAMEINUSE));
 	client_list.find(msg.get_emmiter())->second._nickname = nickname;
 	msg.text.clear();
 	// std::cout << "worked:" << client_list.find(msg.get_emmiter())->second._nickname << std::endl;
@@ -387,26 +369,14 @@ void	server::user(message &msg)
 	ss << (now->tm_year + 1900) << '-' << (now->tm_mon + 1) << '-' << now->tm_mday;
 	ss >> date;
 	if (tmp._is_registered == false)
-	{
-		error_message(msg, "", ERR_UNREGISTERED);
-		return ;
-	}
+		return (error_message(msg, "", ERR_UNREGISTERED));
 	if (tmp._nickname.empty() == true)
-	{
-		error_message(msg, "", ERR_NONICKNAMEGIVEN);
-		return ;
-	}
+		return (error_message(msg, "", ERR_NONICKNAMEGIVEN));
 	if (msg.cmd_param.find(':') == std::string::npos
 		|| msg.cmd_param.find(' ') == std::string::npos)
-	{
-		error_message(msg, msg.cmd, ERR_NEEDMOREPARAMS);
-		return ;
-	}
+		return (error_message(msg, msg.cmd, ERR_NEEDMOREPARAMS));
 	if (tmp._realname.empty() == false)
-	{
-		error_message(msg, "", ERR_ALREADYREGISTRED);
-		return ;
-	}
+		return (error_message(msg, "", ERR_ALREADYREGISTRED));
 
 	tmp._username = msg.cmd_param.substr(0, msg.cmd_param.find(' '));
 	tmp._realname = msg.cmd_param.substr(msg.cmd_param.find(':') + 1, msg.cmd_param.size());
@@ -454,23 +424,14 @@ void	server::privmsg(message &msg)
 	std::string	text;
 
 	if (msg.cmd_param.find(':') == std::string::npos)
-	{
-		error_message(msg, "", ERR_NOTEXTTOSEND);
-		return ;
-	}
+		return (error_message(msg, "", ERR_NOTEXTTOSEND));
 	if (msg.cmd_param[0] == ':')
-	{
-		error_message(msg, "", ERR_NONICKNAMEGIVEN);
-		return ;
-	}
+		return (error_message(msg, "", ERR_NONICKNAMEGIVEN));
 	target.second = msg.cmd_param.substr(0, msg.cmd_param.find(':') - 1);
 	target.first = _get_client_by_nickname(target.second);
 	text = msg.cmd_param.substr(msg.cmd_param.find(':'), msg.cmd_param.size());
 	if (target.first == -1)
-	{
-		error_message(msg, target.second, ERR_NOSUCHNICK);
-		return ;
-	}
+		return (error_message(msg, target.second, ERR_NOSUCHNICK));
 	msg.target.clear();
 	msg.target.insert(target.first);
 	msg.text = ":";
