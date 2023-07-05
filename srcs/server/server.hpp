@@ -51,12 +51,19 @@ public:
 		int		get_socket() const;
 	};
 private:
+	// server authentification
 	int			_port;
 	std::string	_pass;
 
+	// server socket creation and identification
 	int					_socket;
 	struct sockaddr_in	_server_addr;
 	struct sockaddr_in	_client_addr;
+
+	// server operator
+	const std::string	_oper_name;
+	const std::string	_oper_pass;
+	int					_oper_socket;
 
 	server();
 	server(const server &cpy);
@@ -89,11 +96,14 @@ public:
 	std::map<std::string, command>	commands;
 	// commands
 	void	error_message(message &msg, std::string prefix, std::string error);
+	void	reply_message(message &msg, std::string reply, std::string replace);
+	void	reply_message(message &msg, std::vector<std::string> &errors, std::vector<std::string> &replace);
 	//		connect to IRSSI
 	void	pass(message &msg);
 	void	nick(message &msg);
 	void	user(message &msg);
 	// Requirements
+	void	oper(message &msg);
 	void	privmsg(message &msg);
 
 	//		noice

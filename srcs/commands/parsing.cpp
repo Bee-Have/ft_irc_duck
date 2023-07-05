@@ -20,9 +20,10 @@ static void	parsing_cmds(server &serv, message &msg)
 			msg.text.erase(msg.text.find("\r"));
 	}
 
-	if (msg.text.find(' ') == std::string::npos)
+	if (msg.text.empty() == false && msg.text.find(' ') == std::string::npos)
 	{
-		serv.error_message(msg, msg.text, ERR_NEEDMOREPARAMS);
+		if (serv.commands.find(msg.text) != serv.commands.end())
+			serv.error_message(msg, msg.text, ERR_NEEDMOREPARAMS);
 		return ;
 	}
 	else
