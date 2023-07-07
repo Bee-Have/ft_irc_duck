@@ -65,6 +65,15 @@ private:
 	const std::string	_oper_pass;
 	int					_oper_socket;
 
+	// channels
+	struct channel {
+		std::string			name;
+		std::string			topic;
+		bool				is_invite_only;
+		std::map<int, int>	clients;
+	};
+	std::map<std::string, channel>	_channel_list;
+
 	server();
 	server(const server &cpy);
 	// tools
