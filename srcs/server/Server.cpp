@@ -335,8 +335,6 @@ void	Server::nick(Message &msg)
 {
 	std::string	nickname;
 
-	if (client_list.find(msg.get_emmiter())->second._is_registered == false)
-		return (error_message(msg, "", ERR_UNREGISTERED));
 	if (msg.cmd_param.empty() == true)
 		return (error_message(msg, "", ERR_NONICKNAMEGIVEN));
 	nickname = msg.cmd_param.substr(0, msg.cmd_param.find(' '));
@@ -368,8 +366,6 @@ void	Server::user(Message &msg)
 
 	ss << (now->tm_year + 1900) << '-' << (now->tm_mon + 1) << '-' << now->tm_mday;
 	ss >> date;
-	if (tmp._is_registered == false)
-		return (error_message(msg, "", ERR_UNREGISTERED));
 	if (tmp._nickname.empty() == true)
 		return (error_message(msg, "", ERR_NONICKNAMEGIVEN));
 	if (msg.cmd_param.find(':') == std::string::npos

@@ -52,3 +52,8 @@ int	Server::Client::get_socket(void) const
 {
 	return (_socket);
 }
+
+bool	Server::Client::get_is_registered(void) const
+{
+	return (_is_registered);
+}

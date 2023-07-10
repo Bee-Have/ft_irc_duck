@@ -49,6 +49,7 @@ public:
 		Client	&operator=(const Client &assign);
 
 		int		get_socket() const;
+		bool	get_is_registered() const;
 	};
 private:
 	// Server authentification
