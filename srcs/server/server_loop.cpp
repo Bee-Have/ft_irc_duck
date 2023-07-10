@@ -6,7 +6,7 @@
  * 
  * @param serv serv is setup in main and should not pose any problems
  */
-void	server_loop(server &serv)
+void	server_loop(Server &serv)
 {
 	while (true)
 	{

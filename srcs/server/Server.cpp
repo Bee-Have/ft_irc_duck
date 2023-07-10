@@ -1,14 +1,14 @@
-#include "server.hpp"
-#include "message.hpp"
+#include "Server.hpp"
+#include "Message.hpp"
 
 /**
  * This should never be used. Server MUST be created with a PORT and PASSWORD
  */
-server::server(void)
+Server::Server(void)
 {}
 
 /**
- * @brief Construct a new server::server object.
+ * @brief Construct a new Server::server object.
  * It also opens and bind the server socket
  * as well as start to listen on said socket.
  * It will also setup the function pointer for all the commands
@@ -16,7 +16,7 @@ server::server(void)
  * @param new_port the new port of the server
  * @param new_pass the password of the server
  */
-server::server(int new_port, char *new_pass): _port(new_port), _pass(new_pass), _oper_name("Cthulhu"), _oper_pass("R'lyeh"), _oper_socket(-1)
+Server::Server(int new_port, char *new_pass): _port(new_port), _pass(new_pass), _oper_name("Cthulhu"), _oper_pass("R'lyeh"), _oper_socket(-1)
 {
 	_socket = socket(AF_INET, SOCK_STREAM, 0);
 	if (_socket < 0)
@@ -39,30 +39,30 @@ server::server(int new_port, char *new_pass): _port(new_port), _pass(new_pass), 
 		return ;
 	}
 
-	commands["PASS"] = &server::pass;
-	commands["NICK"] = &server::nick;
-	commands["USER"] = &server::user;
-	commands["OPER"] = &server::oper;
-	commands["PRIVMSG"] = &server::privmsg;
-	commands["PING"] = &server::ping;
+	commands["PASS"] = &Server::pass;
+	commands["NICK"] = &Server::nick;
+	commands["USER"] = &Server::user;
+	commands["OPER"] = &Server::oper;
+	commands["PRIVMSG"] = &Server::privmsg;
+	commands["PING"] = &Server::ping;
 }
 
-server::server(const server &cpy)
+Server::Server(const Server &cpy)
 {
 	(void)cpy;
 }
 
 /**
- * @brief Destroy the server::server object
+ * @brief Destroy the Server::server object
  * @note It also closes all client sockets as well as the server socket
  */
-server::~server(void)
+Server::~Server(void)
 {
 	close(_socket);
 	client_list.clear();
 }
 
-server	&server::operator=(const server &assign)
+Server	&Server::operator=(const Server &assign)
 {
 	if (this != &assign)
 	{
@@ -79,21 +79,21 @@ server	&server::operator=(const server &assign)
 	return (*this);
 }
 
-int	server::get_socket(void) const
+int	Server::get_socket(void) const
 {
 	return (_socket);
 }
 
 /**
- * @brief Adds a new client to the server::client_list
+ * @brief Adds a new client to the Server::Client_list
 
  * @note A new socket will be given to the client using "accept()".
  * The socket will then be checked using "getsockopt()"
  */
-void	server::add_client(void)
+void	Server::add_client(void)
 {
 	socklen_t		client_addr_len = sizeof(_client_addr);
-	server::client	new_client(accept(_socket, (struct sockaddr *)&_client_addr, &client_addr_len));
+	Server::Client	new_client(accept(_socket, (struct sockaddr *)&_client_addr, &client_addr_len));
 
 	if (new_client._socket < 0)
 	{
@@ -129,9 +129,9 @@ void	server::add_client(void)
  * 
  * @param fd the client defined by it's socket
  */
-void	server::del_client(int fd)
+void	Server::del_client(int fd)
 {
-	for (std::vector<message>::iterator it = msgs.begin(); it != msgs.end(); ++it)
+	for (std::vector<Message>::iterator it = msgs.begin(); it != msgs.end(); ++it)
 	{
 		if (it->get_emmiter() == fd && (it->target.empty() == true
 			|| (it->target.size() == 1 && it->target.find(fd) != it->target.end())))
@@ -149,15 +149,15 @@ void	server::del_client(int fd)
 }
 
 /**
- * @brief Finds the maximum value fd existing in server::client_list and returns it for "select()"
+ * @brief Finds the maximum value fd existing in Server::Client_list and returns it for "select()"
  * 
- * @return the maximum fd found in server::client_list
+ * @return the maximum fd found in Server::Client_list
  */
-int	server::get_max_fd(void) const
+int	Server::get_max_fd(void) const
 {
 	int	max_fd = _socket;
 
-	for (std::map<int, server::client>::const_iterator it = client_list.begin(); it != client_list.end(); ++it)
+	for (std::map<int, Server::Client>::const_iterator it = client_list.begin(); it != client_list.end(); ++it)
 	{
 		if (it->first > max_fd)
 			max_fd = it->first;
@@ -167,17 +167,17 @@ int	server::get_max_fd(void) const
 
 /**
  * @brief Adds server fd and all client fd we wish to read on for "select()"
- * @note (this will always return all fds in server::client_list)
+ * @note (this will always return all fds in Server::Client_list)
  * 
  * @return fd_set of the client fd and server socket
  */
-fd_set	server::get_read_fds(void) const
+fd_set	Server::get_read_fds(void) const
 {
 	fd_set	read_fds;
 
 	FD_ZERO(&read_fds);
 	FD_SET(_socket, &read_fds);
-	for (std::map<int, server::client>::const_iterator it = client_list.begin()
+	for (std::map<int, Server::Client>::const_iterator it = client_list.begin()
 		; it != client_list.end(); ++it)
 	{
 		FD_SET(it->first, &read_fds);
@@ -191,13 +191,13 @@ fd_set	server::get_read_fds(void) const
  * 
  * @return fd_set of the clients fd we want to write on
  */
-fd_set	server::get_write_fds(void) const
+fd_set	Server::get_write_fds(void) const
 {
 	fd_set	write_fds;
 
 	FD_ZERO(&write_fds);
 
-	for (std::vector<message>::const_iterator	it_msg = msgs.begin();
+	for (std::vector<Message>::const_iterator	it_msg = msgs.begin();
 		it_msg != msgs.end(); ++it_msg)
 	{
 		for (std::set<int>::iterator it_fd = it_msg->target.begin();
@@ -211,15 +211,15 @@ fd_set	server::get_write_fds(void) const
 }
 
 /**
- * @brief Checks wethere param nickname exists in server::client_list
+ * @brief Checks wethere param nickname exists in Server::Client_list
  * 
  * @param nickname the nickname to check
  * @return int -1 if no client is found.
  * else it will return the fd/socket of the client
  */
-int	server::_get_client_by_nickname(std::string nickname)
+int	Server::_get_client_by_nickname(std::string nickname)
 {
-	for (std::map<int, server::client>::iterator it = client_list.begin();
+	for (std::map<int, Server::Client>::iterator it = client_list.begin();
 		it != client_list.end(); ++it)
 	{
 		if (nickname.compare(it->second._nickname) == 0)
@@ -228,7 +228,7 @@ int	server::_get_client_by_nickname(std::string nickname)
 	return (-1);
 }
 
-static void	replace_rpl_err_text(message &msg, std::string replace)
+static void	replace_rpl_err_text(Message &msg, std::string replace)
 {
 	int	begin = 0;
 	int	end = 0;
@@ -246,7 +246,7 @@ static void	replace_rpl_err_text(message &msg, std::string replace)
  * @param prefix if there is something to replace in the prefix of the error
  * @param error the error declared in : "define.hpp"
  */
-void	server::error_message(message &msg, std::string prefix, std::string error)
+void	Server::error_message(Message &msg, std::string prefix, std::string error)
 {
 	msg.target.clear();
 	msg.target.insert(msg.get_emmiter());
@@ -257,7 +257,7 @@ void	server::error_message(message &msg, std::string prefix, std::string error)
 		replace_rpl_err_text(msg, prefix);
 }
 
-void	server::reply_message(message &msg, std::string reply, std::string replace)
+void	Server::reply_message(Message &msg, std::string reply, std::string replace)
 {
 	msg.target.clear();
 	msg.target.insert(msg.get_emmiter());
@@ -269,7 +269,7 @@ void	server::reply_message(message &msg, std::string reply, std::string replace)
 		replace_rpl_err_text(msg, replace);
 }
 
-void	server::reply_message(message &msg, std::vector<std::string> &replies, std::vector<std::string> &replace)
+void	Server::reply_message(Message &msg, std::vector<std::string> &replies, std::vector<std::string> &replace)
 {
 	std::vector<std::string>::iterator it_replace = replace.begin();
 
@@ -295,7 +295,7 @@ void	server::reply_message(message &msg, std::vector<std::string> &replies, std:
  * @param msg the message containing the command.
  * this command will call "error_message()" if msg.cmd.param does not fit server password
  */
-void	server::pass(message &msg)
+void	Server::pass(Message &msg)
 {
 	if (client_list.find(msg.get_emmiter())->second._is_registered == true)
 		return (error_message(msg, "", ERR_ALREADYREGISTRED));
@@ -331,7 +331,7 @@ static bool	is_nickname_allowed(std::string nickname)
  * @param msg the message containing the command
  * @note if the nickname in msg.cmd.param is not allowed or missing or already in use, "error_message()" will be called
  */
-void	server::nick(message &msg)
+void	Server::nick(Message &msg)
 {
 	std::string	nickname;
 
@@ -356,9 +356,9 @@ void	server::nick(message &msg)
  * @note if client is unregistered of no username or realname is given, call "error_message()".
  * Likewise if everything is here replies will be added to msg.text as an answer
  */
-void	server::user(message &msg)
+void	Server::user(Message &msg)
 {
-	server::client				&tmp(client_list.find(msg.get_emmiter())->second);
+	Server::Client				&tmp(client_list.find(msg.get_emmiter())->second);
 	std::vector<std::string>	replies;
 	std::vector<std::string>	rpl_replace;
 	std::time_t					time = std::time(0);
@@ -393,7 +393,7 @@ void	server::user(message &msg)
 	reply_message(msg, replies, rpl_replace);
 }
 
-void	server::oper(message &msg)
+void	Server::oper(Message &msg)
 {
 	std::string	oper;
 	std::string	pass;
@@ -418,7 +418,7 @@ void	server::oper(message &msg)
  * 
  * @param msg the message to send
  */
-void	server::privmsg(message &msg)
+void	Server::privmsg(Message &msg)
 {
 	std::pair<int, std::string>	target;
 	std::string	text;
@@ -447,7 +447,7 @@ void	server::privmsg(message &msg)
  * @param msg the message containing the command
  * @note if there is no msg.cmd.param "error_message()" will be called
  */
-void	server::ping(message &msg)
+void	Server::ping(Message &msg)
 {
 	msg.target.clear();
 	msg.target.insert(msg.get_emmiter());

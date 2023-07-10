@@ -1,29 +1,29 @@
-#include "message.hpp"
-// #include "server.hpp"
+#include "Message.hpp"
+// #include "Server.hpp"
 
 /**
- * @brief Construct a new message::message object
+ * @brief Construct a new Message::Message object
  * @note this construction should never be called by anyone.
  * Message should always be instanciated with am _emmiter
  */
-message::message(void)
+Message::Message(void)
 {}
 
-message::message(const message &cpy): _emmiter(cpy._emmiter), target(cpy.target), text(cpy.text), cmd(cpy.cmd), cmd_param(cpy.cmd_param)
+Message::Message(const Message &cpy): _emmiter(cpy._emmiter), target(cpy.target), text(cpy.text), cmd(cpy.cmd), cmd_param(cpy.cmd_param)
 {}
 
-message::message(const server::client &emmiter): _emmiter(emmiter.get_socket())
+Message::Message(const Server::Client &emmiter): _emmiter(emmiter.get_socket())
 {}
 
-message::message(int emmiter): _emmiter(emmiter)
+Message::Message(int emmiter): _emmiter(emmiter)
 {}
 
-message::~message(void)
+Message::~Message(void)
 {
 	target.clear();
 }
 
-message	&message::operator=(const message &assign)
+Message	&Message::operator=(const Message &assign)
 {
 	if (this != &assign)
 	{
@@ -37,7 +37,7 @@ message	&message::operator=(const message &assign)
 	return (*this);
 }
 
-int	message::get_emmiter(void) const
+int	Message::get_emmiter(void) const
 {
 	return (_emmiter);
 }

@@ -7,15 +7,15 @@
 #include <string>
 
 // CLASSES
-#include "server.hpp"
+#include "Server.hpp"
 // class server;
 
-class message
+class Message
 {
 private:
 	int	_emmiter;
 
-	message();
+	Message();
 
 public:
 	std::set<int>	target;
@@ -23,12 +23,12 @@ public:
 	std::string		cmd;
 	std::string		cmd_param;
 
-	message(const message &cpy);
-	message(const server::client &emmiter);
-	message(int emmiter);
-	~message();
+	Message(const Message &cpy);
+	Message(const Server::Client &emmiter);
+	Message(int emmiter);
+	~Message();
 
-	message	&operator=(const message &assign);
+	Message	&operator=(const Message &assign);
 
 	int		get_emmiter() const;
 

@@ -21,20 +21,20 @@
 #include "define.hpp"
 
 // CLASSES
-// #include "message.hpp"
-class message;
+// #include "Message.hpp"
+class Message;
 
 #define MAX_CLIENT 10
 
-class server
+class Server
 {
 public:
-	class client
+	class Client
 	{
-	friend class server;
+	friend class Server;
 	private:
-		client();
-		client(int new_socket);
+		Client();
+		Client(int new_socket);
 
 		int			_socket;
 		bool		_is_registered;
@@ -43,50 +43,50 @@ public:
 		std::string	_realname;
 
 	public:
-		client(const client &cpy);
-		~client();
+		Client(const Client &cpy);
+		~Client();
 
-		client	&operator=(const client &assign);
+		Client	&operator=(const Client &assign);
 
 		int		get_socket() const;
 	};
 private:
-	// server authentification
+	// Server authentification
 	int			_port;
 	std::string	_pass;
 
-	// server socket creation and identification
+	// Server socket creation and identification
 	int					_socket;
 	struct sockaddr_in	_server_addr;
 	struct sockaddr_in	_client_addr;
 
-	// server operator
+	// Server operator
 	const std::string	_oper_name;
 	const std::string	_oper_pass;
 	int					_oper_socket;
 
 	// channels
-	struct channel {
+	struct Channel {
 		std::string			name;
 		std::string			topic;
 		bool				is_invite_only;
 		std::map<int, int>	clients;
 	};
-	std::map<std::string, channel>	_channel_list;
+	std::map<std::string, Channel>	_channel_list;
 
-	server();
-	server(const server &cpy);
+	Server();
+	Server(const Server &cpy);
 	// tools
 	int	_get_client_by_nickname(std::string nickname);
 
 public:
-	std::vector<message>			msgs;
-	std::map<int, server::client>	client_list;
+	std::vector<Message>			msgs;
+	std::map<int, Server::Client>	client_list;
 
-	server(int new_port, char *new_pass);
-	~server();
+	Server(int new_port, char *new_pass);
+	~Server();
 
-	server	&operator=(const server &assign);
+	Server	&operator=(const Server &assign);
 
 	// encapsulation
 	int		get_socket() const;
@@ -101,20 +101,20 @@ public:
 	fd_set	get_write_fds() const;
 
 	// command function pointer
-	typedef void(server::*command)(message &);
+	typedef void(Server::*command)(Message &);
 	std::map<std::string, command>	commands;
 	// commands
-	void	error_message(message &msg, std::string prefix, std::string error);
-	void	reply_message(message &msg, std::string reply, std::string replace);
-	void	reply_message(message &msg, std::vector<std::string> &errors, std::vector<std::string> &replace);
+	void	error_message(Message &msg, std::string prefix, std::string error);
+	void	reply_message(Message &msg, std::string reply, std::string replace);
+	void	reply_message(Message &msg, std::vector<std::string> &errors, std::vector<std::string> &replace);
 	//		connect to IRSSI
-	void	pass(message &msg);
-	void	nick(message &msg);
-	void	user(message &msg);
+	void	pass(Message &msg);
+	void	nick(Message &msg);
+	void	user(Message &msg);
 	// Requirements
-	void	oper(message &msg);
-	void	privmsg(message &msg);
+	void	oper(Message &msg);
+	void	privmsg(Message &msg);
 
 	//		noice
-	void	ping(message &msg);
+	void	ping(Message &msg);
 };

@@ -16,9 +16,9 @@ IFLAGS = $(foreach dir, $(SRC_DIR), -I$(dir))
 
 vpath %.cpp $(foreach dir, $(SRC_DIR), $(dir):)
 
-SERVER = server.cpp server_loop.cpp client.cpp
+SERVER = Server.cpp server_loop.cpp Client.cpp
 
-MESSAGES = message.cpp receive_messages.cpp send_messages.cpp
+MESSAGES = Message.cpp receive_messages.cpp send_messages.cpp
 
 CMDS = parsing.cpp
 
