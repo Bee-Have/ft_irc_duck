@@ -143,6 +143,13 @@ void	Server::del_client(int fd)
 		else if (it->target.find(fd) != it->target.end())
 			it->target.erase(it->target.find(fd));
 	}
+	for (std::map<std::string, Channel>::iterator it = _channel_list.begin();
+		it != _channel_list.end(); ++it)
+	{
+		if (it->second.clients.empty() == false
+			&& it->second.clients.find(fd) != it->second.clients.end())
+			it->second.clients.erase(it->second.clients.find(fd));
+	}
 	close(fd);
 	client_list.erase(client_list.find(fd));
 	std::cout << "BYE BYE CLIENT" << std::endl;
