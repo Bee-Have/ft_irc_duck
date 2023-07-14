@@ -79,6 +79,8 @@ private:
 	Server(const Server &cpy);
 	// tools
 	int	_get_client_by_nickname(std::string nickname);
+	// JOIN command utils
+	void	join_space_error_behavior(Message &msg);
 
 public:
 	std::vector<Message>			msgs;
@@ -115,6 +117,8 @@ public:
 	// Requirements
 	void	oper(Message &msg);
 	void	privmsg(Message &msg);
+	void	join(Message &msg);
+	// 42 Requirements
 
 	//		noice
 	void	ping(Message &msg);

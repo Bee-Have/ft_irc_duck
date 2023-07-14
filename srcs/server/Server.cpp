@@ -131,6 +131,7 @@ void	Server::add_client(void)
  */
 void	Server::del_client(int fd)
 {
+	// delete client from messages
 	for (std::vector<Message>::iterator it = msgs.begin(); it != msgs.end(); ++it)
 	{
 		if (it->get_emmiter() == fd && (it->target.empty() == true
@@ -143,12 +144,32 @@ void	Server::del_client(int fd)
 		else if (it->target.find(fd) != it->target.end())
 			it->target.erase(it->target.find(fd));
 	}
+	// delete client from channels
 	for (std::map<std::string, Channel>::iterator it = _channel_list.begin();
-		it != _channel_list.end(); ++it)
+		it != _channel_list.end();)
 	{
 		if (it->second.clients.empty() == false
 			&& it->second.clients.find(fd) != it->second.clients.end())
+		{
 			it->second.clients.erase(it->second.clients.find(fd));
+			if (it->second.clients.empty() == true)
+			{
+				_channel_list.erase(it);
+				it = _channel_list.begin();
+			}
+			else
+			{
+				// ! This behaviour might become problematic with the implementation of QUIT
+				// TODO : check QUIT message & alter this behaviour
+				Message	new_msg(_socket);
+				reply_message(new_msg, RPL_CLIENTLEFT, client_list.find(fd)->second._nickname);
+				new_msg.target.clear();
+				new_msg.target.insert(it->second.clients.begin(), it->second.clients.end());
+				++it;
+			}
+		}
+		else
+			++it;
 	}
 	close(fd);
 	client_list.erase(client_list.find(fd));
@@ -442,6 +463,72 @@ void	Server::privmsg(Message &msg)
 	msg.text.append(" PRIVMSG ");
 	msg.text.append(text);
 	msg.text.append("\r\n");
+}
+
+static std::vector<std::string>	split_join_cmd(std::string &str)
+{
+	std::vector<std::string>	result;
+
+	if (str.find(',') == std::string::npos)
+	{
+		result.insert(result.begin(), str);
+		return (result);
+	}
+	while (str.find(',') != std::string::npos)
+	{
+		result.insert(result.end(), str.substr(0, str.find(',')));
+		str.erase(str.find(',') + 1, str.size());
+	}
+	if (str.empty() == false)
+		result.insert(result.end(), str);
+	return (result);
+}
+
+void	Server::join_space_error_behavior(Message &msg)
+{
+	std::string	channel_name;
+	int			begin;
+	int			end;
+
+	if (msg.cmd_param.find_first_of(",") < msg.cmd_param.find_first_of(" "))
+	{
+		begin = msg.cmd_param.find("," + 1);
+		if (msg.cmd_param.find(",", begin) < msg.cmd_param.find(" ", msg.cmd_param.find_first_of(" ") + 1))
+			end = msg.cmd_param.find(",", begin) - begin;
+		else
+			end = msg.cmd_param.find(" ", msg.cmd_param.find_first_of(" ") + 1) - begin;
+		channel_name = msg.cmd_param.substr(begin, end);
+	}
+	error_message(msg, channel_name, ERR_BADCHANMASK);
+}
+
+void	Server::join(Message &msg)
+{
+	std::string					tmp;
+	std::vector<std::string>	channels;
+	std::vector<std::string>	keys;
+
+	if (msg.cmd_param.find_first_of(" ") != msg.cmd_param.find_last_of(" "))
+		return (join_space_error_behavior(msg));
+	if (msg.cmd_param.find(' ') != std::string::npos)
+	{
+		tmp = msg.cmd_param.substr(msg.cmd_param.find(' ') + 1, msg.cmd_param.size());
+		keys = split_join_cmd(tmp);
+		msg.cmd_param.erase(0, msg.cmd_param.find(' ') + 1);
+	}
+	channels = split_join_cmd(msg.cmd_param);
+	if (msg.cmd_param.empty() == true)
+	{
+		channels.back().append(",");
+		return (error_message(msg, channels.back(), ERR_BADCHANMASK));
+	}
+	for (std::vector<std::string>::iterator	it = channels.begin(); it != channels.end(); ++it)
+	{
+		if (it->empty() == true || )
+			return (error_message(msg, *it, ERR_BADCHANMASK));
+	}
+
+
 }
 
 /**
