@@ -85,7 +85,7 @@ int	Server::get_socket(void) const
 }
 
 /**
- * @brief Adds a new client to the Server::Client_list
+ * @brief Adds a new client to the Client_list
 
  * @note A new socket will be given to the client using "accept()".
  * The socket will then be checked using "getsockopt()"
@@ -93,7 +93,7 @@ int	Server::get_socket(void) const
 void	Server::add_client(void)
 {
 	socklen_t		client_addr_len = sizeof(_client_addr);
-	Server::Client	new_client(accept(_socket, (struct sockaddr *)&_client_addr, &client_addr_len));
+	Client	new_client(accept(_socket, (struct sockaddr *)&_client_addr, &client_addr_len));
 
 	if (new_client._socket < 0)
 	{
@@ -164,7 +164,11 @@ void	Server::del_client(int fd)
 				Message	new_msg(_socket);
 				reply_message(new_msg, RPL_CLIENTLEFT, client_list.find(fd)->second._nickname);
 				new_msg.target.clear();
-				new_msg.target.insert(it->second.clients.begin(), it->second.clients.end());
+				for (std::map<int, int>::iterator it_chan_client = it->second.clients.begin();
+					it_chan_client != it->second.clients.end(); ++it_chan_client)
+				{
+					new_msg.target.insert(new_msg.target.end(), it_chan_client->first);
+				}
 				++it;
 			}
 		}
@@ -177,15 +181,15 @@ void	Server::del_client(int fd)
 }
 
 /**
- * @brief Finds the maximum value fd existing in Server::Client_list and returns it for "select()"
+ * @brief Finds the maximum value fd existing in Client_list and returns it for "select()"
  * 
- * @return the maximum fd found in Server::Client_list
+ * @return the maximum fd found in Client_list
  */
 int	Server::get_max_fd(void) const
 {
 	int	max_fd = _socket;
 
-	for (std::map<int, Server::Client>::const_iterator it = client_list.begin(); it != client_list.end(); ++it)
+	for (std::map<int, Client>::const_iterator it = client_list.begin(); it != client_list.end(); ++it)
 	{
 		if (it->first > max_fd)
 			max_fd = it->first;
@@ -195,7 +199,7 @@ int	Server::get_max_fd(void) const
 
 /**
  * @brief Adds server fd and all client fd we wish to read on for "select()"
- * @note (this will always return all fds in Server::Client_list)
+ * @note (this will always return all fds in Client_list)
  * 
  * @return fd_set of the client fd and server socket
  */
@@ -205,7 +209,7 @@ fd_set	Server::get_read_fds(void) const
 
 	FD_ZERO(&read_fds);
 	FD_SET(_socket, &read_fds);
-	for (std::map<int, Server::Client>::const_iterator it = client_list.begin()
+	for (std::map<int, Client>::const_iterator it = client_list.begin()
 		; it != client_list.end(); ++it)
 	{
 		FD_SET(it->first, &read_fds);
@@ -239,7 +243,7 @@ fd_set	Server::get_write_fds(void) const
 }
 
 /**
- * @brief Checks wethere param nickname exists in Server::Client_list
+ * @brief Checks wethere param nickname exists in Client_list
  * 
  * @param nickname the nickname to check
  * @return int -1 if no client is found.
@@ -247,7 +251,7 @@ fd_set	Server::get_write_fds(void) const
  */
 int	Server::_get_client_by_nickname(std::string nickname)
 {
-	for (std::map<int, Server::Client>::iterator it = client_list.begin();
+	for (std::map<int, Client>::iterator it = client_list.begin();
 		it != client_list.end(); ++it)
 	{
 		if (nickname.compare(it->second._nickname) == 0)
@@ -384,7 +388,7 @@ void	Server::nick(Message &msg)
  */
 void	Server::user(Message &msg)
 {
-	Server::Client				&tmp(client_list.find(msg.get_emmiter())->second);
+	Client				&tmp(client_list.find(msg.get_emmiter())->second);
 	std::vector<std::string>	replies;
 	std::vector<std::string>	rpl_replace;
 	std::time_t					time = std::time(0);
@@ -523,7 +527,7 @@ void	Server::join(Message &msg)
 		return (error_message(msg, channels.back(), ERR_BADCHANMASK));
 	}
 
-	std::vector<std::string>::iterator	it_keys = keys.begin();
+	// std::vector<std::string>::iterator	it_keys = keys.begin();
 	for (std::vector<std::string>::iterator	it_chan = channels.begin();
 		it_chan != channels.end(); ++it_chan)
 	{
@@ -534,9 +538,9 @@ void	Server::join(Message &msg)
 
 		if (current_channel.key.empty() == false && current_channel.key != *it_chan)
 			return (error_message(msg, *it_chan, ERR_BADCHANNELKEY));
-		if (current_channel.is_invite_only == true
-			&& current_channel.clients.find(msg.get_emmiter()) != current_channel.clients.end()
-			&& )
+		// if (current_channel.is_invite_only == true
+		// 	&& current_channel.clients.find(msg.get_emmiter()) != current_channel.clients.end()
+		// 	&& )
 	}
 
 

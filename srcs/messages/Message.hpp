@@ -24,7 +24,7 @@ public:
 	std::string		cmd_param;
 
 	Message(const Message &cpy);
-	Message(const Server::Client &emmiter);
+	Message(const Client &emmiter);
 	Message(int emmiter);
 	~Message();
 

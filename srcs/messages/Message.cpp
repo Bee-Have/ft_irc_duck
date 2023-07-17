@@ -12,7 +12,7 @@ Message::Message(void)
 Message::Message(const Message &cpy): _emmiter(cpy._emmiter), target(cpy.target), text(cpy.text), cmd(cpy.cmd), cmd_param(cpy.cmd_param)
 {}
 
-Message::Message(const Server::Client &emmiter): _emmiter(emmiter.get_socket())
+Message::Message(const Client &emmiter): _emmiter(emmiter.get_socket())
 {}
 
 Message::Message(int emmiter): _emmiter(emmiter)

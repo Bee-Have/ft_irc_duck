@@ -8,7 +8,7 @@
  * @return either the position of an incomplete message in Server::msgs
  * or -1 if no incomplete message is found
  */
-static int	find_incomplete_msg(Server &serv, Server::Client emmiter)
+static int	find_incomplete_msg(Server &serv, Client emmiter)
 {
 	for (std::vector<Message>::iterator it = serv.msgs.begin(); it != serv.msgs.end(); ++it)
 	{
@@ -22,7 +22,7 @@ static int	find_incomplete_msg(Server &serv, Server::Client emmiter)
 }
 
 /**
- * @brief register any new messages from each of the clients in Server::Client_list
+ * @brief register any new messages from each of the clients in Client_list
  * 
  * @param serv the server, which contains all the clients and messages
  * @param read_fds the fds changed by "select()". Only the fds we can read on will be in read_fds
@@ -33,7 +33,7 @@ void	receive_messages(Server &serv, fd_set read_fds)
 	int			valread = 0;
 	std::string	tmp;
 
-	for (std::map<int, Server::Client>::iterator it = serv.client_list.begin();
+	for (std::map<int, Client>::iterator it = serv.client_list.begin();
 		it != serv.client_list.end(); ++it)
 	{
 		if (FD_ISSET(it->first, &read_fds) != 0)
