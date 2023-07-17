@@ -70,6 +70,7 @@ private:
 	struct Channel {
 		std::string			name;
 		std::string			topic;
+		std::string			key;
 		bool				is_invite_only;
 		std::map<int, int>	clients;
 	};
