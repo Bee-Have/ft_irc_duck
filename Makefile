@@ -18,11 +18,13 @@ vpath %.cpp $(foreach dir, $(SRC_DIR), $(dir):)
 
 SERVER = Server.cpp server_loop.cpp Client.cpp
 
+CHANNEL = Channel.cpp
+
 MESSAGES = Message.cpp receive_messages.cpp send_messages.cpp
 
 CMDS = parsing.cpp
 
-SRC = main.cpp $(SERVER) $(CMDS) $(MESSAGES)
+SRC = main.cpp $(SERVER) $(CHANNEL) $(CMDS) $(MESSAGES)
 
 OBJ = $(addprefix $(OBJ_DIR)/, $(SRC:.cpp=.o))
 

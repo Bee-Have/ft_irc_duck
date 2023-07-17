@@ -148,11 +148,11 @@ void	Server::del_client(int fd)
 	for (std::map<std::string, Channel>::iterator it = _channel_list.begin();
 		it != _channel_list.end();)
 	{
-		if (it->second.clients.empty() == false
-			&& it->second.clients.find(fd) != it->second.clients.end())
+		if (it->second._clients.empty() == false
+			&& it->second._clients.find(fd) != it->second._clients.end())
 		{
-			it->second.clients.erase(it->second.clients.find(fd));
-			if (it->second.clients.empty() == true)
+			it->second._clients.erase(it->second._clients.find(fd));
+			if (it->second._clients.empty() == true)
 			{
 				_channel_list.erase(it);
 				it = _channel_list.begin();
@@ -164,8 +164,8 @@ void	Server::del_client(int fd)
 				Message	new_msg(_socket);
 				reply_message(new_msg, RPL_CLIENTLEFT, client_list.find(fd)->second._nickname);
 				new_msg.target.clear();
-				for (std::map<int, int>::iterator it_chan_client = it->second.clients.begin();
-					it_chan_client != it->second.clients.end(); ++it_chan_client)
+				for (std::map<int, int>::iterator it_chan_client = it->second._clients.begin();
+					it_chan_client != it->second._clients.end(); ++it_chan_client)
 				{
 					new_msg.target.insert(new_msg.target.end(), it_chan_client->first);
 				}
@@ -536,7 +536,7 @@ void	Server::join(Message &msg)
 
 		Channel current_channel = _channel_list.find(*it_chan)->second;
 
-		if (current_channel.key.empty() == false && current_channel.key != *it_chan)
+		if (current_channel._key.empty() == false && current_channel._key != *it_chan)
 			return (error_message(msg, *it_chan, ERR_BADCHANNELKEY));
 		// if (current_channel.is_invite_only == true
 		// 	&& current_channel.clients.find(msg.get_emmiter()) != current_channel.clients.end()

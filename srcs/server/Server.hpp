@@ -22,6 +22,7 @@
 
 // CLASSES
 #include "Client.hpp"
+#include "Channel.hpp"
 class Message;
 
 #define MAX_CLIENT 10
@@ -44,20 +45,6 @@ private:
 	int					_oper_socket;
 
 	// channels
-	struct Channel {
-		enum ClientStatus
-		{
-			INVITED = 0b0001,
-			MEMBER = 0b0010,
-			CHANOP = 0b0100
-		};
-
-		std::string			name;
-		std::string			topic;
-		std::string			key;
-		bool				is_invite_only;
-		std::map<int, int>	clients;
-	};
 	std::map<std::string, Channel>	_channel_list;
 
 	Server();
