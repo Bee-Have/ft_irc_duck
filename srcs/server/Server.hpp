@@ -68,6 +68,13 @@ private:
 
 	// channels
 	struct Channel {
+		enum ClientStatus
+		{
+			INVITED = 0b0001,
+			MEMBER = 0b0010,
+			CHANOP = 0b0100
+		};
+
 		std::string			name;
 		std::string			topic;
 		std::string			key;

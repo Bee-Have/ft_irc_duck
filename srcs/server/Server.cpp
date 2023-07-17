@@ -522,10 +522,21 @@ void	Server::join(Message &msg)
 		channels.back().append(",");
 		return (error_message(msg, channels.back(), ERR_BADCHANMASK));
 	}
-	for (std::vector<std::string>::iterator	it = channels.begin(); it != channels.end(); ++it)
+
+	std::vector<std::string>::iterator	it_keys = keys.begin();
+	for (std::vector<std::string>::iterator	it_chan = channels.begin();
+		it_chan != channels.end(); ++it_chan)
 	{
-		if (it->empty() == true || )
-			return (error_message(msg, *it, ERR_BADCHANMASK));
+		if (it_chan->empty() == true || _channel_list.find(*it_chan) == _channel_list.end())
+			return (error_message(msg, *it_chan, ERR_NOSUCHCHANNEL));
+
+		Channel current_channel = _channel_list.find(*it_chan)->second;
+
+		if (current_channel.key.empty() == false && current_channel.key != *it_chan)
+			return (error_message(msg, *it_chan, ERR_BADCHANNELKEY));
+		if (current_channel.is_invite_only == true
+			&& current_channel.clients.find(msg.get_emmiter()) != current_channel.clients.end()
+			&& )
 	}
 
 
