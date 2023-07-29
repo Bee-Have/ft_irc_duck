@@ -2,19 +2,19 @@
 
 // explication courte du projet
 
-//particularitee du projet<br>
-42 subject :<br>
-https://cdn.intra.42.fr/pdf/pdf/84897/en.subject.pdf<br>
-RFC docs :<br>
-https://modern.ircdocs.horse<br>
-https://datatracker.ietf.org/doc/html/rfc2812<br>
+//particularitee du projet  
+42 subject :  
+https://cdn.intra.42.fr/pdf/pdf/84897/en.subject.pdf  
+RFC docs :  
+https://modern.ircdocs.horse  
+https://datatracker.ietf.org/doc/html/rfc2812  
 
 //quel commandes sont implementees
-PASS<br>
-NICK<br>
-USER<br>
-PRIVMSG (client to client)<br>
-OPER<br>
-PING<br>
+PASS  
+NICK  
+USER  
+PRIVMSG (client to client)  
+OPER  
+PING  
 
 //utilisation du projet
