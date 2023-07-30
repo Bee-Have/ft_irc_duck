@@ -503,7 +503,16 @@ void	Server::join_space_error_behavior(Message &msg)
 			end = msg.cmd_param.find(" ", msg.cmd_param.find_first_of(" ") + 1) - begin;
 		channel_name = msg.cmd_param.substr(begin, end);
 	}
-	error_message(msg, channel_name, ERR_BADCHANMASK);
+	error_message(msg, channel_name, ERR_NOSUCHCHANNEL);
+}
+
+static bool	is_channel_name_allowed(std::string chan_name)
+{
+	if (chan_name[0] != '#' && chan_name[0] != '&')
+		return (false);
+	if (chan_name.find_first_not_of(NICK_GOOD_CHARACTERS, 1) != std::string::npos)
+		return (false);
+	return (true);
 }
 
 void	Server::join(Message &msg)
@@ -524,17 +533,20 @@ void	Server::join(Message &msg)
 	if (msg.cmd_param.empty() == true)
 	{
 		channels.back().append(",");
-		return (error_message(msg, channels.back(), ERR_BADCHANMASK));
+		return (error_message(msg, channels.back(), ERR_NOSUCHCHANNEL));
 	}
 
 	// std::vector<std::string>::iterator	it_keys = keys.begin();
 	for (std::vector<std::string>::iterator	it_chan = channels.begin();
 		it_chan != channels.end(); ++it_chan)
 	{
-		if (it_chan->empty() == true || _channel_list.find(*it_chan) == _channel_list.end())
+		if (it_chan->empty() == true || is_channel_name_allowed(*it_chan) == false)
 			return (error_message(msg, *it_chan, ERR_NOSUCHCHANNEL));
 
-		Channel current_channel = _channel_list.find(*it_chan)->second;
+		if (_channel_list.find(*it_chan) == _channel_list.end())
+			// create new channel
+		else
+			Channel current_channel = _channel_list.find(*it_chan)->second;
 
 		if (current_channel._key.empty() == false && current_channel._key != *it_chan)
 			return (error_message(msg, *it_chan, ERR_BADCHANNELKEY));
