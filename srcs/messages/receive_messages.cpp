@@ -72,7 +72,7 @@ void	receive_messages(Server &serv, fd_set read_fds)
 							serv.msgs.at(pos_msg).text.append(tmp);
 
 							check_for_cmds(serv, serv.msgs.at(pos_msg));
-							if (serv.msgs.at(pos_msg).text.empty() == true || new_msg.target.empty() == true)
+							if (serv.msgs.at(pos_msg).text.empty() == true || serv.msgs.at(pos_msg).target.empty() == true)
 								serv.msgs.erase(serv.msgs.begin() + pos_msg);
 						}
 						else
