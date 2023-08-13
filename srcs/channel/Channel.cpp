@@ -3,6 +3,12 @@
 Channel::Channel(void) : _is_invite_only(false)
 {}
 
+Channel::Channel(int creator, std::string new_name) : _name(new_name), _is_invite_only(false)
+{
+	int	bitfield = MEMBER | CHANOP;
+	_clients[creator] = bitfield;
+}
+
 Channel::Channel(const Channel &cpy) :
 	_name(cpy._name),
 	_topic(cpy._topic),
@@ -26,7 +32,7 @@ Channel	&Channel::operator=(const Channel &assign)
 		for (std::map<int, int>::const_iterator it = assign._clients.begin();
 			it != assign._clients.end(); ++it)
 		{
-			_clients.insert(*it);
+			_clients[it->first] = it->second;
 		}
 	}
 	return (*this);

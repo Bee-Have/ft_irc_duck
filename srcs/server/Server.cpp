@@ -520,6 +520,7 @@ void	Server::join(Message &msg)
 	std::string					tmp;
 	std::vector<std::string>	channels;
 	std::vector<std::string>	keys;
+	Channel						current_channel;
 
 	if (msg.cmd_param.find_first_of(" ") != msg.cmd_param.find_last_of(" "))
 		return (join_space_error_behavior(msg));
@@ -537,6 +538,7 @@ void	Server::join(Message &msg)
 	}
 
 	// std::vector<std::string>::iterator	it_keys = keys.begin();
+	// TODO : handle keys with channels
 	for (std::vector<std::string>::iterator	it_chan = channels.begin();
 		it_chan != channels.end(); ++it_chan)
 	{
@@ -544,12 +546,16 @@ void	Server::join(Message &msg)
 			return (error_message(msg, *it_chan, ERR_NOSUCHCHANNEL));
 
 		if (_channel_list.find(*it_chan) == _channel_list.end())
-			// create new channel
+		{
+			current_channel = Channel(msg.get_emmiter(), *it_chan);
+			std::pair<std::string, Channel>	new_pair(*it_chan, current_channel);
+			_channel_list.insert(new_pair);
+		}
 		else
-			Channel current_channel = _channel_list.find(*it_chan)->second;
+			current_channel = _channel_list.find(*it_chan)->second;
 
-		if (current_channel._key.empty() == false && current_channel._key != *it_chan)
-			return (error_message(msg, *it_chan, ERR_BADCHANNELKEY));
+		// if (current_channel._key.empty() == false && current_channel._key != *it_key)
+		// 	return (error_message(msg, *it_chan, ERR_BADCHANNELKEY));
 		// if (current_channel.is_invite_only == true
 		// 	&& current_channel.clients.find(msg.get_emmiter()) != current_channel.clients.end()
 		// 	&& )

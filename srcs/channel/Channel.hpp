@@ -23,12 +23,12 @@ private:
 	std::map<int, int>	_clients;
 
 	Channel();
-	Channel(const Channel &cpy);
+	Channel(int creator, std::string new_name);
 
 	Channel	&operator=(const Channel &assign);
 
 public:
-
+	Channel(const Channel &cpy);
 	~Channel();
 
 };
