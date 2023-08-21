@@ -40,8 +40,6 @@
 #define ERR_PASSWDMISMATCH "464 <client> :Password incorrect\r\n"
 #define ERR_INVITEONLYCHAN "473 <client> <channel> :Cannot join channel (+i)\r\n"
 #define ERR_BADCHANNELKEY "475 <client> <channel> :Cannot join channel (+k)\r\n"
-// TODO :change BADCHANMASK text to something more descriptive
-#define ERR_BADCHANMASK "476 <client> <channel> :Bad Channel Mask\r\n"
 //		CUSTOM
 // 			REPLIES
 #define RPL_CLIENTLEFT "908 <client> :Client <nick> just left " SERVERNAME ", bye bye\r\n"

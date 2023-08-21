@@ -520,7 +520,6 @@ void	Server::join(Message &msg)
 	std::string					tmp;
 	std::vector<std::string>	channels;
 	std::vector<std::string>	keys;
-	Channel						current_channel;
 
 	if (msg.cmd_param.find_first_of(" ") != msg.cmd_param.find_last_of(" "))
 		return (join_space_error_behavior(msg));
@@ -537,31 +536,78 @@ void	Server::join(Message &msg)
 		return (error_message(msg, channels.back(), ERR_NOSUCHCHANNEL));
 	}
 
-	// std::vector<std::string>::iterator	it_keys = keys.begin();
-	// TODO : handle keys with channels
-	for (std::vector<std::string>::iterator	it_chan = channels.begin();
-		it_chan != channels.end(); ++it_chan)
-	{
-		if (it_chan->empty() == true || is_channel_name_allowed(*it_chan) == false)
-			return (error_message(msg, *it_chan, ERR_NOSUCHCHANNEL));
+	// for (std::vector<std::string>::iterator	it_chan = channels.begin();
+	// 	it_chan != channels.end(); ++it_chan)
+	// {
+	// 	if (it_chan->empty() == true || is_channel_name_allowed(*it_chan) == false)
+	// 		return (error_message(msg, *it_chan, ERR_NOSUCHCHANNEL));
 
-		if (_channel_list.find(*it_chan) == _channel_list.end())
+	// 	if (_channel_list.find(*it_chan) == _channel_list.end())
+	// 	{
+	// 		current_channel = Channel(msg.get_emmiter(), *it_chan);
+	// 		std::pair<std::string, Channel>	new_pair(*it_chan, current_channel);
+	// 		_channel_list.insert(new_pair);
+	// 	}
+	// 	else
+	// 		current_channel = _channel_list.find(*it_chan)->second;
+	// }
+
+	if (keys.empty() == false)
+	{
+		std::vector<std::string>::iterator it_chan(channels.begin());
+		for (std::vector<std::string>::iterator it_key = keys.begin();
+			it_key != keys.end(); ++it_key)
 		{
-			current_channel = Channel(msg.get_emmiter(), *it_chan);
-			std::pair<std::string, Channel>	new_pair(*it_chan, current_channel);
+			if (it_chan->empty() == true || is_channel_name_allowed(*it_chan) == false)
+				return (error_message(msg, *it_chan, ERR_NOSUCHCHANNEL));
+			if (_channel_list.find(*it_chan) == _channel_list.end())
+			{
+				Channel new_chan = Channel(msg.get_emmiter(), *it_chan);
+				std::pair<std::string, Channel>	new_pair(*it_chan, new_chan);
+				_channel_list.insert(new_pair);
+			}
+			else
+			{
+				Channel	*current_chan = &_channel_list.find(*it_chan)->second;
+				if (current_chan->_key != *it_key && current_chan->_key.empty() == false)
+					return (error_message(msg, *it_chan, ERR_BADCHANNELKEY));
+				else if (current_chan->_is_invite_only == true)
+				{
+					if (current_chan->_is(current_chan->_clients.find(msg.get_emmiter())->second, current_chan->INVITED) == true)
+						current_chan->add_new_member(msg.get_emmiter());
+					else
+						return (error_message(msg, *it_chan, ERR_INVITEONLYCHAN));
+				}
+			}
+			it_chan = channels.erase(channels.begin());
+		}
+	}
+	while (channels.empty() == false)
+	{
+		if (_channel_list.find(*channels.begin()) == _channel_list.end())
+		{
+			Channel new_chan = Channel(msg.get_emmiter(), *channels.begin());
+			std::pair<std::string, Channel>	new_pair(*channels.begin(), new_chan);
 			_channel_list.insert(new_pair);
 		}
 		else
-			current_channel = _channel_list.find(*it_chan)->second;
-
-		// if (current_channel._key.empty() == false && current_channel._key != *it_key)
-		// 	return (error_message(msg, *it_chan, ERR_BADCHANNELKEY));
-		// if (current_channel.is_invite_only == true
-		// 	&& current_channel.clients.find(msg.get_emmiter()) != current_channel.clients.end()
-		// 	&& )
+		{
+			Channel	*current_chan = &_channel_list.find(*channels.begin())->second;
+			if (current_chan->_is(current_chan->_clients.find(msg.get_emmiter())->second, current_chan->INVITED) == true)
+				_channel_list.find(*channels.begin())->second.add_new_member(msg.get_emmiter());
+			else
+				return (error_message(msg, *channels.begin(), ERR_INVITEONLYCHAN));
+		}
 	}
+	// if keys != empty() : iterate through keys
+		// if channel name unknown : create chan
+		// if channel key empty : add client to chan
+		// if bad key for channel : error bad chan key
+		// else : add client to chan
 
-
+	// if channel != empty()  : iterate through channels
+	// if channel name unknown : create chan
+	// else : add client to chan
 }
 
 /**

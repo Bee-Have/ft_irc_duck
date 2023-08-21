@@ -27,6 +27,9 @@ private:
 
 	Channel	&operator=(const Channel &assign);
 
+	bool	_is(int bitfield, int enumval) const;
+	void	add_new_member(int new_member);
+
 public:
 	Channel(const Channel &cpy);
 	~Channel();
