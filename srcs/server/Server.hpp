@@ -52,6 +52,7 @@ private:
 	// tools
 	int	_get_client_by_nickname(std::string nickname);
 	// JOIN command utils
+	void	new_chan_member_sucess(Message &msg, std::string chan);
 	void	join_space_error_behavior(Message &msg);
 
 public:

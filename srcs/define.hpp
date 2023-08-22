@@ -26,7 +26,7 @@
 #define RPL_TOPICWHOTIME "333 <client> <channel> <nick> <setat>\r\n"
 #define RPL_YOUREOPER "381 <client> :You are now an IRC operator\r\n"
 // TODO : check how to do RPL_NAMEREPLY properly since its size can vary
-#define RPL_NAMREPLY "353 <client> <symbol> <channel> :[prefix]<nick>{ [prefix]<nick>}\r\n"
+#define RPL_NAMREPLY "353 <client> <symbol> <channel> :<nick>{ <nick>}\r\n"
 #define RPL_ENDOFNAMES "366 <client> <channel> :End of /NAMES list\r\n"
 //		ERRORS
 #define ERR_NOSUCHNICK "401 <client> :<nickname> :No such nick/channel\r\n"
@@ -42,6 +42,7 @@
 #define ERR_BADCHANNELKEY "475 <client> <channel> :Cannot join channel (+k)\r\n"
 //		CUSTOM
 // 			REPLIES
+#define RPL_JOIN ":<source> JOIN <channel>\r\n"
 #define RPL_CLIENTLEFT "908 <client> :Client <nick> just left " SERVERNAME ", bye bye\r\n"
 // 			ERRRORS
 #define ERR_CANNOTBECOMEOPER "920 <client> :Operator role already fullfiled\r\n"

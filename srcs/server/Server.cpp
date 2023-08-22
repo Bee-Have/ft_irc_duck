@@ -313,12 +313,31 @@ void	Server::reply_message(Message &msg, std::vector<std::string> &replies, std:
 	{
 		msg.text.append(*it);
 		replace_rpl_err_text(msg, client_list.find(msg.get_emmiter())->second._nickname);
+		if (msg.text.find('{') != std::string::npos)
+
 		if (msg.text.find('<') != std::string::npos)
 		{
 			replace_rpl_err_text(msg, *it_replace);
 			++it_replace;
 		}
 	}
+}
+
+static void	reply_replace_curly_brackets(Message &msg, int replace_count)
+{
+	std::string	replace;
+	int		start = msg.text.find('{');
+
+	replace = msg.text.substr(start + 1, msg.text.find('}') - start + 1);
+
+	msg.text.erase(start + 1, msg.text.find('}') - start + 1);
+
+	for (int i = 0; i < replace_count; ++i)
+	{
+		msg.text.insert(start, replace);
+	}
+	msg.text.erase(msg.text.find('{'));
+	msg.text.erase(msg.text.find('}'));
 }
 
 /**
@@ -515,6 +534,36 @@ static bool	is_channel_name_allowed(std::string chan_name)
 	return (true);
 }
 
+void	Server::new_chan_member_sucess(Message &msg, std::string chan)
+{
+	std::vector<std::string>	replace;
+	std::vector<std::string>	replies;
+	Channel						channel_cpy(_channel_list.find(chan)->second);
+
+	replies.push_back(RPL_JOIN);
+	replace.push_back(chan);
+	if (_channel_list.find(chan)->second._topic.empty() == false)
+		replies.push_back(_channel_list.find(chan)->second._topic);
+	replies.push_back(RPL_NAMREPLY);
+	// TODO : check when modes is implemented that there isnt a if here to be added
+	replace.push_back("=");
+	replace.push_back(chan);
+	reply_replace_curly_brackets(msg, channel_cpy._clients.size());
+	for (std::map<int, int>::iterator it = channel_cpy._clients.begin();
+		it != channel_cpy._clients.end(); ++it)
+	{
+		std::string	nick(client_list.find(it->first)->second._nickname);
+		if (channel_cpy._is(it->second, channel_cpy.CHANOP) == true)
+			nick.insert(0, "@");
+		replace.push_back(nick);
+	}
+	replies.push_back(RPL_ENDOFNAMES);
+	replace.push_back(chan);
+}
+
+// TODO : split this function = it is way to big for simple understanding
+// TODO : implement the behaviour that happens upon sucessfully entering a channel
+// TODO : implement argument "0" and its behaviour once PART is implemented
 void	Server::join(Message &msg)
 {
 	std::string					tmp;
@@ -535,23 +584,6 @@ void	Server::join(Message &msg)
 		channels.back().append(",");
 		return (error_message(msg, channels.back(), ERR_NOSUCHCHANNEL));
 	}
-
-	// for (std::vector<std::string>::iterator	it_chan = channels.begin();
-	// 	it_chan != channels.end(); ++it_chan)
-	// {
-	// 	if (it_chan->empty() == true || is_channel_name_allowed(*it_chan) == false)
-	// 		return (error_message(msg, *it_chan, ERR_NOSUCHCHANNEL));
-
-	// 	if (_channel_list.find(*it_chan) == _channel_list.end())
-	// 	{
-	// 		current_channel = Channel(msg.get_emmiter(), *it_chan);
-	// 		std::pair<std::string, Channel>	new_pair(*it_chan, current_channel);
-	// 		_channel_list.insert(new_pair);
-	// 	}
-	// 	else
-	// 		current_channel = _channel_list.find(*it_chan)->second;
-	// }
-
 	if (keys.empty() == false)
 	{
 		std::vector<std::string>::iterator it_chan(channels.begin());
@@ -574,7 +606,10 @@ void	Server::join(Message &msg)
 				else if (current_chan->_is_invite_only == true)
 				{
 					if (current_chan->_is(current_chan->_clients.find(msg.get_emmiter())->second, current_chan->INVITED) == true)
+					{
 						current_chan->add_new_member(msg.get_emmiter());
+
+					}
 					else
 						return (error_message(msg, *it_chan, ERR_INVITEONLYCHAN));
 				}
@@ -594,7 +629,10 @@ void	Server::join(Message &msg)
 		{
 			Channel	*current_chan = &_channel_list.find(*channels.begin())->second;
 			if (current_chan->_is(current_chan->_clients.find(msg.get_emmiter())->second, current_chan->INVITED) == true)
+			{
 				_channel_list.find(*channels.begin())->second.add_new_member(msg.get_emmiter());
+
+			}
 			else
 				return (error_message(msg, *channels.begin(), ERR_INVITEONLYCHAN));
 		}
