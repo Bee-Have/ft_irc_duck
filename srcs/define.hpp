@@ -42,7 +42,7 @@
 #define ERR_BADCHANNELKEY "475 <client> <channel> :Cannot join channel (+k)\r\n"
 //		CUSTOM
 // 			REPLIES
-#define RPL_JOIN ":<source> JOIN <channel>\r\n"
+#define RPL_JOIN ":<client> JOIN <channel>\r\n"
 #define RPL_CLIENTLEFT "908 <client> :Client <nick> just left " SERVERNAME ", bye bye\r\n"
 // 			ERRRORS
 #define ERR_CANNOTBECOMEOPER "920 <client> :Operator role already fullfiled\r\n"

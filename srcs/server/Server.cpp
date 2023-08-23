@@ -44,6 +44,7 @@ Server::Server(int new_port, char *new_pass): _port(new_port), _pass(new_pass), 
 	commands["USER"] = &Server::user;
 	commands["OPER"] = &Server::oper;
 	commands["PRIVMSG"] = &Server::privmsg;
+	commands["JOIN"] = &Server::join;
 	commands["PING"] = &Server::ping;
 }
 
@@ -323,21 +324,31 @@ void	Server::reply_message(Message &msg, std::vector<std::string> &replies, std:
 	}
 }
 
-static void	reply_replace_curly_brackets(Message &msg, int replace_count)
+static void	reply_replace_curly_brackets(std::string &reply, int replace_count)
 {
 	std::string	replace;
-	int		start = msg.text.find('{');
+	int		start = reply.find('{');
 
-	replace = msg.text.substr(start + 1, msg.text.find('}') - start + 1);
+	std::cout << "replace count : " << replace_count << "\n";
 
-	msg.text.erase(start + 1, msg.text.find('}') - start + 1);
+	replace = reply.substr(start + 1, reply.find('}') - start - 1);
 
-	for (int i = 0; i < replace_count; ++i)
+	std::cout << "0 : [" << replace << "]\n";
+
+	reply.erase(start + 1, replace.size());
+
+	std::cout << "1 : " << reply << '\n';
+
+	for (int i = 0; i < replace_count - 1; ++i)
 	{
-		msg.text.insert(start, replace);
+		std::cout << "2 : " << reply << '\n';
+		// ! this line is the one that breaks everything
+		reply.insert(start, replace);
+		std::cout << "3 : " << reply << '\n';
 	}
-	msg.text.erase(msg.text.find('{'));
-	msg.text.erase(msg.text.find('}'));
+	std::cout << "4 : " << reply << std::endl;
+	reply.erase(start, 1);
+	reply.erase(reply.find('}'), 1);
 }
 
 /**
@@ -488,22 +499,24 @@ void	Server::privmsg(Message &msg)
 	msg.text.append("\r\n");
 }
 
+// TODO : resize result from the begining depending on number of ','
+// This will avoid doing too many memories allocations
 static std::vector<std::string>	split_join_cmd(std::string &str)
 {
 	std::vector<std::string>	result;
 
 	if (str.find(',') == std::string::npos)
 	{
-		result.insert(result.begin(), str);
+		result.push_back(str);
 		return (result);
 	}
 	while (str.find(',') != std::string::npos)
 	{
-		result.insert(result.end(), str.substr(0, str.find(',')));
+		result.push_back(str.substr(0, str.find(',')));
 		str.erase(str.find(',') + 1, str.size());
 	}
 	if (str.empty() == false)
-		result.insert(result.end(), str);
+		result.push_back(str);
 	return (result);
 }
 
@@ -548,7 +561,7 @@ void	Server::new_chan_member_sucess(Message &msg, std::string chan)
 	// TODO : check when modes is implemented that there isnt a if here to be added
 	replace.push_back("=");
 	replace.push_back(chan);
-	reply_replace_curly_brackets(msg, channel_cpy._clients.size());
+	reply_replace_curly_brackets(*replies.rbegin(), channel_cpy._clients.size());
 	for (std::map<int, int>::iterator it = channel_cpy._clients.begin();
 		it != channel_cpy._clients.end(); ++it)
 	{
@@ -559,6 +572,7 @@ void	Server::new_chan_member_sucess(Message &msg, std::string chan)
 	}
 	replies.push_back(RPL_ENDOFNAMES);
 	replace.push_back(chan);
+	reply_message(msg, replies, replace);
 }
 
 // TODO : split this function = it is way to big for simple understanding
@@ -570,10 +584,12 @@ void	Server::join(Message &msg)
 	std::vector<std::string>	channels;
 	std::vector<std::string>	keys;
 
+	std::cout << "join cmd start\n";
 	if (msg.cmd_param.find_first_of(" ") != msg.cmd_param.find_last_of(" "))
 		return (join_space_error_behavior(msg));
 	if (msg.cmd_param.find(' ') != std::string::npos)
 	{
+		std::cout << "found key(s)" << std::endl;
 		tmp = msg.cmd_param.substr(msg.cmd_param.find(' ') + 1, msg.cmd_param.size());
 		keys = split_join_cmd(tmp);
 		msg.cmd_param.erase(0, msg.cmd_param.find(' ') + 1);
@@ -586,10 +602,13 @@ void	Server::join(Message &msg)
 	}
 	if (keys.empty() == false)
 	{
+		std::cout << "should not pass here\n";
 		std::vector<std::string>::iterator it_chan(channels.begin());
 		for (std::vector<std::string>::iterator it_key = keys.begin();
 			it_key != keys.end(); ++it_key)
 		{
+			if (it_chan == channels.end())
+				break ;
 			if (it_chan->empty() == true || is_channel_name_allowed(*it_chan) == false)
 				return (error_message(msg, *it_chan, ERR_NOSUCHCHANNEL));
 			if (_channel_list.find(*it_chan) == _channel_list.end())
@@ -606,19 +625,23 @@ void	Server::join(Message &msg)
 				else if (current_chan->_is_invite_only == true)
 				{
 					if (current_chan->_is(current_chan->_clients.find(msg.get_emmiter())->second, current_chan->INVITED) == true)
-					{
 						current_chan->add_new_member(msg.get_emmiter());
-
-					}
 					else
-						return (error_message(msg, *it_chan, ERR_INVITEONLYCHAN));
+					{
+						if (current_chan->_is_invite_only == true)
+							return (error_message(msg, *it_chan, ERR_INVITEONLYCHAN));
+						else
+							current_chan->add_new_member(msg.get_emmiter());
+					}
 				}
 			}
+			new_chan_member_sucess(msg, *it_chan);
 			it_chan = channels.erase(channels.begin());
 		}
 	}
 	while (channels.empty() == false)
 	{
+		std::cout << *channels.begin() << std::endl;
 		if (_channel_list.find(*channels.begin()) == _channel_list.end())
 		{
 			Channel new_chan = Channel(msg.get_emmiter(), *channels.begin());
@@ -629,23 +652,18 @@ void	Server::join(Message &msg)
 		{
 			Channel	*current_chan = &_channel_list.find(*channels.begin())->second;
 			if (current_chan->_is(current_chan->_clients.find(msg.get_emmiter())->second, current_chan->INVITED) == true)
-			{
 				_channel_list.find(*channels.begin())->second.add_new_member(msg.get_emmiter());
-
-			}
 			else
-				return (error_message(msg, *channels.begin(), ERR_INVITEONLYCHAN));
+			{
+				if (current_chan->_is_invite_only == true)
+					return (error_message(msg, *channels.begin(), ERR_INVITEONLYCHAN));
+				else
+					_channel_list.find(*channels.begin())->second.add_new_member(msg.get_emmiter());
+			}
 		}
+		new_chan_member_sucess(msg, *channels.begin());
+		channels.erase(channels.begin());
 	}
-	// if keys != empty() : iterate through keys
-		// if channel name unknown : create chan
-		// if channel key empty : add client to chan
-		// if bad key for channel : error bad chan key
-		// else : add client to chan
-
-	// if channel != empty()  : iterate through channels
-	// if channel name unknown : create chan
-	// else : add client to chan
 }
 
 /**
