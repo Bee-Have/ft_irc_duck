@@ -314,9 +314,7 @@ void	Server::reply_message(Message &msg, std::vector<std::string> &replies, std:
 	{
 		msg.text.append(*it);
 		replace_rpl_err_text(msg, client_list.find(msg.get_emmiter())->second._nickname);
-		if (msg.text.find('{') != std::string::npos)
-
-		if (msg.text.find('<') != std::string::npos)
+		while (msg.text.find('<') != std::string::npos)
 		{
 			replace_rpl_err_text(msg, *it_replace);
 			++it_replace;
@@ -549,12 +547,12 @@ static bool	is_channel_name_allowed(std::string chan_name)
 
 void	Server::new_chan_member_sucess(Message &msg, std::string chan)
 {
-	std::vector<std::string>	replace;
-	std::vector<std::string>	replies;
 	Channel						channel_cpy(_channel_list.find(chan)->second);
+	std::vector<std::string>	replies(1, RPL_JOIN);
+	std::vector<std::string>	replace(1, chan);
 
-	replies.push_back(RPL_JOIN);
-	replace.push_back(chan);
+	// replies.resize(4);
+	// replace.resize(channel_cpy._clients.size() + 3);
 	if (_channel_list.find(chan)->second._topic.empty() == false)
 		replies.push_back(_channel_list.find(chan)->second._topic);
 	replies.push_back(RPL_NAMREPLY);
@@ -572,6 +570,11 @@ void	Server::new_chan_member_sucess(Message &msg, std::string chan)
 	}
 	replies.push_back(RPL_ENDOFNAMES);
 	replace.push_back(chan);
+	for (std::vector<std::string>::iterator it = replace.begin(); it < replace.end(); ++it)
+	{
+		std::cout << '[' << *it << "]-";
+	}
+	std::cout << std::endl;
 	reply_message(msg, replies, replace);
 }
 
@@ -642,6 +645,9 @@ void	Server::join(Message &msg)
 	while (channels.empty() == false)
 	{
 		std::cout << *channels.begin() << std::endl;
+		if (channels.begin()->empty() == true
+			|| is_channel_name_allowed(*channels.begin()) == false)
+				return (error_message(msg, *channels.begin(), ERR_NOSUCHCHANNEL));
 		if (_channel_list.find(*channels.begin()) == _channel_list.end())
 		{
 			Channel new_chan = Channel(msg.get_emmiter(), *channels.begin());
