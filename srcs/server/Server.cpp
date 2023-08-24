@@ -341,12 +341,13 @@ static void	reply_replace_curly_brackets(std::string &reply, int replace_count)
 	{
 		std::cout << "2 : " << reply << '\n';
 		// ! this line is the one that breaks everything
-		reply.insert(start, replace);
+		reply.insert(start + 1, replace);
 		std::cout << "3 : " << reply << '\n';
 	}
 	std::cout << "4 : " << reply << std::endl;
 	reply.erase(start, 1);
 	reply.erase(reply.find('}'), 1);
+	std::cout << "5 : " << reply << std::endl;
 }
 
 /**
