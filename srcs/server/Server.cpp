@@ -330,26 +330,14 @@ static void	reply_replace_curly_brackets(std::string &reply, int replace_count)
 	std::string	replace;
 	int		start = reply.find('{');
 
-	// std::cout << "replace count : " << replace_count << "\n";
-
 	replace = reply.substr(start + 1, reply.find('}') - start - 1);
-
-	// std::cout << "0 : [" << replace << "]\n";
-
 	reply.erase(start + 1, replace.size());
-
-	// std::cout << "1 : " << reply << '\n';
-
 	for (int i = 0; i < replace_count - 1; ++i)
 	{
-		// std::cout << "2 : " << reply << '\n';
 		reply.insert(start + 1, replace);
-		// std::cout << "3 : " << reply << '\n';
 	}
-	// std::cout << "4 : " << reply << std::endl;
 	reply.erase(start, 1);
 	reply.erase(reply.find('}'), 1);
-	// std::cout << "5 : " << reply << std::endl;
 }
 
 /**
@@ -553,9 +541,11 @@ void	Server::new_chan_member_sucess(Message &msg, std::string chan)
 	Channel						channel_cpy(_channel_list.find(chan)->second);
 	std::vector<std::string>	replies(1, RPL_JOIN);
 	std::vector<std::string>	replace(1, chan);
+	Message						new_member_warning(msg.get_emmiter());
 
-	// replies.resize(4);
-	// replace.resize(channel_cpy._clients.size() + 3);
+	reply_message(new_member_warning, RPL_JOIN, chan);
+	new_member_warning.target.clear();
+
 	if (_channel_list.find(chan)->second._topic.empty() == false)
 		replies.push_back(_channel_list.find(chan)->second._topic);
 	replies.push_back(RPL_NAMREPLY);
@@ -570,20 +560,15 @@ void	Server::new_chan_member_sucess(Message &msg, std::string chan)
 		if (channel_cpy._is(it->second, channel_cpy.CHANOP) == true)
 			nick.insert(0, "@");
 		replace.push_back(nick);
+		new_member_warning.target.insert(it->first);
 	}
 	replies.push_back(RPL_ENDOFNAMES);
 	replace.push_back(chan);
-	for (std::vector<std::string>::iterator it = replace.begin(); it < replace.end(); ++it)
-	{
-		std::cout << '[' << *it << "]-";
-	}
-	std::cout << std::endl;
 	reply_message(msg, replies, replace);
+	msgs.push_back(new_member_warning);
 }
 
 // TODO : split this function = it is way to big for simple understanding
-// TODO : implement the behaviour that happens upon sucessfully entering a channel
-// TODO : implement argument "0" and its behaviour once PART is implemented
 void	Server::join(Message &msg)
 {
 	std::string					tmp;
@@ -608,7 +593,6 @@ void	Server::join(Message &msg)
 	}
 	if (keys.empty() == false)
 	{
-		std::cout << "should not pass here\n";
 		std::vector<std::string>::iterator it_chan(channels.begin());
 		for (std::vector<std::string>::iterator it_key = keys.begin();
 			it_key != keys.end(); ++it_key)
