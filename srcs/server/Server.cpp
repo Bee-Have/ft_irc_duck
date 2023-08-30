@@ -296,8 +296,11 @@ void	Server::reply_message(Message &msg, std::string reply, std::string replace)
 	msg.target.insert(msg.get_emmiter());
 
 	msg.text.clear();
-	msg.text.append(reply);
-	replace_rpl_err_text(msg, client_list.find(msg.get_emmiter())->second._nickname);
+	msg.text = reply;
+	if (msg.get_emmiter() == _socket)
+		replace_rpl_err_text(msg, SERVERNAME);
+	else
+		replace_rpl_err_text(msg, client_list.find(msg.get_emmiter())->second._nickname);
 	if (msg.text.find('<') != std::string::npos)
 		replace_rpl_err_text(msg, replace);
 }
@@ -327,27 +330,26 @@ static void	reply_replace_curly_brackets(std::string &reply, int replace_count)
 	std::string	replace;
 	int		start = reply.find('{');
 
-	std::cout << "replace count : " << replace_count << "\n";
+	// std::cout << "replace count : " << replace_count << "\n";
 
 	replace = reply.substr(start + 1, reply.find('}') - start - 1);
 
-	std::cout << "0 : [" << replace << "]\n";
+	// std::cout << "0 : [" << replace << "]\n";
 
 	reply.erase(start + 1, replace.size());
 
-	std::cout << "1 : " << reply << '\n';
+	// std::cout << "1 : " << reply << '\n';
 
 	for (int i = 0; i < replace_count - 1; ++i)
 	{
-		std::cout << "2 : " << reply << '\n';
-		// ! this line is the one that breaks everything
+		// std::cout << "2 : " << reply << '\n';
 		reply.insert(start + 1, replace);
-		std::cout << "3 : " << reply << '\n';
+		// std::cout << "3 : " << reply << '\n';
 	}
-	std::cout << "4 : " << reply << std::endl;
+	// std::cout << "4 : " << reply << std::endl;
 	reply.erase(start, 1);
 	reply.erase(reply.find('}'), 1);
-	std::cout << "5 : " << reply << std::endl;
+	// std::cout << "5 : " << reply << std::endl;
 }
 
 /**
@@ -527,7 +529,7 @@ void	Server::join_space_error_behavior(Message &msg)
 
 	if (msg.cmd_param.find_first_of(",") < msg.cmd_param.find_first_of(" "))
 	{
-		begin = msg.cmd_param.find("," + 1);
+		begin = msg.cmd_param.find(",") + 1;
 		if (msg.cmd_param.find(",", begin) < msg.cmd_param.find(" ", msg.cmd_param.find_first_of(" ") + 1))
 			end = msg.cmd_param.find(",", begin) - begin;
 		else
