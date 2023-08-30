@@ -261,6 +261,12 @@ int	Server::_get_client_by_nickname(std::string nickname)
 	return (-1);
 }
 
+/**
+ * @brief replace "<>" by the given value
+ * 
+ * @param msg the message to alter
+ * @param replace the text to replace the "<>" with
+ */
 static void	replace_rpl_err_text(Message &msg, std::string replace)
 {
 	int	begin = 0;
@@ -290,6 +296,15 @@ void	Server::error_message(Message &msg, std::string prefix, std::string error)
 		replace_rpl_err_text(msg, prefix);
 }
 
+/**
+ * @brief setup a "Message"(class) text with the reply given. It will also 
+ * replace the "<>" with the value given
+ * @note the first "<>" of the RPL will ALWAYS be the client nickname sending the RPL
+ * 
+ * @param msg the message to setup
+ * @param replies the replies to be concatenated
+ * @param replace the values to replace the "<>"
+ */
 void	Server::reply_message(Message &msg, std::string reply, std::string replace)
 {
 	msg.target.clear();
@@ -305,6 +320,15 @@ void	Server::reply_message(Message &msg, std::string reply, std::string replace)
 		replace_rpl_err_text(msg, replace);
 }
 
+/**
+ * @brief setup a "Message"(class) text with the replies given. It will also 
+ * replace all the necessary "<>" with the apropriate values given
+ * @note the first "<>" of each RPL will ALWAYS be the client nickname sending the RPL
+ * 
+ * @param msg the message to setup
+ * @param replies the replies to be concatenated
+ * @param replace the values to replace the "<>"
+ */
 void	Server::reply_message(Message &msg, std::vector<std::string> &replies, std::vector<std::string> &replace)
 {
 	std::vector<std::string>::iterator it_replace = replace.begin();
@@ -325,6 +349,16 @@ void	Server::reply_message(Message &msg, std::vector<std::string> &replies, std:
 	}
 }
 
+/**
+ * @brief replace curly brackets "{}" in RPL or ERR to the appropriate values
+ * @note in define.hpp you will sometime see "{}". These means there is a 
+ * variadic number of elements to be added between them.
+ * This function does just that.
+ * 
+ * @param reply the string to alter with the cruly brackets "{}"
+ * @param replace_count the number of times you have to insert the appropriate 
+ * value.
+ */
 static void	reply_replace_curly_brackets(std::string &reply, int replace_count)
 {
 	std::string	replace;
@@ -440,6 +474,11 @@ void	Server::user(Message &msg)
 	reply_message(msg, replies, rpl_replace);
 }
 
+/**
+ * @brief attempt to become a server operator using a specific password
+ * 
+ * @param msg the message containing the command.
+ */
 void	Server::oper(Message &msg)
 {
 	std::string	oper;
@@ -488,8 +527,15 @@ void	Server::privmsg(Message &msg)
 	msg.text.append("\r\n");
 }
 
-// TODO : resize result from the begining depending on number of ','
-// This will avoid doing too many memories allocations
+/**
+ * @brief split JOIN parameters to better use them
+ * @note this function will split the parameters into vector<string>,
+ * it will be used up to two times, once for the keys (if there are keys),
+ * and once for the channel names
+ * 
+ * @param str the string to split into multiple parameters
+ * @return std::vector<std::string> of either channels or keys
+ */
 static std::vector<std::string>	split_join_cmd(std::string &str)
 {
 	std::vector<std::string>	result;
@@ -509,6 +555,11 @@ static std::vector<std::string>	split_join_cmd(std::string &str)
 	return (result);
 }
 
+/**
+ * @brief This function will setup the error for too many spaces in JOIN parameters.
+ * 
+ * @param msg the message to setup as ERR_NOSUCHANNEL (see define.hpp)
+ */
 void	Server::join_space_error_behavior(Message &msg)
 {
 	std::string	channel_name;
@@ -527,6 +578,14 @@ void	Server::join_space_error_behavior(Message &msg)
 	error_message(msg, channel_name, ERR_NOSUCHCHANNEL);
 }
 
+/**
+ * @brief simple boolean function to check wether the supplied channel name 
+ * is allowed or not.
+ * 
+ * @param chan_name the channel name to check
+ * @return true = the channel name is allowed
+ * @return false = the channel name is not allowed
+ */
 static bool	is_channel_name_allowed(std::string chan_name)
 {
 	if (chan_name[0] != '#' && chan_name[0] != '&')
@@ -536,6 +595,13 @@ static bool	is_channel_name_allowed(std::string chan_name)
 	return (true);
 }
 
+/**
+ * @brief this function will setup all the necessary reply messages once a 
+ * client has successfully joined a channel
+ * 
+ * @param msg the message to alter
+ * @param chan the name of the channel that was joined
+ */
 void	Server::new_chan_member_sucess(Message &msg, std::string chan)
 {
 	Channel						channel_cpy(_channel_list.find(chan)->second);
