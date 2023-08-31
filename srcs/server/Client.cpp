@@ -19,7 +19,7 @@ Client::Client(int new_socket): _socket(new_socket), _is_registered(false)
 
 /**
  * @brief Construct a new Client::Client object
- * @note this constructor is called by the containers upon manipulation of Client_list
+ * @note this constructor is called by the containers upon manipulation of client_list
 
  * @param cpy the client to construct the newclient from
  */

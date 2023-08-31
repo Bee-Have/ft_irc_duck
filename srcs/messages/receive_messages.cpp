@@ -22,7 +22,7 @@ static int	find_incomplete_msg(Server &serv, Client emmiter)
 }
 
 /**
- * @brief register any new messages from each of the clients in Client_list
+ * @brief register any new messages from each of the clients in client_list
  * 
  * @param serv the server, which contains all the clients and messages
  * @param read_fds the fds changed by "select()". Only the fds we can read on will be in read_fds

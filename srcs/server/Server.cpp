@@ -86,7 +86,7 @@ int	Server::get_socket(void) const
 }
 
 /**
- * @brief Adds a new client to the Client_list
+ * @brief Adds a new client to the client_list
 
  * @note A new socket will be given to the client using "accept()".
  * The socket will then be checked using "getsockopt()"
@@ -182,9 +182,9 @@ void	Server::del_client(int fd)
 }
 
 /**
- * @brief Finds the maximum value fd existing in Client_list and returns it for "select()"
+ * @brief Finds the maximum value fd existing in client_list and returns it for "select()"
  * 
- * @return the maximum fd found in Client_list
+ * @return the maximum fd found in client_list
  */
 int	Server::get_max_fd(void) const
 {
@@ -200,7 +200,7 @@ int	Server::get_max_fd(void) const
 
 /**
  * @brief Adds server fd and all client fd we wish to read on for "select()"
- * @note (this will always return all fds in Client_list)
+ * @note (this will always return all fds in client_list)
  * 
  * @return fd_set of the client fd and server socket
  */
@@ -244,7 +244,7 @@ fd_set	Server::get_write_fds(void) const
 }
 
 /**
- * @brief Checks wethere param nickname exists in Client_list
+ * @brief Checks wethere param nickname exists in client_list
  * 
  * @param nickname the nickname to check
  * @return int -1 if no client is found.
