@@ -539,16 +539,18 @@ void	Server::privmsg(Message &msg)
 static std::vector<std::string>	split_join_cmd(std::string &str)
 {
 	std::vector<std::string>	result;
+	size_t						comma = str.find(',');
 
-	if (str.find(',') == std::string::npos)
+	if (comma == std::string::npos)
 	{
 		result.push_back(str);
 		return (result);
 	}
-	while (str.find(',') != std::string::npos)
+	while (comma != std::string::npos)
 	{
-		result.push_back(str.substr(0, str.find(',')));
-		str.erase(str.find(',') + 1, str.size());
+		result.push_back(str.substr(0, comma));
+		str.erase(0, comma + 1);
+		comma = str.find(',');
 	}
 	if (str.empty() == false)
 		result.push_back(str);
@@ -598,6 +600,8 @@ static bool	is_channel_name_allowed(std::string chan_name)
 /**
  * @brief this function will setup all the necessary reply messages once a 
  * client has successfully joined a channel
+ * @note it will also send a message to all the other channel members to warn 
+ * them a new member has arrived
  * 
  * @param msg the message to alter
  * @param chan the name of the channel that was joined
@@ -607,6 +611,7 @@ void	Server::new_chan_member_sucess(Message &msg, std::string chan)
 	Channel						channel_cpy(_channel_list.find(chan)->second);
 	std::vector<std::string>	replies(1, RPL_JOIN);
 	std::vector<std::string>	replace(1, chan);
+	Message						reply(msg.get_emmiter());
 	Message						new_member_warning(msg.get_emmiter());
 
 	reply_message(new_member_warning, RPL_JOIN, chan);
@@ -626,12 +631,15 @@ void	Server::new_chan_member_sucess(Message &msg, std::string chan)
 		if (channel_cpy._is(it->second, channel_cpy.CHANOP) == true)
 			nick.insert(0, "@");
 		replace.push_back(nick);
-		new_member_warning.target.insert(it->first);
+		if (it->first != msg.get_emmiter())
+			new_member_warning.target.insert(it->first);
 	}
 	replies.push_back(RPL_ENDOFNAMES);
 	replace.push_back(chan);
-	reply_message(msg, replies, replace);
-	msgs.push_back(new_member_warning);
+	reply_message(reply, replies, replace);
+	msgs.push_back(reply);
+	if (channel_cpy._clients.size() > 1)
+		msgs.push_back(new_member_warning);
 }
 
 void	Server::join_create_channel(Message &msg, std::string chan_name)
@@ -678,21 +686,24 @@ void	Server::join_channel(Message &msg, std::vector<std::string> chans, std::vec
 		{
 			Message	error(msg.get_emmiter());
 			error_message(error, *it_chan, ERR_NOSUCHCHANNEL);
+			std::cout << "ERR BAD CHAN [" << error.text << ']' << std::endl;
 			msgs.push_back(error);
 		}
-		if (_channel_list.find(*it_chan) == _channel_list.end())
-			join_create_channel(msg, *it_chan);
 		else
 		{
-			Channel	*current_chan = &_channel_list.find(*it_chan)->second;
-			join_check_existing_chan(msg, current_chan, keys);
+			if (_channel_list.find(*it_chan) == _channel_list.end())
+				join_create_channel(msg, *it_chan);
+			else
+			{
+				Channel	*current_chan = &_channel_list.find(*it_chan)->second;
+				join_check_existing_chan(msg, current_chan, keys);
+			}
 		}
 		if (keys.empty() == false)
 			keys.erase(keys.begin());
 	}
 }
 
-// TODO : split this function = it is way to big for simple understanding
 void	Server::join(Message &msg)
 {
 	std::string					tmp;
@@ -712,6 +723,11 @@ void	Server::join(Message &msg)
 	{
 		channels.back().append(",");
 		return (error_message(msg, channels.back(), ERR_NOSUCHCHANNEL));
+	}
+	for (std::vector<std::string>::iterator it = channels.begin()
+		; it != channels.end() ; ++it)
+	{
+		std::cout << "CHAN [" << *it << "]\n";
 	}
 	join_channel(msg, channels, keys);
 }
