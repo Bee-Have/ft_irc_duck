@@ -78,11 +78,11 @@ void	receive_messages(Server &serv, fd_set read_fds)
 						else
 						{
 							new_msg.text.assign(tmp.substr(0, tmp.find("\n") + 1));
-							// std::cout << "string::msg:" << new_msg.text << '|' << std::endl;
 							check_for_cmds(serv, new_msg);
 							if (new_msg.text.empty() == false && new_msg.target.empty() == false)
 							{
 								// std::cout << "SAVING MSG TO SEND" << std::endl;
+								// serv.msgs.reserve(serv.msgs.size() + 2);
 								serv.msgs.push_back(new_msg);
 							}
 						}

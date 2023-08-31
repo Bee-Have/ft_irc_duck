@@ -52,11 +52,11 @@ private:
 	// tools
 	int	_get_client_by_nickname(std::string nickname);
 	// JOIN command utils
-	void	new_chan_member_sucess(Message &msg, std::string chan);
 	void	join_space_error(Message &msg);
-	void	join_channel(Message &msg, std::vector<std::string> chans, std::vector<std::string> keys);
-	void	join_create_channel(Message &msg, std::string chan_name);
-	void	join_check_existing_chan(Message &msg, Channel *channel, std::vector<std::string> keys);
+	void	new_chan_member_sucess(Message msg, std::string chan);
+	void	join_channel(Message msg, std::vector<std::string> chans, std::vector<std::string> keys);
+	void	join_create_channel(Message msg, std::string chan_name);
+	void	join_check_existing_chan(Message msg, Channel *channel, std::vector<std::string> keys);
 
 
 public:
@@ -67,7 +67,7 @@ public:
 	~Server();
 
 	Server	&operator=(const Server &assign);
-
+ 
 	// encapsulation
 	int		get_socket() const;
 
