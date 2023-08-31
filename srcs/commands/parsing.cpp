@@ -10,7 +10,7 @@
  * 
  * @param msg the message with the raw text inside to parse and split into the command
  */
-static void	parsing_cmds(server &serv, message &msg)
+static void	parsing_cmds(Server &serv, Message &msg)
 {
 	std::cout << "PARSING" << std::endl;
 	if (msg.text.find("\n") != std::string::npos)
@@ -41,7 +41,7 @@ static void	parsing_cmds(server &serv, message &msg)
  * @param serv the server
  * @param msg  the message we just received
  */
-void	check_for_cmds(server &serv, message &msg)
+void	check_for_cmds(Server &serv, Message &msg)
 {
 
 	std::cout << "MSG:" << msg.text << '|' << std::endl;
@@ -51,5 +51,9 @@ void	check_for_cmds(server &serv, message &msg)
 	if (serv.commands.find(msg.cmd) == serv.commands.end())
 		return ;
 	std::cout << "CMD FOUND :" << msg.cmd << std::endl;
-	(serv.*serv.commands[msg.cmd])(msg);
+	if (serv.client_list.find(msg.get_emmiter())->second.get_is_registered() == false
+		&& msg.cmd != "PASS")
+		serv.error_message(msg, "", ERR_UNREGISTERED);
+	else
+		(serv.*serv.commands[msg.cmd])(msg);
 }

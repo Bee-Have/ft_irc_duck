@@ -5,12 +5,15 @@
  * 
  * @param serv the server, which has all the messages
  */
-static void	check_msgs_to_delete(server &serv)
+static void	check_msgs_to_delete(Server &serv)
 {
-	for (std::vector<message>::iterator it = serv.msgs.begin();
+	for (std::vector<Message>::iterator it = serv.msgs.begin();
 		it != serv.msgs.end(); ++it)
 	{
-		if (it->text.find("\r\n") != std::string::npos && it->target.empty() == true)
+		std::cout  << "check[" << it->text << ']' << std::endl;
+		if (it->text.find("\r\n") != std::string::npos
+			&& it->text.find("\r\n") + 2 == it->text.size()
+			&& it->target.empty() == true)
 		{
 			it = serv.msgs.erase(it);
 			if (serv.msgs.empty() == true)
@@ -24,14 +27,14 @@ static void	check_msgs_to_delete(server &serv)
  * 
  * @param serv the server, wich has all the messages
  */
-static void	merge_msgs(server &serv)
+static void	merge_msgs(Server &serv)
 {
 	if (serv.msgs.size() <= 1)
 		return ;
-	for (std::vector<message>::iterator it_a = serv.msgs.begin();
+	for (std::vector<Message>::iterator it_a = serv.msgs.begin();
 		it_a != serv.msgs.end(); ++it_a)
 	{
-		for (std::vector<message>::iterator it_b = it_a + 1;
+		for (std::vector<Message>::iterator it_b = it_a + 1;
 			it_b != serv.msgs.end(); ++it_b)
 		{
 			if (it_a->target == it_b->target)
@@ -47,17 +50,17 @@ static void	merge_msgs(server &serv)
 /**
  * @brief temprorary debug function to print all messages
  */
-// static void	print_msgs(server &serv)
+// static void	print_msgs(Server &serv)
 // {
 // 	std::cout << "START PRINT MSGS:";
-// 	for (std::vector<message>::iterator it = serv.msgs.begin(); it != serv.msgs.end(); ++it)
+// 	for (std::vector<Message>::iterator it = serv.msgs.begin(); it != serv.msgs.end(); ++it)
 // 	{
 // 		std::cout << "it:" << it->text;
 // 	}
 // }
 
 /**
- * @brief This function messages to the target (server::msgs->target) if :
+ * @brief This function messages to the target (Server::msgs->target) if :
  * 1.the target fd is present in write_fds (allowed list of fds given by select()).
  * 2.the message contains an end of message : '\r\n'
  * @note After sending a message the target fd will be deleted from the message targets.
@@ -67,14 +70,14 @@ static void	merge_msgs(server &serv)
  * @param serv the server, which has all the messages
  * @param write_fds the fds after "select()" which are the fds we can "send()" messages to
  */
-void	send_messages(server &serv, fd_set &write_fds)
+void	send_messages(Server &serv, fd_set &write_fds)
 {
 	check_msgs_to_delete(serv);
 	if (serv.msgs.empty() == true)
 		return ;
 	merge_msgs(serv);
 	std::cout << "gonna send msg" << std::endl;
-	for (std::vector<message>::iterator it_msg = serv.msgs.begin();
+	for (std::vector<Message>::iterator it_msg = serv.msgs.begin();
 		it_msg != serv.msgs.end(); ++it_msg)
 	{
 		std::cout << "msg:" << it_msg->text << "|";

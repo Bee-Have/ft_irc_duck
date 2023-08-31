@@ -22,7 +22,7 @@ int	main(int ac, char **av)
 	ss << tmp;
 	ss >> port;
 
-	server	serv(port, av[2]);
+	Server	serv(port, av[2]);
 	server_loop(serv);
 	return (0);
 }
