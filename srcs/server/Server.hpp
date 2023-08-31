@@ -86,8 +86,6 @@ public:
 	std::map<std::string, command>	commands;
 	// commands
 	//		connect to IRSSI
-	void	pass(Message &msg);
-	void	nick(Message &msg);
 	void	user(Message &msg);
 	// Requirements
 	void	oper(Message &msg);

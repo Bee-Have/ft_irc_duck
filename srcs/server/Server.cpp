@@ -262,48 +262,6 @@ int	Server::_get_client_by_nickname(std::string nickname)
 }
 
 /**
- * @brief checks wether nickname is allowed.
- * @note check irssi RFC for specification of nickname policy.
- * This function is only called and used by "nick()"
- * 
- * @param nickname the nickname to check
- * @return true if the nickname is allowed
- * @return false if the nickname isn't allowed
- */
-static bool	is_nickname_allowed(std::string  nickname)
-{
-	if (nickname.size() > 9)
-		return (false);
-	if (std::isdigit(nickname[0]) != 0 || nickname[0] == '-')
-		return (false);
-	if (nickname.find_first_not_of(NICK_GOOD_CHARACTERS) != std::string::npos)
-		return (false);
-	return (true);
-}
-
-/**
- * @brief changes the nickname of a user ("msg.get_emitter()")
- * 
- * @param msg the message containing the command
- * @note if the nickname in msg.cmd.param is not allowed or missing or already in use, "error_message()" will be called
- */
-void	Server::nick(Message &msg)
-{
-	std::string	nickname;
-
-	if (msg.cmd_param.empty() == true)
-		return (error_message(msg, "", ERR_NONICKNAMEGIVEN));
-	nickname = msg.cmd_param.substr(0, msg.cmd_param.find(' '));
-	if (is_nickname_allowed(nickname) == false)
-		return (error_message(msg, nickname, ERR_ERRONEUSNICKNAME));
-	if (_get_client_by_nickname(nickname) != -1)
-		return (error_message(msg, nickname, ERR_NICKNAMEINUSE));
-	client_list.find(msg.get_emitter())->second.nickname = nickname;
-	msg.text.clear();
-	// std::cout << "worked:" << client_list.find(msg.get_emitter())->second.nickname << std::endl;
-}
-
-/**
  * @brief assigns a username and realname to a specific client ("msg.get_emitter()")
  * 
  * @param msg the message containing the command

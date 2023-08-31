@@ -1,8 +1,5 @@
 #include "Pass.hpp"
 
-Pass::Pass()
-{}
-
 Pass::Pass(std::string p_name, const Server &p_serv): ICommand(p_name, p_serv)
 {}
 
