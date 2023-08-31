@@ -84,9 +84,6 @@ public:
 	typedef void(Server::*command)(Message &);
 	std::map<std::string, command>	commands;
 	// commands
-	void	error_message(Message &msg, std::string prefix, std::string error);
-	void	reply_message(Message &msg, std::string reply, std::string replace);
-	void	reply_message(Message &msg, std::vector<std::string> &errors, std::vector<std::string> &replace);
 	//		connect to IRSSI
 	void	pass(Message &msg);
 	void	nick(Message &msg);

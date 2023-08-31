@@ -13,11 +13,12 @@ private:
 
 	int			_socket;
 	bool		_is_registered;
-	std::string	_nickname;
 	std::string	_username;
 	std::string	_realname;
 
 public:
+	std::string	nickname;
+
 	Client(const Client &cpy);
 	~Client();
 

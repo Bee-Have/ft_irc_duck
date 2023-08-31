@@ -4,15 +4,15 @@
  * @brief looks for incomplete messages from a specific client. incomplete means there is no tailing "\r\n"
  * 
  * @param serv the server, which contains all the messages
- * @param emmiter the specific client to check incomplete messages from
+ * @param emitter the specific client to check incomplete messages from
  * @return either the position of an incomplete message in Server::msgs
  * or -1 if no incomplete message is found
  */
-static int	find_incomplete_msg(Server &serv, Client emmiter)
+static int	find_incomplete_msg(Server &serv, Client emitter)
 {
 	for (std::vector<Message>::iterator it = serv.msgs.begin(); it != serv.msgs.end(); ++it)
 	{
-		if (it->get_emmiter() == emmiter.get_socket()
+		if (it->get_emitter() == emitter.get_socket()
 			&& it->text.find("\r\n") == std::string::npos)
 		{
 			return (it - serv.msgs.begin());

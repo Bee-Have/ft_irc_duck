@@ -135,7 +135,7 @@ void	Server::del_client(int fd)
 	// delete client from messages
 	for (std::vector<Message>::iterator it = msgs.begin(); it != msgs.end(); ++it)
 	{
-		if (it->get_emmiter() == fd && (it->target.empty() == true
+		if (it->get_emitter() == fd && (it->target.empty() == true
 			|| (it->target.size() == 1 && it->target.find(fd) != it->target.end())))
 		{
 			it = msgs.erase(it);
@@ -163,7 +163,7 @@ void	Server::del_client(int fd)
 				// ! This behaviour might become problematic with the implementation of QUIT
 				// TODO : check QUIT message & alter this behaviour
 				Message	new_msg(_socket);
-				reply_message(new_msg, RPL_CLIENTLEFT, client_list.find(fd)->second._nickname);
+				new_msg.error_format(RPL_CLIENTLEFT, client_list.find(fd)->second.nickname, _socket);
 				new_msg.target.clear();
 				for (std::map<int, int>::iterator it_chan_client = it->second._clients.begin();
 					it_chan_client != it->second._clients.end(); ++it_chan_client)
@@ -255,123 +255,10 @@ int	Server::_get_client_by_nickname(std::string nickname)
 	for (std::map<int, Client>::iterator it = client_list.begin();
 		it != client_list.end(); ++it)
 	{
-		if (nickname.compare(it->second._nickname) == 0)
+		if (nickname.compare(it->second.nickname) == 0)
 			return (it->first);
 	}
 	return (-1);
-}
-
-/**
- * @brief replace "<>" by the given value
- * 
- * @param msg the message to alter
- * @param replace the text to replace the "<>" with
- */
-static void	replace_rpl_err_text(Message &msg, std::string replace)
-{
-	int	begin = 0;
-	int	end = 0;
-
-	begin = msg.text.find('<');
-	end = (msg.text.find('>') + 1) - begin;
-	msg.text.replace(begin, end, replace);
-}
-
-/**
- * private fuction
- * @brief Setup an error message with the parameters
- * 
- * @param msg the message to turn into an error
- * @param prefix if there is something to replace in the prefix of the error
- * @param error the error declared in : "define.hpp"
- */
-void	Server::error_message(Message &msg, std::string prefix, std::string error)
-{
-	msg.target.clear();
-	msg.target.insert(msg.get_emmiter());
-
-	msg.text = error;
-	replace_rpl_err_text(msg, client_list.find(msg.get_emmiter())->second._nickname);
-	if (prefix.empty() == false)
-		replace_rpl_err_text(msg, prefix);
-}
-
-/**
- * @brief setup a "Message"(class) text with the reply given. It will also 
- * replace the "<>" with the value given
- * @note the first "<>" of the RPL will ALWAYS be the client nickname sending the RPL
- * 
- * @param msg the message to setup
- * @param replies the replies to be concatenated
- * @param replace the values to replace the "<>"
- */
-void	Server::reply_message(Message &msg, std::string reply, std::string replace)
-{
-	msg.target.clear();
-	msg.target.insert(msg.get_emmiter());
-
-	msg.text.clear();
-	msg.text = reply;
-	if (msg.get_emmiter() == _socket)
-		replace_rpl_err_text(msg, SERVERNAME);
-	else
-		replace_rpl_err_text(msg, client_list.find(msg.get_emmiter())->second._nickname);
-	if (msg.text.find('<') != std::string::npos)
-		replace_rpl_err_text(msg, replace);
-}
-
-/**
- * @brief setup a "Message"(class) text with the replies given. It will also 
- * replace all the necessary "<>" with the apropriate values given
- * @note the first "<>" of each RPL will ALWAYS be the client nickname sending the RPL
- * 
- * @param msg the message to setup
- * @param replies the replies to be concatenated
- * @param replace the values to replace the "<>"
- */
-void	Server::reply_message(Message &msg, std::vector<std::string> &replies, std::vector<std::string> &replace)
-{
-	std::vector<std::string>::iterator it_replace = replace.begin();
-
-	msg.target.clear();
-	msg.target.insert(msg.get_emmiter());
-
-	msg.text.clear();
-	for (std::vector<std::string>::iterator it = replies.begin(); it != replies.end(); ++it)
-	{
-		msg.text.append(*it);
-		replace_rpl_err_text(msg, client_list.find(msg.get_emmiter())->second._nickname);
-		while (msg.text.find('<') != std::string::npos)
-		{
-			replace_rpl_err_text(msg, *it_replace);
-			++it_replace;
-		}
-	}
-}
-
-/**
- * @brief replace curly brackets "{}" in RPL or ERR to the appropriate values
- * @note in define.hpp you will sometime see "{}". These means there is a 
- * variadic number of elements to be added between them.
- * This function does just that.
- * 
- * @param reply the string to alter with the cruly brackets "{}"
- * @param replace_count the number of times you have to insert the appropriate 
- * value.
- */
-static void	reply_replace_curly_brackets(std::string &reply, int replace_count)
-{
-	std::string	replace;
-	int		start = reply.find('{');
-
-	replace = reply.substr(start + 1, reply.find('}') - start - 1);
-	reply.erase(start + 1, replace.size());
-	for (int i = 0; i < replace_count - 1; ++i)
-	{
-		reply.insert(start + 1, replace);
-	}
-	reply.erase(start, 1);
-	reply.erase(reply.find('}'), 1);
 }
 
 /**
@@ -382,11 +269,11 @@ static void	reply_replace_curly_brackets(std::string &reply, int replace_count)
  */
 void	Server::pass(Message &msg)
 {
-	if (client_list.find(msg.get_emmiter())->second._is_registered == true)
+	if (client_list.find(msg.get_emitter())->second._is_registered == true)
 		return (error_message(msg, "", ERR_ALREADYREGISTRED));
 	if (_pass.compare(msg.cmd_param) != 0)
 		return (error_message(msg, "", ERR_PASSWDMISMATCH));
-	client_list.find(msg.get_emmiter())->second._is_registered = true;
+	client_list.find(msg.get_emitter())->second._is_registered = true;
 	msg.text.clear();
 }
 
@@ -411,7 +298,7 @@ static bool	is_nickname_allowed(std::string  nickname)
 }
 
 /**
- * @brief changes the nickname of a user ("msg.get_emmiter()")
+ * @brief changes the nickname of a user ("msg.get_emitter()")
  * 
  * @param msg the message containing the command
  * @note if the nickname in msg.cmd.param is not allowed or missing or already in use, "error_message()" will be called
@@ -427,13 +314,13 @@ void	Server::nick(Message &msg)
 		return (error_message(msg, nickname, ERR_ERRONEUSNICKNAME));
 	if (_get_client_by_nickname(nickname) != -1)
 		return (error_message(msg, nickname, ERR_NICKNAMEINUSE));
-	client_list.find(msg.get_emmiter())->second._nickname = nickname;
+	client_list.find(msg.get_emitter())->second.nickname = nickname;
 	msg.text.clear();
-	// std::cout << "worked:" << client_list.find(msg.get_emmiter())->second._nickname << std::endl;
+	// std::cout << "worked:" << client_list.find(msg.get_emitter())->second.nickname << std::endl;
 }
 
 /**
- * @brief assigns a username and realname to a specific client ("msg.get_emmiter()")
+ * @brief assigns a username and realname to a specific client ("msg.get_emitter()")
  * 
  * @param msg the message containing the command
  * @note if client is unregistered of no username or realname is given, call "error_message()".
@@ -441,7 +328,7 @@ void	Server::nick(Message &msg)
  */
 void	Server::user(Message &msg)
 {
-	Client				&tmp(client_list.find(msg.get_emmiter())->second);
+	Client				&tmp(client_list.find(msg.get_emitter())->second);
 	std::vector<std::string>	replies;
 	std::vector<std::string>	rpl_replace;
 	std::time_t					time = std::time(0);
@@ -451,7 +338,7 @@ void	Server::user(Message &msg)
 
 	ss << (now->tm_year + 1900) << '-' << (now->tm_mon + 1) << '-' << now->tm_mday;
 	ss >> date;
-	if (tmp._nickname.empty() == true)
+	if (tmp.nickname.empty() == true)
 		return (error_message(msg, "", ERR_NONICKNAMEGIVEN));
 	if (msg.cmd_param.find(':') == std::string::npos
 		|| msg.cmd_param.find(' ') == std::string::npos)
@@ -468,7 +355,7 @@ void	Server::user(Message &msg)
 	replies.push_back(RPL_MYINFO);
 	replies.push_back(RPL_ISUPPORT);
 
-	rpl_replace.push_back(tmp._nickname);
+	rpl_replace.push_back(tmp.nickname);
 	rpl_replace.push_back(date);
 
 	reply_message(msg, replies, rpl_replace);
@@ -495,7 +382,7 @@ void	Server::oper(Message &msg)
 	if (_oper_pass != pass)
 		return (error_message(msg, "", ERR_PASSWDMISMATCH));
 	
-	_oper_socket = msg.get_emmiter();
+	_oper_socket = msg.get_emitter();
 	reply_message(msg, RPL_YOUREOPER, "");
 }
 
@@ -521,7 +408,7 @@ void	Server::privmsg(Message &msg)
 	msg.target.clear();
 	msg.target.insert(target.first);
 	msg.text = ":";
-	msg.text.append(client_list.find(msg.get_emmiter())->second._nickname);
+	msg.text.append(client_list.find(msg.get_emitter())->second.nickname);
 	msg.text.append(" PRIVMSG ");
 	msg.text.append(text);
 	msg.text.append("\r\n");
@@ -611,8 +498,8 @@ void	Server::new_chan_member_sucess(Message msg, std::string chan)
 	Channel						channel_cpy(_channel_list.find(chan)->second);
 	std::vector<std::string>	replies(1, RPL_JOIN);
 	std::vector<std::string>	replace(1, chan);
-	Message						reply(msg.get_emmiter());
-	Message						new_member_warning(msg.get_emmiter());
+	Message						reply(msg.get_emitter());
+	Message						new_member_warning(msg.get_emitter());
 
 	reply_message(new_member_warning, RPL_JOIN, chan);
 	new_member_warning.target.clear();
@@ -627,11 +514,11 @@ void	Server::new_chan_member_sucess(Message msg, std::string chan)
 	for (std::map<int, int>::iterator it = channel_cpy._clients.begin();
 		it != channel_cpy._clients.end(); ++it)
 	{
-		std::string	nick(client_list.find(it->first)->second._nickname);
+		std::string	nick(client_list.find(it->first)->second.nickname);
 		if (channel_cpy._is(it->second, channel_cpy.CHANOP) == true)
 			nick.insert(0, "@");
 		replace.push_back(nick);
-		if (it->first != msg.get_emmiter())
+		if (it->first != msg.get_emitter())
 			new_member_warning.target.insert(it->first);
 	}
 	replies.push_back(RPL_ENDOFNAMES);
@@ -644,7 +531,7 @@ void	Server::new_chan_member_sucess(Message msg, std::string chan)
 
 void	Server::join_create_channel(Message msg, std::string chan_name)
 {
-	Channel							new_chan(msg.get_emmiter(), chan_name);
+	Channel							new_chan(msg.get_emitter(), chan_name);
 	std::pair<std::string, Channel>	new_pair(chan_name, new_chan);
 
 	_channel_list.insert(new_pair);
@@ -653,9 +540,9 @@ void	Server::join_create_channel(Message msg, std::string chan_name)
 
 void	Server::join_check_existing_chan(Message msg, Channel *channel, std::vector<std::string> keys)
 {
-	Message	error(msg.get_emmiter());
+	Message	error(msg.get_emitter());
 
-	if (channel->_is(channel->_clients.find(msg.get_emmiter())->second, channel->MEMBER) == true)
+	if (channel->_is(channel->_clients.find(msg.get_emitter())->second, channel->MEMBER) == true)
 		return ;
 	if (channel->_key.empty() == false
 		&& (keys.empty() == true || channel->_key != *keys.begin()))
@@ -663,8 +550,8 @@ void	Server::join_check_existing_chan(Message msg, Channel *channel, std::vector
 		error_message(error, channel->_name, ERR_BADCHANNELKEY);
 		msgs.push_back(error);
 	}
-	if (channel->_is(channel->_clients.find(msg.get_emmiter())->second, channel->INVITED) == true)
-		_channel_list.find(channel->_name)->second.add_new_member(msg.get_emmiter());
+	if (channel->_is(channel->_clients.find(msg.get_emitter())->second, channel->INVITED) == true)
+		_channel_list.find(channel->_name)->second.add_new_member(msg.get_emitter());
 	else
 	{
 		if (channel->_is_invite_only == true)
@@ -673,7 +560,7 @@ void	Server::join_check_existing_chan(Message msg, Channel *channel, std::vector
 			msgs.push_back(error);
 		}
 		else
-			_channel_list.find(channel->_name)->second.add_new_member(msg.get_emmiter());
+			_channel_list.find(channel->_name)->second.add_new_member(msg.get_emitter());
 	}
 	if (error.text.empty() == true)
 		new_chan_member_sucess(msg, channel->_name);
@@ -686,7 +573,7 @@ void	Server::join_channel(Message msg, std::vector<std::string> chans, std::vect
 	{
 		if (it_chan->empty() == true || is_channel_name_allowed(*it_chan) == false)
 		{
-			Message	error(msg.get_emmiter());
+			Message	error(msg.get_emitter());
 			error_message(error, *it_chan, ERR_NOSUCHCHANNEL);
 			std::cout << "ERR BAD CHAN [" << error.text << ']' << std::endl;
 			msgs.push_back(error);
@@ -744,7 +631,7 @@ void	Server::join(Message &msg)
 void	Server::ping(Message &msg)
 {
 	msg.target.clear();
-	msg.target.insert(msg.get_emmiter());
+	msg.target.insert(msg.get_emitter());
 	msg.text.assign("PONG ");
 	msg.text.append(SERVERNAME);
 	msg.text.append(" ");

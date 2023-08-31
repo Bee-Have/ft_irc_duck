@@ -41,7 +41,7 @@ Client	&Client::operator=(const Client &assign)
 	{
 		_socket = assign._socket;
 		_is_registered = assign._is_registered;
-		_nickname.assign(assign._nickname);
+		nickname.assign(assign.nickname);
 		_realname.assign(assign._realname);
 		_username.assign(assign._username);
 	}

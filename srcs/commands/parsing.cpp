@@ -51,7 +51,7 @@ void	check_for_cmds(Server &serv, Message &msg)
 	if (serv.commands.find(msg.cmd) == serv.commands.end())
 		return ;
 	std::cout << "CMD FOUND :" << msg.cmd << std::endl;
-	if (serv.client_list.find(msg.get_emmiter())->second.get_is_registered() == false
+	if (serv.client_list.find(msg.get_emitter())->second.get_is_registered() == false
 		&& msg.cmd != "PASS")
 		serv.error_message(msg, "", ERR_UNREGISTERED);
 	else
