@@ -93,7 +93,7 @@ void	Message::reply_format(std::string reply, std::string replace, int socket)
 
 	text.clear();
 	text = reply;
-	if (get_emitter() == _socket)
+	if (get_emitter() == socket)
 		replace_rpl_err_text(SERVERNAME);
 	else
 		replace_rpl_err_text(_emitter_name);

@@ -70,6 +70,7 @@ public:
  
 	// encapsulation
 	int		get_socket() const;
+	int		get_pass() const;
 
 	// client managment
 	void	add_client();

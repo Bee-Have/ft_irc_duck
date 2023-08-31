@@ -262,22 +262,6 @@ int	Server::_get_client_by_nickname(std::string nickname)
 }
 
 /**
- * @brief Attempts to register a client into our server
- * 
- * @param msg the message containing the command.
- * this command will call "error_message()" if msg.cmd.param does not fit server password
- */
-void	Server::pass(Message &msg)
-{
-	if (client_list.find(msg.get_emitter())->second._is_registered == true)
-		return (error_message(msg, "", ERR_ALREADYREGISTRED));
-	if (_pass.compare(msg.cmd_param) != 0)
-		return (error_message(msg, "", ERR_PASSWDMISMATCH));
-	client_list.find(msg.get_emitter())->second._is_registered = true;
-	msg.text.clear();
-}
-
-/**
  * @brief checks wether nickname is allowed.
  * @note check irssi RFC for specification of nickname policy.
  * This function is only called and used by "nick()"

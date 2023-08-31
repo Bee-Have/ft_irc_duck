@@ -22,7 +22,7 @@ CHANNEL = Channel.cpp
 
 MESSAGES = Message.cpp receive_messages.cpp send_messages.cpp
 
-CMDS = parsing.cpp
+CMDS = parsing.cpp Pass.cpp
 
 SRC = main.cpp $(SERVER) $(CHANNEL) $(CMDS) $(MESSAGES)
 
