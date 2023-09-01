@@ -22,8 +22,9 @@ static void	parsing_cmds(Server &serv, Message &msg)
 
 	if (msg.text.empty() == false && msg.text.find(' ') == std::string::npos)
 	{
+		// TODO : need and equivalent here
 		if (serv.commands.find(msg.text) != serv.commands.end())
-			serv.error_message(msg, msg.text, ERR_NEEDMOREPARAMS);
+			msg.reply_format(ERR_NEEDMOREPARAMS, msg.text);
 		return ;
 	}
 	else
@@ -48,12 +49,16 @@ void	check_for_cmds(Server &serv, Message &msg)
 	parsing_cmds(serv, msg);
 	if (msg.target.empty() == false)
 		return ;
+	// TODO : need equivalent here
 	if (serv.commands.find(msg.cmd) == serv.commands.end())
 		return ;
 	std::cout << "CMD FOUND :" << msg.cmd << std::endl;
 	if (serv.client_list.find(msg.get_emitter())->second.get_is_registered() == false
 		&& msg.cmd != "PASS")
-		serv.error_message(msg, "", ERR_UNREGISTERED);
+		msg.reply_format(ERR_UNREGISTERED, "");
 	else
+	{
+		// TODO : need equivalent here
 		(serv.*serv.commands[msg.cmd])(msg);
+	}
 }

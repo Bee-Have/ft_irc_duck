@@ -5,7 +5,7 @@
 /**
  * @brief changes the nickname of a user ("msg.get_emitter()")
  * 
- * @note if the nickname in msg.cmd.param is not allowed or missing or already in use, "error_message()" will be called
+ * @note if the nickname in msg.cmd.param is not allowed or missing or already in use, error will be returned
  */
 struct Nick : public ICommand
 {
