@@ -66,7 +66,7 @@ void	Message::replace_rpl_err_text(std::string replace)
  * @param prefix if there is something to replace in the prefix of the error
  * @param error the error declared in : "define.hpp"
  */
-void	Message::error_format(std::string prefix, std::string error)
+void	Message::error_format(std::string error, std::string prefix)
 {
 	target.clear();
 	target.insert(_emitter);
