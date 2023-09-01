@@ -262,47 +262,6 @@ int	Server::_get_client_by_nickname(std::string nickname)
 }
 
 /**
- * @brief assigns a username and realname to a specific client ("msg.get_emitter()")
- * 
- * @param msg the message containing the command
- * @note if client is unregistered of no username or realname is given, call "error_message()".
- * Likewise if everything is here replies will be added to msg.text as an answer
- */
-void	Server::user(Message &msg)
-{
-	Client				&tmp(client_list.find(msg.get_emitter())->second);
-	std::vector<std::string>	replies;
-	std::vector<std::string>	rpl_replace;
-	std::time_t					time = std::time(0);
-	std::tm						*now = std::localtime(&time);
-	std::stringstream			ss;
-	std::string					date;
-
-	ss << (now->tm_year + 1900) << '-' << (now->tm_mon + 1) << '-' << now->tm_mday;
-	ss >> date;
-	if (tmp.nickname.empty() == true)
-		return (error_message(msg, "", ERR_NONICKNAMEGIVEN));
-	if (msg.cmd_param.find(':') == std::string::npos
-		|| msg.cmd_param.find(' ') == std::string::npos)
-		return (error_message(msg, msg.cmd, ERR_NEEDMOREPARAMS));
-	if (tmp._realname.empty() == false)
-		return (error_message(msg, "", ERR_ALREADYREGISTRED));
-
-	tmp._username = msg.cmd_param.substr(0, msg.cmd_param.find(' '));
-	tmp._realname = msg.cmd_param.substr(msg.cmd_param.find(':') + 1, msg.cmd_param.size());
-
-	replies.push_back(RPL_WELCOME);
-	replies.push_back(RPL_YOURHOST);
-	replies.push_back(RPL_CREATED);
-	replies.push_back(RPL_MYINFO);
-	replies.push_back(RPL_ISUPPORT);
-
-	rpl_replace.push_back(tmp.nickname);
-	rpl_replace.push_back(date);
-
-	reply_message(msg, replies, rpl_replace);
-}
-
 /**
  * @brief attempt to become a server operator using a specific password
  * 

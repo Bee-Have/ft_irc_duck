@@ -7,13 +7,13 @@
 // GENERAL
 #include <iostream>
 #include <string>
-#include <sstream>
+// #include <sstream>
 
 // IRSSI && SOCKETS
 #include <sys/socket.h>
 #include <arpa/inet.h>
 #include <unistd.h>
-#include <ctime>
+// #include <ctime>
 
 // ERRORS :
 #include <string.h>
@@ -86,7 +86,6 @@ public:
 	std::map<std::string, command>	commands;
 	// commands
 	//		connect to IRSSI
-	void	user(Message &msg);
 	// Requirements
 	void	oper(Message &msg);
 	void	privmsg(Message &msg);
