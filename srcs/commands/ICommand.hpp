@@ -9,10 +9,10 @@
 struct ICommand
 {
 	const std::string	name;
-	const Server		&serv;
+	Server		&serv;
 
 	ICommand() {};
-	ICommand(std::string p_name, const Server &p_serv): name(p_name), serv(p_serv) {};
+	ICommand(std::string p_name, Server &p_serv): name(p_name), serv(p_serv) {};
 	virtual ~ICommand() {};
 
 	virtual void	execute(Message &msg) = 0;

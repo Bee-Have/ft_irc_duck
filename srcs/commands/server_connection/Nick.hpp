@@ -9,7 +9,7 @@
  */
 struct Nick : public ICommand
 {
-	Nick(std::string p_name, const Server &p_serv);
+	Nick(std::string p_name, Server &p_serv);
 
 	/**
 	 * @brief checks wether nickname is allowed.
