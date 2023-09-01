@@ -59,25 +59,6 @@ void	Message::replace_rpl_err_text(std::string replace)
 }
 
 /**
- * private fuction
- * @brief Setup an error message with the parameters
- * 
- * @param msg the message to turn into an error
- * @param prefix if there is something to replace in the prefix of the error
- * @param error the error declared in : "define.hpp"
- */
-void	Message::error_format(std::string error, std::string prefix)
-{
-	target.clear();
-	target.insert(_emitter);
-
-	text = error;
-	replace_rpl_err_text(emitter_name);
-	if (prefix.empty() == false)
-		replace_rpl_err_text(prefix);
-}
-
-/**
  * @brief setup a "Message"(class) text with the reply given. It will also 
  * replace the "<>" with the value given
  * @note the first "<>" of the RPL will ALWAYS be the client nickname sending the RPL
@@ -89,11 +70,11 @@ void	Message::error_format(std::string error, std::string prefix)
 void	Message::reply_format(std::string reply, std::string replace, int socket)
 {
 	target.clear();
-	target.insert(get_emitter());
+	target.insert(_emitter);
 
 	text.clear();
 	text = reply;
-	if (get_emitter() == socket)
+	if (_emitter == socket)
 		replace_rpl_err_text(SERVERNAME);
 	else
 		replace_rpl_err_text(emitter_name);

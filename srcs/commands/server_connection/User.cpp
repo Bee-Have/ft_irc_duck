@@ -23,12 +23,12 @@ void	User::execute(Message &msg)
 	ss >> date;
 
 	if (msg.emitter_name.empty() == true)
-		return (msg.error_format(ERR_NONICKNAMEGIVEN, ""));
+		return (msg.reply_format(ERR_NONICKNAMEGIVEN, "", serv.get_socket()));
 	if (msg.cmd_param.find(':') == std::string::npos
 		|| msg.cmd_param.find(' ') == std::string::npos)
-		return (msg.error_format(ERR_NEEDMOREPARAMS, msg.cmd));
+		return (msg.reply_format(ERR_NEEDMOREPARAMS, msg.cmd, serv.get_socket()));
 	if (command_emitter._realname.empty() == false)
-		return (msg.error_format(ERR_ALREADYREGISTRED, ""));
+		return (msg.reply_format(ERR_ALREADYREGISTRED, "", serv.get_socket()));
 
 	command_emitter._username = msg.cmd_param.substr(0, msg.cmd_param.find(' '));
 	command_emitter._realname = msg.cmd_param.substr(msg.cmd_param.find(':') + 1, msg.cmd_param.size());

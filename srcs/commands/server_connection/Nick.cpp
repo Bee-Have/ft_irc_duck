@@ -19,12 +19,12 @@ void	Nick::execute(Message &msg)
 	std::string	nickname;
 
 	if (msg.cmd_param.empty() == true)
-		return (msg.error_message(msg, "", ERR_NONICKNAMEGIVEN));
+		return (msg.reply_format(msg, "", ERR_NONICKNAMEGIVEN, serv.get_socket()));
 	nickname = msg.cmd_param.substr(0, msg.cmd_param.find(' '));
 	if (is_nickname_allowed(nickname) == false)
-		return (msg.error_message(msg, nickname, ERR_ERRONEUSNICKNAME));
+		return (msg.reply_format(msg, nickname, ERR_ERRONEUSNICKNAME, serv.get_socket()));
 	if (serv._get_client_by_nickname(nickname) != -1)
-		return (msg.error_message(msg, nickname, ERR_NICKNAMEINUSE));
+		return (msg.reply_format(msg, nickname, ERR_NICKNAMEINUSE, serv.get_socket()));
 	serv.client_list.find(msg.get_emitter())->second.nickname = nickname;
 	msg.text.clear();
 }
