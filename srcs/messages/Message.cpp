@@ -12,7 +12,7 @@ Message::Message(void)
 Message::Message(const Message &cpy): _emitter(cpy._emitter), target(cpy.target), text(cpy.text), cmd(cpy.cmd), cmd_param(cpy.cmd_param)
 {}
 
-Message::Message(const Client &emitter): _emitter(emitter.get_socket()), _emitter_name(emitter.nickname)
+Message::Message(const Client &emitter): _emitter(emitter.get_socket()), emitter_name(emitter.nickname)
 {}
 
 Message::Message(int emitter): _emitter(emitter)
@@ -72,7 +72,7 @@ void	Message::error_format(std::string prefix, std::string error)
 	target.insert(_emitter);
 
 	text = error;
-	replace_rpl_err_text(_emitter_name);
+	replace_rpl_err_text(emitter_name);
 	if (prefix.empty() == false)
 		replace_rpl_err_text(prefix);
 }
@@ -96,7 +96,7 @@ void	Message::reply_format(std::string reply, std::string replace, int socket)
 	if (get_emitter() == socket)
 		replace_rpl_err_text(SERVERNAME);
 	else
-		replace_rpl_err_text(_emitter_name);
+		replace_rpl_err_text(emitter_name);
 	if (text.find('<') != std::string::npos)
 		replace_rpl_err_text(replace);
 }
@@ -121,7 +121,7 @@ void	Message::reply_format(std::vector<std::string> &replies, std::vector<std::s
 	for (std::vector<std::string>::iterator it = replies.begin(); it != replies.end(); ++it)
 	{
 		text.append(*it);
-		replace_rpl_err_text(_emitter_name);
+		replace_rpl_err_text(emitter_name);
 		while (text.find('<') != std::string::npos)
 		{
 			replace_rpl_err_text(*it_replace);

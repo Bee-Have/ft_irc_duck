@@ -14,13 +14,14 @@ class Message
 {
 private:
 	int	_emitter;
-	std::string	_emitter_name;
 
 	Message();
 	
 	void	replace_rpl_err_text(std::string replace);
 
 public:
+	// TODO :maybe change this to nickname since there are : nickname, username, realname
+	std::string	emitter_name;
 	std::set<int>	target;
 	std::string		text;
 	std::string		cmd;
