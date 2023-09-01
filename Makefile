@@ -1,12 +1,12 @@
 NAME = ircserv
 
-CC = c++
+CXX = c++
 
-CFLAGS = -Wall -Wextra -Werror -std=c++98 -g3
+CXXFLAGS = -Wall -Wextra -Werror -std=c++98 -g3
 
 DEBUG =
 ifdef DEBUG
-CFLAGS += -g3 -fsanitize=address
+CXXFLAGS += -g3 -fsanitize=address
 endif
 
 OBJ_DIR = objs
@@ -31,13 +31,13 @@ OBJ = $(addprefix $(OBJ_DIR)/, $(SRC:.cpp=.o))
 all: $(NAME)
 
 $(NAME): $(OBJ)
-	$(CC) $(CFLAGS) $^ -o $@
+	$(CXX) $(CXXFLAGS) $^ -o $@
 
 $(OBJ_DIR):
 	mkdir -p $@
 
 $(OBJ_DIR)/%.o: %.cpp | $(OBJ_DIR)
-	$(CC) $(CFLAGS) $(IFLAGS) -c $< -o $@
+	$(CXX) $(CXXFLAGS) $(IFLAGS) -c $< -o $@
 
 clean:
 	rm -rf $(OBJ_DIR)
