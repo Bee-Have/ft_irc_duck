@@ -52,11 +52,6 @@ private:
 	// tools
 	int	_get_client_by_nickname(std::string nickname);
 	// JOIN command utils
-	void	join_space_error(Message &msg);
-	void	new_chan_member_sucess(Message msg, std::string chan);
-	void	join_channel(Message msg, std::vector<std::string> chans, std::vector<std::string> keys);
-	void	join_create_channel(Message msg, std::string chan_name);
-	void	join_check_existing_chan(Message msg, Channel *channel, std::vector<std::string> keys);
 
 
 public:
@@ -87,7 +82,7 @@ public:
 	// commands
 	//		connect to IRSSI
 	// Requirements
-	std::string	oper_command_check(std::string oper, std::string pass);
+	std::string	oper_command_check(int client, std::string oper, std::string pass);
 	void	join(Message &msg);
 	// 42 Requirements
 

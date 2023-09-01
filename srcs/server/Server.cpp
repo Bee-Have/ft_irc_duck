@@ -261,7 +261,7 @@ int	Server::_get_client_by_nickname(std::string nickname)
 	return (-1);
 }
 
-std::string	Server::oper_command_check(std::string oper, std::string pass)
+std::string	Server::oper_command_check(int client, std::string oper, std::string pass)
 {
 	if (_oper_socket != -1)
 		return (ERR_CANNOTBECOMEOPER);
@@ -269,78 +269,8 @@ std::string	Server::oper_command_check(std::string oper, std::string pass)
 		return (ERR_NOSUCHOPER);
 	if (_oper_pass != pass)
 		return (ERR_PASSWDMISMATCH);
-	_oper_socket = msg.get_emitter();
+	_oper_socket = client;
 	return (RPL_YOUREOPER);
-}
-
-/**
- * @brief split JOIN parameters to better use them
- * @note this function will split the parameters into vector<string>,
- * it will be used up to two times, once for the keys (if there are keys),
- * and once for the channel names
- * 
- * @param str the string to split into multiple parameters
- * @return std::vector<std::string> of either channels or keys
- */
-static std::vector<std::string>	split_join_cmd(std::string &str)
-{
-	std::vector<std::string>	result;
-	size_t						comma = str.find(',');
-
-	if (comma == std::string::npos)
-	{
-		result.push_back(str);
-		return (result);
-	}
-	while (comma != std::string::npos)
-	{
-		result.push_back(str.substr(0, comma));
-		str.erase(0, comma + 1);
-		comma = str.find(',');
-	}
-	if (str.empty() == false)
-		result.push_back(str);
-	return (result);
-}
-
-/**
- * @brief This function will setup the error for too many spaces in JOIN parameters.
- * 
- * @param msg the message to setup as ERR_NOSUCHANNEL (see define.hpp)
- */
-void	Server::join_space_error(Message &msg)
-{
-	std::string	channel_name;
-	int			begin;
-	int			end;
-
-	if (msg.cmd_param.find_first_of(",") < msg.cmd_param.find_first_of(" "))
-	{
-		begin = msg.cmd_param.find(",") + 1;
-		if (msg.cmd_param.find(",", begin) < msg.cmd_param.find(" ", msg.cmd_param.find_first_of(" ") + 1))
-			end = msg.cmd_param.find(",", begin) - begin;
-		else
-			end = msg.cmd_param.find(" ", msg.cmd_param.find_first_of(" ") + 1) - begin;
-		channel_name = msg.cmd_param.substr(begin, end);
-	}
-	error_message(msg, channel_name, ERR_NOSUCHCHANNEL);
-}
-
-/**
- * @brief simple boolean function to check wether the supplied channel name 
- * is allowed or not.
- * 
- * @param chan_name the channel name to check
- * @return true = the channel name is allowed
- * @return false = the channel name is not allowed
- */
-static bool	is_channel_name_allowed(std::string chan_name)
-{
-	if (chan_name[0] != '#' && chan_name[0] != '&')
-		return (false);
-	if (chan_name.find_first_not_of(NICK_GOOD_CHARACTERS, 1) != std::string::npos)
-		return (false);
-	return (true);
 }
 
 /**
@@ -423,62 +353,6 @@ void	Server::join_check_existing_chan(Message msg, Channel *channel, std::vector
 	}
 	if (error.text.empty() == true)
 		new_chan_member_sucess(msg, channel->_name);
-}
-
-void	Server::join_channel(Message msg, std::vector<std::string> chans, std::vector<std::string> keys)
-{
-	for (std::vector<std::string>::iterator it_chan = chans.begin();
-		it_chan != chans.end(); ++it_chan)
-	{
-		if (it_chan->empty() == true || is_channel_name_allowed(*it_chan) == false)
-		{
-			Message	error(msg.get_emitter());
-			error_message(error, *it_chan, ERR_NOSUCHCHANNEL);
-			std::cout << "ERR BAD CHAN [" << error.text << ']' << std::endl;
-			msgs.push_back(error);
-			if (keys.empty() == false)
-				keys.erase(keys.begin());
-			continue;
-		}
-		if (_channel_list.find(*it_chan) == _channel_list.end())
-			join_create_channel(msg, *it_chan);
-		else
-		{
-			Channel	*current_chan = &_channel_list.find(*it_chan)->second;
-			join_check_existing_chan(msg, current_chan, keys);
-		}
-		if (keys.empty() == false)
-			keys.erase(keys.begin());
-	}
-}
-
-void	Server::join(Message &msg)
-{
-	std::string					tmp;
-	std::vector<std::string>	channels;
-	std::vector<std::string>	keys;
-
-	if (msg.cmd_param.find(" ") != msg.cmd_param.find_last_of(" "))
-		return (join_space_error(msg));
-	if (msg.cmd_param.find(' ') != std::string::npos)
-	{
-		std::cout << "FOUND KEY" << std::endl;
-		tmp = msg.cmd_param.substr(msg.cmd_param.find(' ') + 1, msg.cmd_param.size());
-		keys = split_join_cmd(tmp);
-		msg.cmd_param.erase(msg.cmd_param.find(' '), msg.cmd_param.size());
-	}
-	channels = split_join_cmd(msg.cmd_param);
-	if (msg.cmd_param.empty() == true)
-	{
-		channels.back().append(",");
-		return (error_message(msg, channels.back(), ERR_NOSUCHCHANNEL));
-	}
-	// for (std::vector<std::string>::iterator it = channels.begin()
-	// 	; it != channels.end() ; ++it)
-	// {
-	// 	std::cout << "CHAN [" << *it << "]\n";
-	// }
-	join_channel(msg, channels, keys);
 }
 
 /**

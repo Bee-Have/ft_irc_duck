@@ -15,7 +15,7 @@ void	Oper::execute(Message &msg)
 	oper = msg.cmd_param.substr(0, msg.cmd_param.find(' '));
 	pass = msg.cmd_param.substr(msg.cmd_param.find(' ') + 1, msg.cmd_param.size());
 
-	return_msg = serv.oper_command_check(oper, pass);
+	return_msg = serv.oper_command_check(msg.get_emitter(), oper, pass);
 
 	if (return_msg == RPL_YOUREOPER)
 		return (msg.reply_format(return_msg, ""));
