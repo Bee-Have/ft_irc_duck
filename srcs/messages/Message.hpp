@@ -7,7 +7,9 @@
 #include <string>
 
 // CLASSES
-#include "Server.hpp"
+#include "Message.hpp"
+#include "Client.hpp"
+// #include "Server.hpp"
 // class server;
 
 class Message

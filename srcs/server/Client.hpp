@@ -2,11 +2,12 @@
 
 #include <string>
 
-class Server;
+// class Server;
+#include "Pass.hpp"
 
 class Client
 {
-friend class Server;
+friend struct Pass;
 private:
 	Client();
 	Client(int new_socket);

@@ -10,7 +10,6 @@ struct ICommand
 {
 	Server		&serv;
 
-	ICommand() {};
 	ICommand(Server &p_serv): serv(p_serv) {};
 	virtual ~ICommand() {};
 

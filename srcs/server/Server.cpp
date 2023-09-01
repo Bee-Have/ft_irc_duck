@@ -38,14 +38,6 @@ Server::Server(int new_port, char *new_pass): _port(new_port), _pass(new_pass), 
 		std::cerr << ERR_SOCKLISTENFAIL;
 		return ;
 	}
-
-	commands["PASS"] = &Server::pass;
-	commands["NICK"] = &Server::nick;
-	commands["USER"] = &Server::user;
-	commands["OPER"] = &Server::oper;
-	commands["PRIVMSG"] = &Server::privmsg;
-	commands["JOIN"] = &Server::join;
-	commands["PING"] = &Server::ping;
 }
 
 Server::Server(const Server &cpy)
@@ -83,6 +75,11 @@ Server	&Server::operator=(const Server &assign)
 int	Server::get_socket(void) const
 {
 	return (_socket);
+}
+
+std::string	Server::get_pass() const
+{
+	return (_pass);
 }
 
 /**

@@ -23,7 +23,6 @@
 // CLASSES
 #include "Client.hpp"
 #include "Channel.hpp"
-class Message;
 
 #define MAX_CLIENT 10
 
@@ -62,8 +61,8 @@ public:
 	Server	&operator=(const Server &assign);
  
 	// encapsulation
-	int		get_socket() const;
-	int		get_pass() const;
+	int			get_socket() const;
+	std::string	get_pass() const;
 
 	// client managment
 	void	add_client();
