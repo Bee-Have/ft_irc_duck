@@ -1,6 +1,6 @@
 #include "Pass.hpp"
 
-Pass::Pass(std::string p_name, const Server &p_serv): ICommand(p_name, p_serv)
+Pass::Pass(const Server &p_serv): ICommand(p_serv)
 {}
 
 void	Pass::execute(Message &msg)

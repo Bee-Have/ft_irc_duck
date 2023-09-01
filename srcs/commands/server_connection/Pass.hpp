@@ -9,7 +9,7 @@
  */
 struct Pass : public ICommand
 {
-	Pass(std::string p_name, Server &p_serv);
+	Pass(Server &p_serv);
 
 	void	execute(Message &msg);
 };

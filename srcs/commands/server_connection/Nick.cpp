@@ -1,6 +1,6 @@
 #include "Nick.hpp"
 
-Nick::Nick(std::string p_name, const Server &p_serv): ICommand(p_name, p_serv)
+Nick::Nick(const Server &p_serv): ICommand(p_serv)
 {}
 
 bool	Nick::is_nickname_allowed(const std::string &nickname) const

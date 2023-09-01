@@ -19,7 +19,7 @@ struct User : public ICommand
 	std::vector<std::string>	replies;
 	std::vector<std::string>	replace;
 
-	User(std::string p_name, Server &p_server);
+	User(Server &p_server);
 
 	void	execute(Message &msg);
 };

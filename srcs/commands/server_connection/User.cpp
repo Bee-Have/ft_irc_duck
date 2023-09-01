@@ -1,6 +1,6 @@
 #include "User.hpp"
 
-User::User(std::string p_name, const Server &p_server): ICommand(p_name, p_server), replies(5), replace(2)
+User::User(const Server &p_server): ICommand(p_server), replies(5), replace(2)
 {
 	replies[0] = RPL_WELCOME;
 	replies[1] = RPL_YOURHOST;
