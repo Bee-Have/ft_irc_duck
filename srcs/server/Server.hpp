@@ -51,8 +51,6 @@ private:
 	Server(const Server &cpy);
 	// tools
 	int	_get_client_by_nickname(std::string nickname);
-	// JOIN command utils
-
 
 public:
 	std::vector<Message>			msgs;
@@ -80,10 +78,7 @@ public:
 	typedef void(Server::*command)(Message &);
 	std::map<std::string, command>	commands;
 	// commands
-	//		connect to IRSSI
-	// Requirements
 	std::string	oper_command_check(int client, std::string oper, std::string pass);
-	void	join(Message &msg);
 	// 42 Requirements
 
 	//		noice

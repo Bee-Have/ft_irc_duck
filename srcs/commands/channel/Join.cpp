@@ -1,0 +1,176 @@
+#include "Join.hpp"
+
+Join::Join(Server &p_serv): ICommand(p_serv)
+{}
+
+void	Join::execute(Message &msg)
+{
+	std::string					tmp;
+	std::vector<std::string>	channels;
+	std::vector<std::string>	keys;
+
+	if (msg.cmd_param.find(" ") != msg.cmd_param.find_last_of(" "))
+		return (join_space_error(msg));
+	if (msg.cmd_param.find(' ') != std::string::npos)
+	{
+		std::cout << "FOUND KEY" << std::endl;
+		tmp = msg.cmd_param.substr(msg.cmd_param.find(' ') + 1, msg.cmd_param.size());
+		keys = split_join_cmd(tmp);
+		msg.cmd_param.erase(msg.cmd_param.find(' '), msg.cmd_param.size());
+	}
+	channels = split_join_cmd(msg.cmd_param);
+	if (msg.cmd_param.empty() == true)
+	{
+		channels.back().append(",");
+		return (msg.reply_format(ERR_NOSUCHCHANNEL, channels.back()));
+	}
+	join_channel(msg);
+}
+
+void	Join::join_space_error(Message &msg)
+{
+	std::string	channel_name;
+	int			begin;
+	int			end;
+
+	if (msg.cmd_param.find_first_of(",") < msg.cmd_param.find_first_of(" "))
+	{
+		begin = msg.cmd_param.find(",") + 1;
+		if (msg.cmd_param.find(",", begin) < msg.cmd_param.find(" ", msg.cmd_param.find_first_of(" ") + 1))
+			end = msg.cmd_param.find(",", begin) - begin;
+		else
+			end = msg.cmd_param.find(" ", msg.cmd_param.find_first_of(" ") + 1) - begin;
+		channel_name = msg.cmd_param.substr(begin, end);
+	}
+	msg.reply_format(ERR_NOSUCHCHANNEL, channel_name);
+}
+
+std::vector<std::string>	Join::split_join_cmd(std::string &str)
+{
+	std::vector<std::string>	result;
+	size_t						comma = str.find(',');
+
+	if (comma == std::string::npos)
+	{
+		result.push_back(str);
+		return (result);
+	}
+	while (comma != std::string::npos)
+	{
+		result.push_back(str.substr(0, comma));
+		str.erase(0, comma + 1);
+		comma = str.find(',');
+	}
+	if (str.empty() == false)
+		result.push_back(str);
+	return (result);
+}
+
+void	Join::join_channel(Message msg)
+{
+	for (std::vector<std::string>::iterator it_chan = channels.begin();
+		it_chan != channels.end(); ++it_chan)
+	{
+		if (it_chan->empty() == true || is_channel_name_allowed(*it_chan) == false)
+		{
+			Message	error(msg.get_emitter());
+			error.reply_format(ERR_NOSUCHCHANNEL, *it_chan);
+			std::cout << "ERR BAD CHAN [" << error.text << ']' << std::endl;
+			serv.msgs.push_back(error);
+			if (keys.empty() == false)
+				keys.erase(keys.begin());
+			continue;
+		}
+		if (serv._channel_list.find(*it_chan) == serv._channel_list.end())
+			join_create_channel(msg, *it_chan);
+		else
+		{
+			Channel	*current_chan = &serv._channel_list.find(*it_chan)->second;
+			join_check_existing_chan(msg, current_chan, keys);
+		}
+		if (keys.empty() == false)
+			keys.erase(keys.begin());
+	}
+}
+
+bool	Join::is_channel_name_allowed(std::string chan_name)
+{
+	if (chan_name[0] != '#' && chan_name[0] != '&')
+		return (false);
+	if (chan_name.find_first_not_of(NICK_GOOD_CHARACTERS, 1) != std::string::npos)
+		return (false);
+	return (true);
+}
+
+void	Join::join_create_channel(Message msg, std::string chan_name)
+{
+	Channel							new_chan(msg.get_emitter(), chan_name);
+	std::pair<std::string, Channel>	new_pair(chan_name, new_chan);
+
+	serv._channel_list.insert(new_pair);
+	new_chan_member_sucess(msg, chan_name);
+}
+
+void	Join::join_check_existing_chan(Message msg, Channel *channel)
+{
+	Message	error(msg.get_emitter());
+
+	if (channel->_is(channel->_clients.find(msg.get_emitter())->second, channel->MEMBER) == true)
+		return ;
+	if (channel->_key.empty() == false
+		&& (keys.empty() == true || channel->_key != *keys.begin()))
+	{
+		error.reply_format(ERR_BADCHANNELKEY, channel->_name);
+		serv.msgs.push_back(error);
+	}
+	if (channel->_is(channel->_clients.find(msg.get_emitter())->second, channel->INVITED) == true)
+		serv._channel_list.find(channel->_name)->second.add_new_member(msg.get_emitter());
+	else
+	{
+		if (channel->_is_invite_only == true)
+		{
+			error.reply_format(ERR_INVITEONLYCHAN, channel->_name);
+			serv.msgs.push_back(error);
+		}
+		else
+			serv._channel_list.find(channel->_name)->second.add_new_member(msg.get_emitter());
+	}
+	if (error.text.empty() == true)
+		new_chan_member_sucess(msg, channel->_name);
+}
+
+void	Join::new_chan_member_sucess(Message msg, std::string chan)
+{
+	Channel						channel_cpy(serv._channel_list.find(chan)->second);
+	std::vector<std::string>	replies(1, RPL_JOIN);
+	std::vector<std::string>	replace(1, chan);
+	Message						reply(msg.get_emitter());
+	Message						new_member_warning(msg.get_emitter());
+
+	new_member_warning.reply_format(RPL_JOIN, chan);
+	new_member_warning.target.clear();
+
+	if (serv._channel_list.find(chan)->second._topic.empty() == false)
+		replies.push_back(serv._channel_list.find(chan)->second._topic);
+	replies.push_back(RPL_NAMREPLY);
+	// TODO : check when modes is implemented that there isnt a if here to be added
+	replace.push_back("=");
+	replace.push_back(chan);
+	msg.reply_replace_curly_brackets(*replies.rbegin(), channel_cpy._clients.size());
+	for (std::map<int, int>::iterator it = channel_cpy._clients.begin();
+		it != channel_cpy._clients.end(); ++it)
+	{
+		std::string	nick(serv.client_list.find(it->first)->second.nickname);
+		if (channel_cpy._is(it->second, channel_cpy.CHANOP) == true)
+			nick.insert(0, "@");
+		replace.push_back(nick);
+		if (it->first != msg.get_emitter())
+			new_member_warning.target.insert(it->first);
+	}
+	replies.push_back(RPL_ENDOFNAMES);
+	replace.push_back(chan);
+	reply.reply_format(replies, replace);
+	msgs.push_back(reply);
+	if (channel_cpy._clients.size() > 1)
+		msgs.push_back(new_member_warning);
+}
