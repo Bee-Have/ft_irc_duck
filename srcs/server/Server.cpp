@@ -274,34 +274,6 @@ std::string	Server::oper_command_check(std::string oper, std::string pass)
 }
 
 /**
- * @brief sends a message to a specific user.
- * 
- * @param msg the message to send
- */
-void	Server::privmsg(Message &msg)
-{
-	std::pair<int, std::string>	target;
-	std::string	text;
-
-	if (msg.cmd_param.find(':') == std::string::npos)
-		return (error_message(msg, "", ERR_NOTEXTTOSEND));
-	if (msg.cmd_param[0] == ':')
-		return (error_message(msg, "", ERR_NONICKNAMEGIVEN));
-	target.second = msg.cmd_param.substr(0, msg.cmd_param.find(':') - 1);
-	target.first = _get_client_by_nickname(target.second);
-	text = msg.cmd_param.substr(msg.cmd_param.find(':'), msg.cmd_param.size());
-	if (target.first == -1)
-		return (error_message(msg, target.second, ERR_NOSUCHNICK));
-	msg.target.clear();
-	msg.target.insert(target.first);
-	msg.text = ":";
-	msg.text.append(client_list.find(msg.get_emitter())->second.nickname);
-	msg.text.append(" PRIVMSG ");
-	msg.text.append(text);
-	msg.text.append("\r\n");
-}
-
-/**
  * @brief split JOIN parameters to better use them
  * @note this function will split the parameters into vector<string>,
  * it will be used up to two times, once for the keys (if there are keys),

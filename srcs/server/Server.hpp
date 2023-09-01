@@ -88,7 +88,6 @@ public:
 	//		connect to IRSSI
 	// Requirements
 	std::string	oper_command_check(std::string oper, std::string pass);
-	void	privmsg(Message &msg);
 	void	join(Message &msg);
 	// 42 Requirements
 
