@@ -272,20 +272,3 @@ std::string	Server::oper_command_check(int client, std::string oper, std::string
 	_oper_socket = client;
 	return (RPL_YOUREOPER);
 }
-
-/**
- * @brief upon receiving PING, the server answers "PONG" with msg.cmd.param
- * 
- * @param msg the message containing the command
- * @note if there is no msg.cmd.param "error_message()" will be called
- */
-void	Server::ping(Message &msg)
-{
-	msg.target.clear();
-	msg.target.insert(msg.get_emitter());
-	msg.text.assign("PONG ");
-	msg.text.append(SERVERNAME);
-	msg.text.append(" ");
-	msg.text.append(msg.cmd_param);
-	msg.text.append("\r\n");
-}

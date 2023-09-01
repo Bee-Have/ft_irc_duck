@@ -74,13 +74,6 @@ public:
 	fd_set	get_read_fds() const;
 	fd_set	get_write_fds() const;
 
-	// command function pointer
-	typedef void(Server::*command)(Message &);
-	std::map<std::string, command>	commands;
-	// commands
+	// commands tools
 	std::string	oper_command_check(int client, std::string oper, std::string pass);
-	// 42 Requirements
-
-	//		noice
-	void	ping(Message &msg);
 };
