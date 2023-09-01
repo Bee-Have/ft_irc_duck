@@ -261,30 +261,16 @@ int	Server::_get_client_by_nickname(std::string nickname)
 	return (-1);
 }
 
-/**
-/**
- * @brief attempt to become a server operator using a specific password
- * 
- * @param msg the message containing the command.
- */
-void	Server::oper(Message &msg)
+std::string	Server::oper_command_check(std::string oper, std::string pass)
 {
-	std::string	oper;
-	std::string	pass;
-
 	if (_oper_socket != -1)
-		return (error_message(msg, "", ERR_CANNOTBECOMEOPER));
-	if (msg.cmd_param.find(' ') == std::string::npos)
-		return (error_message(msg, "", ERR_PASSWDMISMATCH));
-	oper = msg.cmd_param.substr(0, msg.cmd_param.find(' '));
+		return (ERR_CANNOTBECOMEOPER);
 	if (_oper_name != oper)
-		return (error_message(msg, oper, ERR_NOSUCHOPER));
-	pass = msg.cmd_param.substr(msg.cmd_param.find(' ') + 1, msg.cmd_param.size());
+		return (ERR_NOSUCHOPER);
 	if (_oper_pass != pass)
-		return (error_message(msg, "", ERR_PASSWDMISMATCH));
-	
+		return (ERR_PASSWDMISMATCH);
 	_oper_socket = msg.get_emitter();
-	reply_message(msg, RPL_YOUREOPER, "");
+	return (RPL_YOUREOPER);
 }
 
 /**
