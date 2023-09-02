@@ -6,6 +6,8 @@
 #include "Server.hpp"
 #include "Message.hpp"
 
+class Server;
+
 struct ICommand
 {
 	Server		&serv;

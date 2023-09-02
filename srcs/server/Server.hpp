@@ -23,6 +23,7 @@
 // CLASSES
 #include "Client.hpp"
 #include "Channel.hpp"
+#include "Message.hpp"
 
 #define MAX_CLIENT 10
 
@@ -48,8 +49,6 @@ private:
 
 	Server();
 	Server(const Server &cpy);
-	// tools
-	int	_get_client_by_nickname(std::string nickname);
 
 public:
 	std::vector<Message>			msgs;
@@ -73,6 +72,7 @@ public:
 	fd_set	get_read_fds() const;
 	fd_set	get_write_fds() const;
 
-	// commands tools
+	// tools
+	int	get_client_by_nickname(std::string nickname);
 	std::string	oper_command_check(int client, std::string oper, std::string pass);
 };

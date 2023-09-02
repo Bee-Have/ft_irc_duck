@@ -3,7 +3,6 @@
 #include "ICommand.hpp"
 
 /**
-/**
  * @brief attempt to become a server operator using a specific password
  */
 struct Oper : public ICommand

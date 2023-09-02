@@ -14,7 +14,7 @@ void	Privmsg::execute(Message &msg)
 		return (msg.reply_format(ERR_NONICKNAMEGIVEN, ""));
 
 	target.second = msg.cmd_param.substr(0, msg.cmd_param.find(':') - 1);
-	target.first = serv._get_client_by_nickname(target.second);
+	target.first = serv.get_client_by_nickname(target.second);
 	text = msg.cmd_param.substr(msg.cmd_param.find(':'), msg.cmd_param.size());
 	if (target.first == -1)
 		return (msg.reply_format(ERR_NOSUCHNICK, target.second));

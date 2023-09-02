@@ -15,7 +15,7 @@
  */
 struct User : public ICommand
 {
-	Client						&command_emitter;
+	// Client						&command_emitter;
 	std::vector<std::string>	replies;
 	std::vector<std::string>	replace;
 

@@ -4,13 +4,16 @@
 #include <set>
 
 // GENERAL
+#include <vector>
 #include <string>
 
 // CLASSES
-#include "Message.hpp"
-#include "Client.hpp"
+#include "define.hpp"
+// #include "Client.hpp"
 // #include "Server.hpp"
 // class server;
+
+class Client;
 
 class Message
 {

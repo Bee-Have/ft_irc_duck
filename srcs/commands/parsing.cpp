@@ -12,6 +12,8 @@
  */
 static void	parsing_cmds(Server &serv, Message &msg)
 {
+	// TODO : delete this once the new commands is fully integrated
+	(void)serv;
 	std::cout << "PARSING" << std::endl;
 	if (msg.text.find("\n") != std::string::npos)
 	{
@@ -23,8 +25,8 @@ static void	parsing_cmds(Server &serv, Message &msg)
 	if (msg.text.empty() == false && msg.text.find(' ') == std::string::npos)
 	{
 		// TODO : need and equivalent here
-		if (serv.commands.find(msg.text) != serv.commands.end())
-			msg.reply_format(ERR_NEEDMOREPARAMS, msg.text);
+		// if (serv.commands.find(msg.text) != serv.commands.end())
+		// 	msg.reply_format(ERR_NEEDMOREPARAMS, msg.text);
 		return ;
 	}
 	else
@@ -50,15 +52,15 @@ void	check_for_cmds(Server &serv, Message &msg)
 	if (msg.target.empty() == false)
 		return ;
 	// TODO : need equivalent here
-	if (serv.commands.find(msg.cmd) == serv.commands.end())
-		return ;
+	// if (serv.commands.find(msg.cmd) == serv.commands.end())
+	// 	return ;
 	std::cout << "CMD FOUND :" << msg.cmd << std::endl;
 	if (serv.client_list.find(msg.get_emitter())->second.get_is_registered() == false
 		&& msg.cmd != "PASS")
-		msg.reply_format(ERR_UNREGISTERED, "");
+		msg.reply_format(ERR_UNREGISTERED, "", serv.get_socket());
 	else
 	{
 		// TODO : need equivalent here
-		(serv.*serv.commands[msg.cmd])(msg);
+		// (serv.*serv.commands[msg.cmd])(msg);
 	}
 }

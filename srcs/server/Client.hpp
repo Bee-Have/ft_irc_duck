@@ -3,11 +3,13 @@
 #include <string>
 
 // class Server;
-#include "Pass.hpp"
+// #include "Pass.hpp"
 
 class Client
 {
 friend struct Pass;
+friend struct User;
+friend struct Server;
 private:
 	Client();
 	Client(int new_socket);

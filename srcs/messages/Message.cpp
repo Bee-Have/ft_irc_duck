@@ -1,5 +1,5 @@
 #include "Message.hpp"
-// #include "Server.hpp"
+#include "Client.hpp"
 
 /**
  * @brief Construct a new Message::Message object

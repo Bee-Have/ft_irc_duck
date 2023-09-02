@@ -160,7 +160,7 @@ void	Server::del_client(int fd)
 				// ! This behaviour might become problematic with the implementation of QUIT
 				// TODO : check QUIT message & alter this behaviour
 				Message	new_msg(_socket);
-				new_msg.error_format(RPL_CLIENTLEFT, client_list.find(fd)->second.nickname, _socket);
+				new_msg.reply_format(RPL_CLIENTLEFT, client_list.find(fd)->second.nickname, _socket);
 				new_msg.target.clear();
 				for (std::map<int, int>::iterator it_chan_client = it->second._clients.begin();
 					it_chan_client != it->second._clients.end(); ++it_chan_client)
@@ -247,7 +247,7 @@ fd_set	Server::get_write_fds(void) const
  * @return int -1 if no client is found.
  * else it will return the fd/socket of the client
  */
-int	Server::_get_client_by_nickname(std::string nickname)
+int	Server::get_client_by_nickname(std::string nickname)
 {
 	for (std::map<int, Client>::iterator it = client_list.begin();
 		it != client_list.end(); ++it)

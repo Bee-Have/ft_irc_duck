@@ -10,7 +10,7 @@
 struct Nick : public ICommand
 {
 	Nick(Server &p_serv);
-
+	
 	/**
 	 * @brief checks wether nickname is allowed.
 	 * @note check irssi RFC for specification of nickname policy.
