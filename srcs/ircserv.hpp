@@ -4,8 +4,17 @@
 #include "define.hpp"
 
 // CLASSES
-#include "Server.hpp"
-#include "Message.hpp"
+// #include "Server.hpp"
+// #include "Message.hpp"
+
+// COMMANDS
+#include "Pass.hpp"
+#include "Nick.hpp"
+#include "User.hpp"
+#include "Privmsg.hpp"
+#include "Oper.hpp"
+#include "Join.hpp"
+#include "Ping.hpp"
 
 // SERVER
 void	server_loop(Server &serv);

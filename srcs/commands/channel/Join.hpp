@@ -31,7 +31,7 @@ struct Join : public ICommand
 	 * @param str the string to split into multiple parameters
 	 * @return std::vector<std::string> of either channels or keys
 	 */
-	std::vector<std::string>	Join::split_join_cmd(std::string &str)
+	std::vector<std::string>	split_join_cmd(std::string &str);
 	void	join_channel(Message msg);
 	/**
 	 * @brief simple boolean function to check wether the supplied channel name 

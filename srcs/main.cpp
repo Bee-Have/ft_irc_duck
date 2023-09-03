@@ -1,16 +1,25 @@
 #include "ircserv.hpp"
-#include "sstream"
+// #include "Server.hpp"
+#include <sstream>
 
-// void	setup_commands(Server &serv)
-// {
-// 	commands["PASS"] = &Server::pass;
-// 	commands["NICK"] = &Server::nick;
-// 	commands["USER"] = &Server::user;
-// 	commands["OPER"] = &Server::oper;
-// 	commands["PRIVMSG"] = &Server::privmsg;
-// 	commands["JOIN"] = &Server::join;
-// 	commands["PING"] = &Server::ping;
-// }
+void	setup_commands(Server &serv)
+{
+	// commands["PASS"] = &Server::pass;
+	serv.register_command<Pass>("PASS");
+	serv.register_command<Nick>("NICK");
+	serv.register_command<User>("USER");
+	serv.register_command<Privmsg>("PRIVMSG");
+	serv.register_command<Oper>("OPER");
+	serv.register_command<Join>("JOIN");
+	serv.register_command<Ping>("PING");
+	// commands["NICK"] = &Server::nick;
+	// commands["USER"] = &Server::user;
+	// commands["OPER"] = &Server::oper;
+	// commands["PRIVMSG"] = &Server::privmsg;
+	// commands["JOIN"] = &Server::join;
+	// commands["PING"] = &Server::ping;
+
+}
 
 int	main(int ac, char **av)
 {
@@ -34,6 +43,7 @@ int	main(int ac, char **av)
 	ss >> port;
 
 	Server	serv(port, av[2]);
+	setup_commands(serv);
 	server_loop(serv);
 	return (0);
 }

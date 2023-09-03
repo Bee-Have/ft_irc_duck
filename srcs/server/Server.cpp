@@ -1,5 +1,6 @@
 #include "Server.hpp"
-#include "Message.hpp"
+// #include "Message.hpp"
+#include "ICommand.hpp"
 
 /**
  * This should never be used. Server MUST be created with a PORT and PASSWORD
@@ -51,8 +52,13 @@ Server::Server(const Server &cpy)
  */
 Server::~Server(void)
 {
+	for (std::map<std::string, ICommand *>::iterator it = commands.begin();
+		it != commands.end(); ++it)
+	{
+		delete it->second;
+	}
 	close(_socket);
-	client_list.clear();
+	// client_list.clear();
 }
 
 Server	&Server::operator=(const Server &assign)
@@ -239,6 +245,15 @@ fd_set	Server::get_write_fds(void) const
 	}
 	return (write_fds);
 }
+
+// template <typename CommandType>
+// void	Server::register_command(const std::string &name)
+// {
+// 	// TODO : GUARD CommandType MUST inherit ICommand
+// 	// TODO : GUARD name MUST be unique
+// 	commands[name] = new CommandType(*this);
+// }
+
 
 /**
  * @brief Checks wethere param nickname exists in Client_list

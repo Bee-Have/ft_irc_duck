@@ -21,14 +21,18 @@
 #include "define.hpp"
 
 // CLASSES
+// #include "ICommand.hpp"
 #include "Client.hpp"
 #include "Channel.hpp"
 #include "Message.hpp"
+
+struct ICommand;
 
 #define MAX_CLIENT 10
 
 class Server
 {
+	friend class Join;
 private:
 	// Server authentification
 	int			_port;
@@ -53,6 +57,7 @@ private:
 public:
 	std::vector<Message>			msgs;
 	std::map<int, Client>	client_list;
+	std::map<std::string, ICommand *>	commands;
 
 	Server(int new_port, char *new_pass);
 	~Server();
@@ -73,6 +78,13 @@ public:
 	fd_set	get_write_fds() const;
 
 	// tools
+	template <typename CommandType>
+	void	register_command(const std::string &name)
+	{
+		// TODO : GUARD CommandType MUST inherit ICommand
+		// TODO : GUARD name MUST be unique
+		commands[name] = new CommandType(*this);
+	};
 	int	get_client_by_nickname(std::string nickname);
 	std::string	oper_command_check(int client, std::string oper, std::string pass);
 };

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <pair>
+#include <utility>
 
 #include "ICommand.hpp"
 
@@ -15,4 +15,3 @@ struct Privmsg : public ICommand
 
 	void	execute(Message &msg);
 };
-

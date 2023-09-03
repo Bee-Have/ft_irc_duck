@@ -21,5 +21,5 @@ struct Nick : public ICommand
 	 * @return false if the nickname isn't allowed
 	 */
 	bool	is_nickname_allowed(const std::string &nickname) const;
-	virtual void	execute(Message &msg) = 0;
+	void	execute(Message &msg);
 };
