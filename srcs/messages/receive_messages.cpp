@@ -29,6 +29,7 @@ static int	find_incomplete_msg(Server &serv, Client emitter)
  */
 void	receive_messages(Server &serv, fd_set read_fds)
 {
+	// TODO : simplify this functionm it is way to damn long dammit
 	char		buffer[1024] = {0};
 	int			valread = 0;
 	std::string	tmp;

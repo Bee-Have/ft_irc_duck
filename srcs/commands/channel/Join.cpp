@@ -6,10 +6,10 @@ Join::Join(Server &p_serv): ICommand(p_serv)
 void	Join::execute(Message &msg)
 {
 	std::string					tmp;
-	std::vector<std::string>	channels;
-	std::vector<std::string>	keys;
+	// std::vector<std::string>	channels;
+	// std::vector<std::string>	keys;
 
-	if (msg.cmd_param.find(" ") != msg.cmd_param.find_last_of(" "))
+	if (msg.cmd_param.find_first_of(" ") != msg.cmd_param.find_last_of(" "))
 		return (join_space_error(msg));
 	if (msg.cmd_param.find(' ') != std::string::npos)
 	{
@@ -19,6 +19,10 @@ void	Join::execute(Message &msg)
 		msg.cmd_param.erase(msg.cmd_param.find(' '), msg.cmd_param.size());
 	}
 	channels = split_join_cmd(msg.cmd_param);
+	for (std::vector<std::string>::iterator it = channels.begin(); it != channels.end(); ++it)
+	{
+		std::cout << "chan->[" << *it << "]\n";
+	}
 	if (msg.cmd_param.empty() == true)
 	{
 		channels.back().append(",");

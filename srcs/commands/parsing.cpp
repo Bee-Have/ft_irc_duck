@@ -60,7 +60,6 @@ void	check_for_cmds(Server &serv, Message &msg)
 	else
 	{
 		// TODO : need equivalent here
-		// (serv.*serv.commands[msg.cmd])(msg);
 		serv.commands[msg.cmd]->execute(msg);
 	}
 }
