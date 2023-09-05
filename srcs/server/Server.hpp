@@ -33,6 +33,7 @@ struct ICommand;
 class Server
 {
 	friend class Join;
+	friend class Part;
 private:
 	// Server authentification
 	int			_port;

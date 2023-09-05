@@ -16,13 +16,15 @@ IFLAGS = $(foreach dir, $(SRC_DIR), -I$(dir))
 
 vpath %.cpp $(foreach dir, $(SRC_DIR), $(dir):)
 
+# TODO : rearange the file varaibles, this isn't great
 SERVER = Server.cpp server_loop.cpp Client.cpp
 
 CHANNEL = Channel.cpp
 
 MESSAGES = Message.cpp receive_messages.cpp send_messages.cpp
 
-CMDS = parsing.cpp Pass.cpp Nick.cpp User.cpp Oper.cpp Ping.cpp Join.cpp Privmsg.cpp
+CMDS = parsing.cpp Pass.cpp Nick.cpp User.cpp Oper.cpp Ping.cpp Join.cpp Privmsg.cpp \
+	Part.cpp
 
 SRC = main.cpp $(SERVER) $(CHANNEL) $(CMDS) $(MESSAGES)
 
