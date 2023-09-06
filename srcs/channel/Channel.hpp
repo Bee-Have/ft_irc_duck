@@ -8,6 +8,7 @@ class Server;
 class Channel
 {
 friend class Server;
+friend struct Join;
 private:
 	enum ClientStatus
 	{

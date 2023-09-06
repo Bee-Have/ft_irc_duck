@@ -7,13 +7,13 @@
 // GENERAL
 #include <iostream>
 #include <string>
-#include <sstream>
+// #include <sstream>
 
 // IRSSI && SOCKETS
 #include <sys/socket.h>
 #include <arpa/inet.h>
 #include <unistd.h>
-#include <ctime>
+// #include <ctime>
 
 // ERRORS :
 #include <string.h>
@@ -21,14 +21,18 @@
 #include "define.hpp"
 
 // CLASSES
+// #include "ICommand.hpp"
 #include "Client.hpp"
 #include "Channel.hpp"
-class Message;
+#include "Message.hpp"
+
+struct ICommand;
 
 #define MAX_CLIENT 10
 
 class Server
 {
+	friend class Join;
 private:
 	// Server authentification
 	int			_port;
@@ -49,19 +53,11 @@ private:
 
 	Server();
 	Server(const Server &cpy);
-	// tools
-	int	_get_client_by_nickname(std::string nickname);
-	// JOIN command utils
-	void	join_space_error(Message &msg);
-	void	new_chan_member_sucess(Message msg, std::string chan);
-	void	join_channel(Message msg, std::vector<std::string> chans, std::vector<std::string> keys);
-	void	join_create_channel(Message msg, std::string chan_name);
-	void	join_check_existing_chan(Message msg, Channel *channel, std::vector<std::string> keys);
-
 
 public:
 	std::vector<Message>			msgs;
 	std::map<int, Client>	client_list;
+	std::map<std::string, ICommand *>	commands;
 
 	Server(int new_port, char *new_pass);
 	~Server();
@@ -69,7 +65,8 @@ public:
 	Server	&operator=(const Server &assign);
  
 	// encapsulation
-	int		get_socket() const;
+	int			get_socket() const;
+	std::string	get_pass() const;
 
 	// client managment
 	void	add_client();
@@ -80,23 +77,14 @@ public:
 	fd_set	get_read_fds() const;
 	fd_set	get_write_fds() const;
 
-	// command function pointer
-	typedef void(Server::*command)(Message &);
-	std::map<std::string, command>	commands;
-	// commands
-	void	error_message(Message &msg, std::string prefix, std::string error);
-	void	reply_message(Message &msg, std::string reply, std::string replace);
-	void	reply_message(Message &msg, std::vector<std::string> &errors, std::vector<std::string> &replace);
-	//		connect to IRSSI
-	void	pass(Message &msg);
-	void	nick(Message &msg);
-	void	user(Message &msg);
-	// Requirements
-	void	oper(Message &msg);
-	void	privmsg(Message &msg);
-	void	join(Message &msg);
-	// 42 Requirements
-
-	//		noice
-	void	ping(Message &msg);
+	// tools
+	template <typename CommandType>
+	void	register_command(const std::string &name)
+	{
+		// TODO : GUARD CommandType MUST inherit ICommand
+		// TODO : GUARD name MUST be unique
+		commands[name] = new CommandType(*this);
+	};
+	int	get_client_by_nickname(std::string nickname);
+	std::string	oper_command_check(int client, std::string oper, std::string pass);
 };

@@ -2,22 +2,26 @@
 
 #include <string>
 
-class Server;
+// class Server;
+// #include "Pass.hpp"
 
 class Client
 {
-friend class Server;
+friend struct Pass;
+friend struct User;
+friend struct Server;
 private:
 	Client();
 	Client(int new_socket);
 
 	int			_socket;
 	bool		_is_registered;
-	std::string	_nickname;
 	std::string	_username;
 	std::string	_realname;
 
 public:
+	std::string	nickname;
+
 	Client(const Client &cpy);
 	~Client();
 
