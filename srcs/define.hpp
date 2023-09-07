@@ -44,6 +44,7 @@
 //		CUSTOM
 // 			REPLIES
 #define RPL_JOIN ":<client> JOIN <channel>\r\n"
+#define RPL_PART ":<client> PART <channel>\r\n"
 #define RPL_CLIENTLEFT "908 <client> :Client <nick> just left " SERVERNAME ", bye bye\r\n"
 // 			ERRRORS
 #define ERR_CANNOTBECOMEOPER "920 <client> :Operator role already fullfiled\r\n"

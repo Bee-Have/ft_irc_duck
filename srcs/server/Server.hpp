@@ -36,6 +36,7 @@ class Server
 	friend class Part;
 private:
 	// Server authentification
+	// TODO : shouldn't this value be a public const static instead of a private ?
 	int			_port;
 	std::string	_pass;
 

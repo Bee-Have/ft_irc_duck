@@ -9,6 +9,7 @@ class Channel
 {
 friend class Server;
 friend struct Join;
+friend struct Part;
 private:
 	enum ClientStatus
 	{
