@@ -13,20 +13,13 @@ void	Part::execute(Message &msg)
 		reason = msg.cmd_param.substr(msg.cmd_param.find(" ") + 1, msg.cmd_param.size());
 		msg.cmd_param = msg.cmd_param.substr(0, msg.cmd_param.find(" "));
 	}
-	std::cout << "reason [" << reason << "]\n";
-	std::cout << "original [" << msg.cmd_param << "]\n";
 	split_channels(msg.cmd_param);
-	for (std::vector<std::string>::iterator print = channels.begin() ;
-		print != channels.end() ; ++print)
-	{
-		std::cout << "[" << *print << "]";
-	}
-	std::cout << std::endl;
 	if (msg.cmd_param.empty() == true)
 	{
 		channels.back().append(",");
 		return (msg.reply_format(ERR_NOSUCHCHANNEL, channels.back(), serv.get_socket()));
 	}
+	loop_check(&msg);
 }
 
 void	Part::split_channels(std::string &p_params)
@@ -59,6 +52,7 @@ void	Part::loop_check(Message *msg)
 		if (serv._channel_list.find(*it) == serv._channel_list.end())
 		{
 			error.reply_format(ERR_NOSUCHCHANNEL, *it, serv.get_socket());
+			serv.msgs.push_back(error);
 			continue ;
 		}
 		Channel	*current = &serv._channel_list.find(*it)->second;
@@ -66,6 +60,7 @@ void	Part::loop_check(Message *msg)
 			|| current->_is(current->_clients.find(msg->get_emitter())->second, current->MEMBER) == false)
 		{
 			error.reply_format(ERR_NOTONCHANNEL, *it, serv.get_socket());
+			serv.msgs.push_back(error);
 			continue ;
 		}
 		success_behaviour(msg, current);
@@ -75,18 +70,18 @@ void	Part::loop_check(Message *msg)
 void	Part::success_behaviour(Message *msg, Channel *current)
 {
 	Message	warning_client_leaving(msg->get_emitter());
-	std::pair<int, int>	*client_cpy = current->_clients.find(msg->get_emitter());
+	int	*client_bitfield = &current->_clients.find(msg->get_emitter())->second;
 
-	client_cpy->second = client_cpy->second ^ current->MEMBER;
-	if (client_cpy->second == 0)
-		current->_clients.erase(current->.find(msg->get_emitter()));
-	if (current->_is(client_cpy->second, current->CHANOP) == true)
+	*client_bitfield = *client_bitfield ^ current->MEMBER;
+	if (client_bitfield == 0)
+		current->_clients.erase(current->_clients.find(msg->get_emitter()));
+	if (current->_is(*client_bitfield, current->CHANOP) == true)
 	{
-		client_cpy->second = client_cpy->second ^ current->CHANOP;
+		*client_bitfield = *client_bitfield ^ current->CHANOP;
 		if (are_there_other_chanops(current) == false)
 			assign_next_chanop(current);
-		if (current->_is(client_cpy->second, current->INVITED) == false)
-			current->_clients.erase(current->.find(msg->get_emitter()));
+		if (current->_is(*client_bitfield, current->INVITED) == false)
+			current->_clients.erase(current->_clients.find(msg->get_emitter()));
 	}
 	warning_client_leaving.reply_format(RPL_PART, current->_name, serv.get_socket());
 	warning_client_leaving.target.clear();
@@ -94,8 +89,10 @@ void	Part::success_behaviour(Message *msg, Channel *current)
 		it != current->_clients.end() ; ++it)
 	{
 		if (current->_is(it->second, current->MEMBER) == true)
-			warning_client_leaving.target.push_back(it->first);
+			warning_client_leaving.target.insert(it->first);
 	}
+	if (warning_client_leaving.target.empty() == false)
+		serv.msgs.push_back(warning_client_leaving);
 }
 
 void	Part::assign_next_chanop(Channel *current)
