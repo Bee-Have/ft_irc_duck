@@ -35,7 +35,7 @@ public:
 
 	Message(const Message &cpy);
 	Message(const Client &emitter);
-	Message(int emitter);
+	Message(int emitter, std::string p_name);
 	~Message();
 
 	Message	&operator=(const Message &assign);
