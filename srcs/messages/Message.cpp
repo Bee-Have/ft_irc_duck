@@ -69,6 +69,7 @@ void	Message::replace_rpl_err_text(std::string replace)
  */
 void	Message::reply_format(std::string reply, std::string replace, int socket)
 {
+	// ! do we really need this ? it feels stale
 	target.clear();
 	target.insert(_emitter);
 

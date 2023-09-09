@@ -14,6 +14,7 @@
 #include "Privmsg.hpp"
 #include "Oper.hpp"
 #include "Join.hpp"
+#include "Part.hpp"
 #include "Ping.hpp"
 
 // SERVER

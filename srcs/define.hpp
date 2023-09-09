@@ -35,6 +35,7 @@
 #define ERR_NONICKNAMEGIVEN "431 <client> :No nickname given\r\n"
 #define ERR_ERRONEUSNICKNAME "432 <client> <nick> :Erroneus nickname\r\n"
 #define ERR_NICKNAMEINUSE "433 <client> <nick> :Nickname is already in use\r\n"
+#define ERR_NOTONCHANNEL "442 <client> <channel> :You're not on that channel\r\n"
 #define ERR_NEEDMOREPARAMS "461 <client> <command> :Not enough parameters\r\n"
 #define ERR_ALREADYREGISTRED "462 <client> :You may not reregister\r\n"
 #define ERR_PASSWDMISMATCH "464 <client> :Password incorrect\r\n"
@@ -43,6 +44,7 @@
 //		CUSTOM
 // 			REPLIES
 #define RPL_JOIN ":<client> JOIN <channel>\r\n"
+#define RPL_PART ":<client> PART <channel>\r\n"
 #define RPL_CLIENTLEFT "908 <client> :Client <nick> just left " SERVERNAME ", bye bye\r\n"
 // 			ERRRORS
 #define ERR_CANNOTBECOMEOPER "920 <client> :Operator role already fullfiled\r\n"
