@@ -18,7 +18,6 @@ class Client;
 class Message
 {
 private:
-	// TODO wouldn't it be more practical if this value was a public const static ?
 	int	_emitter;
 
 	Message();
