@@ -24,7 +24,7 @@ void	Privmsg::execute(Message &msg)
 	msg.target.insert(target.first);
 	
 	msg.text = ":";
-	msg.text.append(msg.emitter_name);
+	msg.text.append(msg.emitter_nick);
 	msg.text.append(" PRIVMSG ");
 	msg.text.append(text);
 	msg.text.append("\r\n");
