@@ -25,7 +25,6 @@
 #define RPL_TOPIC "332 <client> <channel> :<topic>\r\n"
 #define RPL_TOPICWHOTIME "333 <client> <channel> <nick> <setat>\r\n"
 #define RPL_YOUREOPER "381 <client> :You are now an IRC operator\r\n"
-// TODO : check how to do RPL_NAMEREPLY properly since its size can vary
 #define RPL_NAMREPLY "353 <client> <symbol> <channel> :<nick>{ <nick>}\r\n"
 #define RPL_ENDOFNAMES "366 <client> <channel> :End of /NAMES list\r\n"
 //		ERRORS

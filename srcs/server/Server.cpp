@@ -246,15 +246,6 @@ fd_set	Server::get_write_fds(void) const
 	return (write_fds);
 }
 
-// template <typename CommandType>
-// void	Server::register_command(const std::string &name)
-// {
-// 	// TODO : GUARD CommandType MUST inherit ICommand
-// 	// TODO : GUARD name MUST be unique
-// 	commands[name] = new CommandType(*this);
-// }
-
-
 /**
  * @brief Checks wethere param nickname exists in client_list
  * 

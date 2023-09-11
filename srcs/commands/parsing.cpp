@@ -1,7 +1,5 @@
 #include "ircserv.hpp"
 
-// TODO : deleted prefix handling since it cannot be added by the client and 
-// TODO : 42's IRC does not handle server to server communications
 /**
  * @brief splits the newly received message into : prefix, command and params.
  * For this purpose the message class has a struct with prefix, command and params inside.
@@ -12,8 +10,6 @@
  */
 static void	parsing_cmds(Server &serv, Message &msg)
 {
-	// TODO : delete this once the new commands is fully integrated
-	(void)serv;
 	std::cout << "PARSING" << std::endl;
 	if (msg.text.find("\n") != std::string::npos)
 	{
@@ -24,7 +20,6 @@ static void	parsing_cmds(Server &serv, Message &msg)
 
 	if (msg.text.empty() == false && msg.text.find(' ') == std::string::npos)
 	{
-		// TODO : need and equivalent here
 		if (serv.commands.find(msg.text) != serv.commands.end())
 			msg.reply_format(ERR_NEEDMOREPARAMS, msg.text, serv.get_socket());
 		return ;
@@ -50,7 +45,6 @@ void	check_for_cmds(Server &serv, Message &msg)
 	parsing_cmds(serv, msg);
 	if (msg.target.empty() == false)
 		return ;
-	// TODO : need equivalent here
 	if (serv.commands.find(msg.cmd) == serv.commands.end())
 		return ;
 	std::cout << "CMD FOUND :" << msg.cmd << std::endl;
@@ -58,8 +52,5 @@ void	check_for_cmds(Server &serv, Message &msg)
 		&& msg.cmd != "PASS")
 		msg.reply_format(ERR_UNREGISTERED, "", serv.get_socket());
 	else
-	{
-		// TODO : need equivalent here
 		serv.commands[msg.cmd]->execute(msg);
-	}
 }
