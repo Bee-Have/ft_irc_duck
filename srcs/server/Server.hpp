@@ -76,8 +76,12 @@ public:
 	template <typename CommandType>
 	void	register_command(const std::string &name)
 	{
-		// TODO : GUARD CommandType MUST inherit ICommand
-		// TODO : GUARD name MUST be unique
+		// TODO : GUARD : "CommandType" MUST inherit ICommand
+		if (commands.find(name) != commands.end())
+		{
+			std::cerr << ERR_NONUNIQUECOMMAND;
+			return ;
+		}
 		commands[name] = new CommandType(*this);
 	};
 	int	get_client_by_nickname(std::string nickname);

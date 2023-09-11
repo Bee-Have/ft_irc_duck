@@ -14,6 +14,8 @@
 #define ERR_SOCKBINDFAIL "003 " SERVERNAME " :Binding server socket to PORT failed\r\n"
 #define ERR_SOCKLISTENFAIL "004 " SERVERNAME " :Server socket listen failed\r\n"
 #define ERR_PORTNOTANUMBER "005 " SERVERNAME " :<port> must be a numerical value\r\n"
+#define ERR_BADCOMMANDTYPE "006 " SERVERNAME " :Command type must inherit ICommand\r\n"
+#define ERR_NONUNIQUECOMMAND "007 " SERVERNAME " :Commands must be unique\r\n"
 
 //	CLIENT
 //		REPLIES
