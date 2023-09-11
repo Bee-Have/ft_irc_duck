@@ -13,7 +13,6 @@
 #include <sys/socket.h>
 #include <arpa/inet.h>
 #include <unistd.h>
-// #include <ctime>
 
 // ERRORS :
 #include <string.h>
@@ -21,7 +20,6 @@
 #include "define.hpp"
 
 // CLASSES
-// #include "ICommand.hpp"
 #include "Client.hpp"
 #include "Channel.hpp"
 #include "Message.hpp"
@@ -35,13 +33,8 @@ class Server
 	friend class Join;
 	friend class Part;
 private:
-	// Server authentification
-	// TODO : shouldn't this value be a public const static instead of a private ?
-	int			_port;
-	std::string	_pass;
 
 	// Server socket creation and identification
-	int					_socket;
 	struct sockaddr_in	_server_addr;
 	struct sockaddr_in	_client_addr;
 
@@ -55,20 +48,20 @@ private:
 
 	Server();
 	Server(const Server &cpy);
+	Server	&operator=(const Server &assign);
 
 public:
-	std::vector<Message>			msgs;
+	// Server authentification
+	const int			socket_id;
+	const int			port;
+	const std::string	pass;
+
+	std::vector<Message>	msgs;
 	std::map<int, Client>	client_list;
 	std::map<std::string, ICommand *>	commands;
 
 	Server(int new_port, char *new_pass);
 	~Server();
-
-	Server	&operator=(const Server &assign);
- 
-	// encapsulation
-	int			get_socket() const;
-	std::string	get_pass() const;
 
 	// client managment
 	void	add_client();

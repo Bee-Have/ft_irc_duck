@@ -17,7 +17,7 @@ void	Part::execute(Message &msg)
 	if (msg.cmd_param.empty() == true)
 	{
 		channels.back().append(",");
-		return (msg.reply_format(ERR_NOSUCHCHANNEL, channels.back(), serv.get_socket()));
+		return (msg.reply_format(ERR_NOSUCHCHANNEL, channels.back(), serv.socket_id));
 	}
 	loop_check(&msg);
 }
@@ -51,7 +51,7 @@ void	Part::loop_check(Message *msg)
 	{
 		if (serv._channel_list.find(*it) == serv._channel_list.end())
 		{
-			error.reply_format(ERR_NOSUCHCHANNEL, *it, serv.get_socket());
+			error.reply_format(ERR_NOSUCHCHANNEL, *it, serv.socket_id);
 			serv.msgs.push_back(error);
 			continue ;
 		}
@@ -59,7 +59,7 @@ void	Part::loop_check(Message *msg)
 		if (current->_clients.find(msg->get_emitter()) == current->_clients.end()
 			|| current->_is(current->_clients.find(msg->get_emitter())->second, current->MEMBER) == false)
 		{
-			error.reply_format(ERR_NOTONCHANNEL, *it, serv.get_socket());
+			error.reply_format(ERR_NOTONCHANNEL, *it, serv.socket_id);
 			serv.msgs.push_back(error);
 			continue ;
 		}
@@ -83,7 +83,7 @@ void	Part::success_behaviour(Message *msg, Channel *current)
 		if (current->_is(*client_bitfield, current->INVITED) == false)
 			current->_clients.erase(current->_clients.find(msg->get_emitter()));
 	}
-	warning_client_leaving.reply_format(RPL_PART, current->_name, serv.get_socket());
+	warning_client_leaving.reply_format(RPL_PART, current->_name, serv.socket_id);
 	warning_client_leaving.target.clear();
 	for (std::map<int, int>::iterator it = current->_clients.begin() ;
 		it != current->_clients.end() ; ++it)

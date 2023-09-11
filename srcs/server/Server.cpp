@@ -1,12 +1,31 @@
 #include "Server.hpp"
-// #include "Message.hpp"
 #include "ICommand.hpp"
 
 /**
- * This should never be used. Server MUST be created with a PORT and PASSWORD
+ * This should never be used. Server MUST be created with a PORT and PASWORD
  */
-Server::Server(void)
-{}
+Server::Server(void): _oper_name("Cthulhu"), _oper_pass("R'lyeh"), _oper_socket(-1), socket_id(socket(AF_INET, SOCK_STREAM, 0)), port(8080), pass("Dragon")
+{
+	if (socket_id < 0)
+	{
+		std::cerr << ERR_SOCKCREATEFAIL;
+		return ;
+	}
+	_server_addr.sin_family = AF_INET;
+	_server_addr.sin_port = htons(port);
+	_server_addr.sin_addr.s_addr = INADDR_ANY;
+
+	if (bind(socket_id, (struct sockaddr *)&_server_addr, sizeof(_server_addr)) < 0)
+	{
+		std::cerr << ERR_SOCKBINDFAIL;
+		return ;
+	}
+	if (listen(socket_id, MAX_CLIENT) < 0)
+	{
+		std::cerr << ERR_SOCKLISTENFAIL;
+		return ;
+	}
+}
 
 /**
  * @brief Construct a new Server::server object.
@@ -17,31 +36,34 @@ Server::Server(void)
  * @param new_port the new port of the server
  * @param new_pass the password of the server
  */
-Server::Server(int new_port, char *new_pass): _port(new_port), _pass(new_pass), _oper_name("Cthulhu"), _oper_pass("R'lyeh"), _oper_socket(-1)
+Server::Server(int new_port, char *new_pass): _oper_name("Cthulhu"), _oper_pass("R'lyeh"), _oper_socket(-1), socket_id(socket(AF_INET, SOCK_STREAM, 0)), port(new_port), pass(new_pass)
 {
-	_socket = socket(AF_INET, SOCK_STREAM, 0);
-	if (_socket < 0)
+	// socket_id = socket(AF_INET, SOCK_STREAM, 0);
+	if (socket_id < 0)
 	{
 		std::cerr << ERR_SOCKCREATEFAIL;
 		return ;
 	}
 	_server_addr.sin_family = AF_INET;
-	_server_addr.sin_port = htons(_port);
+	_server_addr.sin_port = htons(port);
 	_server_addr.sin_addr.s_addr = INADDR_ANY;
 
-	if (bind(_socket, (struct sockaddr *)&_server_addr, sizeof(_server_addr)) < 0)
+	if (bind(socket_id, (struct sockaddr *)&_server_addr, sizeof(_server_addr)) < 0)
 	{
 		std::cerr << ERR_SOCKBINDFAIL;
 		return ;
 	}
-	if (listen(_socket, MAX_CLIENT) < 0)
+	if (listen(socket_id, MAX_CLIENT) < 0)
 	{
 		std::cerr << ERR_SOCKLISTENFAIL;
 		return ;
 	}
 }
 
-Server::Server(const Server &cpy)
+/**
+ * This should never be used. Server MUST be created with a PORT and PASWORD
+ */
+Server::Server(const Server &cpy): socket_id(cpy.socket_id), port(cpy.port), pass(cpy.pass)
 {
 	(void)cpy;
 }
@@ -57,17 +79,17 @@ Server::~Server(void)
 	{
 		delete it->second;
 	}
-	close(_socket);
+	close(socket_id);
 	// client_list.clear();
 }
 
+/**
+ * This should never be used. Server MUST be created with a PORT and PASWORD
+ */
 Server	&Server::operator=(const Server &assign)
 {
 	if (this != &assign)
 	{
-		_port = assign._port;
-		_pass.assign(assign._pass);
-		_socket = assign._socket;
 		_server_addr = assign._server_addr;
 		_client_addr = assign._client_addr;
 		msgs.clear();
@@ -76,16 +98,6 @@ Server	&Server::operator=(const Server &assign)
 		client_list.insert(assign.client_list.begin(), assign.client_list.end());
 	}
 	return (*this);
-}
-
-int	Server::get_socket(void) const
-{
-	return (_socket);
-}
-
-std::string	Server::get_pass() const
-{
-	return (_pass);
 }
 
 /**
@@ -97,7 +109,7 @@ std::string	Server::get_pass() const
 void	Server::add_client(void)
 {
 	socklen_t		client_addr_len = sizeof(_client_addr);
-	Client	new_client(accept(_socket, (struct sockaddr *)&_client_addr, &client_addr_len));
+	Client	new_client(accept(socket_id, (struct sockaddr *)&_client_addr, &client_addr_len));
 
 	if (new_client._socket < 0)
 	{
@@ -135,6 +147,7 @@ void	Server::add_client(void)
  */
 void	Server::del_client(int fd)
 {
+	// TODO : split this function into multiple, it is too damn long
 	// delete client from messages
 	for (std::vector<Message>::iterator it = msgs.begin(); it != msgs.end(); ++it)
 	{
@@ -165,8 +178,8 @@ void	Server::del_client(int fd)
 			{
 				// ! This behaviour might become problematic with the implementation of QUIT
 				// TODO : check QUIT message & alter this behaviour
-				Message	new_msg(_socket);
-				new_msg.reply_format(RPL_CLIENTLEFT, client_list.find(fd)->second.nickname, _socket);
+				Message	new_msg(socket_id);
+				new_msg.reply_format(RPL_CLIENTLEFT, client_list.find(fd)->second.nickname, socket_id);
 				new_msg.target.clear();
 				for (std::map<int, int>::iterator it_chan_client = it->second._clients.begin();
 					it_chan_client != it->second._clients.end(); ++it_chan_client)
@@ -191,7 +204,7 @@ void	Server::del_client(int fd)
  */
 int	Server::get_max_fd(void) const
 {
-	int	max_fd = _socket;
+	int	max_fd = socket_id;
 
 	for (std::map<int, Client>::const_iterator it = client_list.begin(); it != client_list.end(); ++it)
 	{
@@ -212,7 +225,7 @@ fd_set	Server::get_read_fds(void) const
 	fd_set	read_fds;
 
 	FD_ZERO(&read_fds);
-	FD_SET(_socket, &read_fds);
+	FD_SET(socket_id, &read_fds);
 	for (std::map<int, Client>::const_iterator it = client_list.begin()
 		; it != client_list.end(); ++it)
 	{

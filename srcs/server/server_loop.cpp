@@ -21,7 +21,7 @@ void	server_loop(Server &serv)
 			return ;
 		}
 		// new client connection
-		if (FD_ISSET(serv.get_socket(), &read_fds))
+		if (FD_ISSET(serv.socket_id, &read_fds))
 			serv.add_client();
 
 		// send messages if there are any

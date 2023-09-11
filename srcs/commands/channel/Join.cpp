@@ -26,7 +26,7 @@ void	Join::execute(Message &msg)
 	if (msg.cmd_param.empty() == true)
 	{
 		channels.back().append(",");
-		return (msg.reply_format(ERR_NOSUCHCHANNEL, channels.back(), serv.get_socket()));
+		return (msg.reply_format(ERR_NOSUCHCHANNEL, channels.back(), serv.socket_id));
 	}
 	join_channel(msg);
 }
@@ -46,7 +46,7 @@ void	Join::join_space_error(Message &msg)
 			end = msg.cmd_param.find(" ", msg.cmd_param.find_first_of(" ") + 1) - begin;
 		channel_name = msg.cmd_param.substr(begin, end);
 	}
-	msg.reply_format(ERR_NOSUCHCHANNEL, channel_name, serv.get_socket());
+	msg.reply_format(ERR_NOSUCHCHANNEL, channel_name, serv.socket_id);
 }
 
 std::vector<std::string>	Join::split_join_cmd(std::string &str)
@@ -78,7 +78,7 @@ void	Join::join_channel(Message msg)
 		if (it_chan->empty() == true || is_channel_name_allowed(*it_chan) == false)
 		{
 			Message	error(msg.get_emitter());
-			error.reply_format(ERR_NOSUCHCHANNEL, *it_chan, serv.get_socket());
+			error.reply_format(ERR_NOSUCHCHANNEL, *it_chan, serv.socket_id);
 			std::cout << "ERR BAD CHAN [" << error.text << ']' << std::endl;
 			serv.msgs.push_back(error);
 			if (keys.empty() == false)
@@ -124,7 +124,7 @@ void	Join::join_check_existing_chan(Message msg, Channel *channel)
 	if (channel->_key.empty() == false
 		&& (keys.empty() == true || channel->_key != *keys.begin()))
 	{
-		error.reply_format(ERR_BADCHANNELKEY, channel->_name, serv.get_socket());
+		error.reply_format(ERR_BADCHANNELKEY, channel->_name, serv.socket_id);
 		serv.msgs.push_back(error);
 	}
 	if (channel->_is(channel->_clients.find(msg.get_emitter())->second, channel->INVITED) == true)
@@ -133,7 +133,7 @@ void	Join::join_check_existing_chan(Message msg, Channel *channel)
 	{
 		if (channel->_is_invite_only == true)
 		{
-			error.reply_format(ERR_INVITEONLYCHAN, channel->_name, serv.get_socket());
+			error.reply_format(ERR_INVITEONLYCHAN, channel->_name, serv.socket_id);
 			serv.msgs.push_back(error);
 		}
 		else
@@ -151,7 +151,7 @@ void	Join::new_chan_member_sucess(Message msg, std::string chan)
 	Message						reply(msg.get_emitter());
 	Message						new_member_warning(msg.get_emitter());
 
-	new_member_warning.reply_format(RPL_JOIN, chan, serv.get_socket());
+	new_member_warning.reply_format(RPL_JOIN, chan, serv.socket_id);
 	new_member_warning.target.clear();
 
 	if (serv._channel_list.find(chan)->second._topic.empty() == false)

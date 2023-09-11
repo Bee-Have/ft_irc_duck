@@ -21,7 +21,7 @@ static void	parsing_cmds(Server &serv, Message &msg)
 	if (msg.text.empty() == false && msg.text.find(' ') == std::string::npos)
 	{
 		if (serv.commands.find(msg.text) != serv.commands.end())
-			msg.reply_format(ERR_NEEDMOREPARAMS, msg.text, serv.get_socket());
+			msg.reply_format(ERR_NEEDMOREPARAMS, msg.text, serv.socket_id);
 		return ;
 	}
 	else
@@ -50,7 +50,7 @@ void	check_for_cmds(Server &serv, Message &msg)
 	std::cout << "CMD FOUND :" << msg.cmd << std::endl;
 	if (serv.client_list.find(msg.get_emitter())->second.get_is_registered() == false
 		&& msg.cmd != "PASS")
-		msg.reply_format(ERR_UNREGISTERED, "", serv.get_socket());
+		msg.reply_format(ERR_UNREGISTERED, "", serv.socket_id);
 	else
 		serv.commands[msg.cmd]->execute(msg);
 }
