@@ -3,7 +3,6 @@
 Privmsg::Privmsg(Server &p_serv): ICommand(p_serv)
 {}
 
-// TODO : do we really need std::pair here ? We are not really using it...
 void	Privmsg::execute(Message &msg)
 {
 	std::pair<int, std::string>	target;
@@ -19,10 +18,10 @@ void	Privmsg::execute(Message &msg)
 	text = msg.cmd_param.substr(msg.cmd_param.find(':'), msg.cmd_param.size());
 	if (target.first == -1)
 		return (msg.reply_format(ERR_NOSUCHNICK, target.second, serv.socket_id));
-	
+
 	msg.target.clear();
 	msg.target.insert(target.first);
-	
+
 	msg.text = ":";
 	msg.text.append(msg.emitter_nick);
 	msg.text.append(" PRIVMSG ");
