@@ -3,7 +3,6 @@
 Part::Part(Server &p_serv): ICommand(p_serv)
 {}
 
-// TODO : why do we need to check if msg.cmd_param.empty() == true ?
 void	Part::execute(Message &msg)
 {
 	std::string	reason;
@@ -15,10 +14,7 @@ void	Part::execute(Message &msg)
 	}
 	split_channels(msg.cmd_param);
 	if (msg.cmd_param.empty() == true)
-	{
-		channels.back().append(",");
-		return (msg.reply_format(ERR_NOSUCHCHANNEL, channels.back(), serv.socket_id));
-	}
+		channels.push_back("");
 	loop_check(&msg);
 }
 
