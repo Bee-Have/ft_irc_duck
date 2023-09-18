@@ -7,6 +7,8 @@ void	Join::execute(Message &msg)
 {
 	std::string					tmp;
 
+	if (msg.cmd_param.compare("0") == 0)
+		return (special_argument(msg));
 	if (msg.cmd_param.find_first_of(" ") != msg.cmd_param.find_last_of(" "))
 		return (join_space_error(msg));
 	if (msg.cmd_param.find(' ') != std::string::npos)
@@ -17,13 +19,27 @@ void	Join::execute(Message &msg)
 		msg.cmd_param.erase(msg.cmd_param.find(' '), msg.cmd_param.size());
 	}
 	channels = split_join_cmd(msg.cmd_param);
-	// for (std::vector<std::string>::iterator it = channels.begin(); it != channels.end(); ++it)
-	// {
-	// 	std::cout << "chan->[" << *it << "]\n";
-	// }
 	if (msg.cmd_param.empty() == true)
 		channels.push_back("");
 	join_channel(msg);
+}
+
+void	Join::special_argument(Message &msg)
+{
+	msg.cmd_param.clear();
+	for (std::map<std::string, Channel>::iterator it = serv._channel_list.begin();
+		it != serv._channel_list.end(); ++it)
+	{
+		if (it->second._clients.find(msg.get_emitter()) != it->second._clients.end())
+		{
+			if (msg.cmd_param.empty() == true)
+				msg.cmd_param = it->first;
+			else
+				msg.cmd_param.append("," + it->first);
+		}
+	}
+	if (msg.cmd_param.empty() == false)
+		serv.commands["PART"]->execute(msg);
 }
 
 void	Join::join_space_error(Message &msg)
