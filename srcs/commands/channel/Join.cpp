@@ -72,7 +72,7 @@ void	Join::join_channel(Message msg)
 	{
 		if (it_chan->empty() == true || is_channel_name_allowed(*it_chan) == false)
 		{
-			Message	error(msg.get_emitter(), msg.emitter_nick);
+			Message	error(serv.client_list.find(msg.get_emitter())->second);
 			error.reply_format(ERR_NOSUCHCHANNEL, *it_chan, serv.socket_id);
 			std::cout << "ERR BAD CHAN [" << error.text << ']' << std::endl;
 			serv.msgs.push_back(error);
