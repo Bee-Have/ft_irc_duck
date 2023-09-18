@@ -3,7 +3,6 @@
 Part::Part(Server &p_serv): ICommand(p_serv)
 {}
 
-// TODO : delete channel if no more clients
 void	Part::execute(Message &msg)
 {
 	std::string	reason;
@@ -64,12 +63,26 @@ void	Part::loop_check(Message *msg)
 	}
 }
 
+bool	Part::delete_chan_if_empty(Channel *current)
+{
+	for (std::map<int, int>::iterator it = current->_clients.begin() ;
+		it != current->_clients.end() ; ++it)
+	{
+		if (current->_is(it->second, current->MEMBER) == true)
+			return (false);
+	}
+	serv._channel_list.erase(serv._channel_list.find(current->_name));
+	return (true);
+}
+
 void	Part::success_behaviour(Message *msg, Channel *current)
 {
 	Message	warning_client_leaving(msg->get_emitter(), msg->emitter_nick);
 	int	*client_bitfield = &current->_clients.find(msg->get_emitter())->second;
 
 	*client_bitfield = *client_bitfield ^ current->MEMBER;
+	if (delete_chan_if_empty(current) == true)
+		return ;
 	if (client_bitfield == 0)
 		current->_clients.erase(current->_clients.find(msg->get_emitter()));
 	if (current->_is(*client_bitfield, current->CHANOP) == true)
