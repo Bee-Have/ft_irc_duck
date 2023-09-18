@@ -22,7 +22,7 @@ void	User::execute(Message &msg)
 	ss << (now->tm_year + 1900) << '-' << (now->tm_mon + 1) << '-' << now->tm_mday;
 	ss >> date;
 
-	if (msg.emitter_nick.empty() == true)
+	if (serv.client_list.find(msg.get_emitter())->second.nickname.empty() == true)
 		return (msg.reply_format(ERR_NONICKNAMEGIVEN, "", serv.socket_id));
 	if (msg.cmd_param.find(':') == std::string::npos
 		|| msg.cmd_param.find(' ') == std::string::npos)

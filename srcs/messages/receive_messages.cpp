@@ -2,7 +2,7 @@
 
 static void	found_new_line(Server &serv, Client emitter, std::string text, int pos_msg)
 {
-	Message	new_msg(emitter.get_socket(), emitter.nickname);
+	Message	new_msg(emitter);
 
 	while (text.find("\n") != std::string::npos)
 	{
