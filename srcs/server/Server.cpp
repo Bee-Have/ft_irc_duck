@@ -139,8 +139,7 @@ void	Server::del_client_from_msgs(int fd)
 {
 	for (std::vector<Message>::iterator it = msgs.begin(); it != msgs.end(); ++it)
 	{
-		if (it->target.empty() == true
-			|| (it->target.size() == 1 && it->target.find(fd) != it->target.end()))
+		if (it->target.size() == 1 && it->target.find(fd) != it->target.end())
 		{
 			it = msgs.erase(it);
 			if (msgs.empty() == true)
@@ -165,7 +164,7 @@ void	Server::del_client(int fd)
 {
 	Message	part_msg(client_list.find(fd)->second);
 	// delete client from messages
-	// del_client_from_msgs(fd);
+	del_client_from_msgs(fd);
 	// delete client from channels
 	for (std::map<std::string, Channel>::iterator it = _channel_list.begin();
 		it != _channel_list.end(); ++it)
