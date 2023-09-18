@@ -9,13 +9,13 @@
 Message::Message(void)
 {}
 
-Message::Message(const Message &cpy): _emitter(cpy._emitter), target(cpy.target), text(cpy.text), cmd(cpy.cmd), cmd_param(cpy.cmd_param)
+Message::Message(const Message &cpy): _emitter(cpy._emitter), emitter_name(cpy.emitter_name), target(cpy.target), text(cpy.text), cmd(cpy.cmd), cmd_param(cpy.cmd_param)
 {}
 
 Message::Message(const Client &emitter): _emitter(emitter.get_socket()), emitter_nick(emitter.nickname)
 {}
 
-Message::Message(int emitter): _emitter(emitter)
+Message::Message(int emitter, std::string p_name): _emitter(emitter), emitter_name(p_name)
 {}
 
 Message::~Message(void)
@@ -28,6 +28,7 @@ Message	&Message::operator=(const Message &assign)
 	if (this != &assign)
 	{
 		_emitter = assign._emitter;
+		emitter_name.assign(assign.emitter_name);
 		target.clear();
 		target.insert(assign.target.begin(), assign.target.end());
 		text.assign(assign.text);
