@@ -1,8 +1,8 @@
 #include "ircserv.hpp"
 
-static void	found_new_line(Server &serv, int emitter, std::string text, int pos_msg)
+static void	found_new_line(Server &serv, Client emitter, std::string text, int pos_msg)
 {
-	Message	new_msg(emitter);
+	Message	new_msg(emitter.get_socket(), emitter.nickname);
 
 	while (text.find("\n") != std::string::npos)
 	{
@@ -63,7 +63,7 @@ static void	found_text(Server &serv, Client emitter, std::string text)
 		}
 	}
 	else
-		found_new_line(serv, emitter.get_socket(), text, pos_msg);
+		found_new_line(serv, emitter, text, pos_msg);
 }
 
 /**

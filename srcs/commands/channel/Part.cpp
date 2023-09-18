@@ -40,7 +40,7 @@ void	Part::split_channels(std::string &p_params)
 
 void	Part::loop_check(Message *msg)
 {
-	Message	error(msg->get_emitter(), msg->emitter_name);
+	Message	error(msg->get_emitter(), msg->emitter_nick);
 
 	for (std::vector<std::string>::iterator it = channels.begin();
 		it != channels.end(); ++it)
@@ -65,7 +65,7 @@ void	Part::loop_check(Message *msg)
 
 void	Part::success_behaviour(Message *msg, Channel *current)
 {
-	Message	warning_client_leaving(msg->get_emitter(), msg->emitter_name);
+	Message	warning_client_leaving(msg->get_emitter(), msg->emitter_nick);
 	int	*client_bitfield = &current->_clients.find(msg->get_emitter())->second;
 
 	*client_bitfield = *client_bitfield ^ current->MEMBER;

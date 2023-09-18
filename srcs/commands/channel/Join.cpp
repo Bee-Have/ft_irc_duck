@@ -72,7 +72,7 @@ void	Join::join_channel(Message msg)
 	{
 		if (it_chan->empty() == true || is_channel_name_allowed(*it_chan) == false)
 		{
-			Message	error(msg.get_emitter(), msg.emitter_name);
+			Message	error(msg.get_emitter(), msg.emitter_nick);
 			error.reply_format(ERR_NOSUCHCHANNEL, *it_chan, serv.socket_id);
 			std::cout << "ERR BAD CHAN [" << error.text << ']' << std::endl;
 			serv.msgs.push_back(error);
@@ -112,7 +112,7 @@ void	Join::join_create_channel(Message msg, std::string chan_name)
 
 void	Join::join_check_existing_chan(Message msg, Channel *channel)
 {
-	Message	error(msg.get_emitter(), msg.emitter_name);
+	Message	error(msg.get_emitter(), msg.emitter_nick);
 
 	if (channel->_is(channel->_clients.find(msg.get_emitter())->second, channel->MEMBER) == true)
 		return ;
@@ -143,8 +143,8 @@ void	Join::new_chan_member_sucess(Message msg, std::string chan)
 	Channel						channel_cpy(serv._channel_list.find(chan)->second);
 	std::vector<std::string>	replies(1, RPL_JOIN);
 	std::vector<std::string>	replace(1, chan);
-	Message						reply(msg.get_emitter(), msg.emitter_name);
-	Message						new_member_warning(msg.get_emitter(), msg.emitter_name);
+	Message						reply(msg.get_emitter(), msg.emitter_nick);
+	Message						new_member_warning(msg.get_emitter(), msg.emitter_nick);
 
 	new_member_warning.reply_format(RPL_JOIN, chan, serv.socket_id);
 	new_member_warning.target.clear();
