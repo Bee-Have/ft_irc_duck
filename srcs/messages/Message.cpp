@@ -15,9 +15,6 @@ Message::Message(const Message &cpy): _emitter(cpy._emitter), emitter_nick(cpy.e
 Message::Message(const Client &emitter): _emitter(emitter.get_socket()), emitter_nick(emitter.nickname)
 {}
 
-Message::Message(int emitter, std::string p_name): _emitter(emitter), emitter_nick(p_name)
-{}
-
 Message::~Message(void)
 {
 	target.clear();
