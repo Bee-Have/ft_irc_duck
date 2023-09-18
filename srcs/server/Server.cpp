@@ -135,6 +135,22 @@ void	Server::add_client(void)
 	client_list.insert(std::make_pair(new_client._socket, new_client));
 }
 
+void	Server::del_client_from_msgs(int fd)
+{
+	for (std::vector<Message>::iterator it = msgs.begin(); it != msgs.end(); ++it)
+	{
+		if (it->target.empty() == true
+			|| (it->target.size() == 1 && it->target.find(fd) != it->target.end()))
+		{
+			it = msgs.erase(it);
+			if (msgs.empty() == true)
+				break ;
+		}
+		else if (it->target.find(fd) != it->target.end())
+			it->target.erase(it->target.find(fd));
+	}
+}
+
 /**
  * @brief Delete specific client from client list.
  * 
@@ -147,51 +163,23 @@ void	Server::add_client(void)
  */
 void	Server::del_client(int fd)
 {
-	// TODO : split this function into multiple, it is too damn long
+	Message	part_msg(client_list.find(fd)->second);
 	// delete client from messages
-	for (std::vector<Message>::iterator it = msgs.begin(); it != msgs.end(); ++it)
-	{
-		if (it->get_emitter() == fd && (it->target.empty() == true
-			|| (it->target.size() == 1 && it->target.find(fd) != it->target.end())))
-		{
-			it = msgs.erase(it);
-			if (msgs.empty() == true)
-				break ;
-		}
-		else if (it->target.find(fd) != it->target.end())
-			it->target.erase(it->target.find(fd));
-	}
+	// del_client_from_msgs(fd);
 	// delete client from channels
 	for (std::map<std::string, Channel>::iterator it = _channel_list.begin();
-		it != _channel_list.end();)
+		it != _channel_list.end(); ++it)
 	{
-		if (it->second._clients.empty() == false
-			&& it->second._clients.find(fd) != it->second._clients.end())
+		if (it->second._clients.find(fd) != it->second._clients.end())
 		{
-			it->second._clients.erase(it->second._clients.find(fd));
-			if (it->second._clients.empty() == true)
-			{
-				_channel_list.erase(it);
-				it = _channel_list.begin();
-			}
+			if (part_msg.cmd_param.empty() == true)
+				part_msg.cmd_param = it->first;
 			else
-			{
-				// ! This behaviour might become problematic with the implementation of QUIT
-				// TODO : check QUIT message & alter this behaviour
-				Message	new_msg(socket_id);
-				new_msg.reply_format(RPL_CLIENTLEFT, client_list.find(fd)->second.nickname, socket_id);
-				new_msg.target.clear();
-				for (std::map<int, int>::iterator it_chan_client = it->second._clients.begin();
-					it_chan_client != it->second._clients.end(); ++it_chan_client)
-				{
-					new_msg.target.insert(new_msg.target.end(), it_chan_client->first);
-				}
-				++it;
-			}
+				part_msg.cmd_param.append("," + it->first);
 		}
-		else
-			++it;
 	}
+	if (part_msg.cmd_param.empty() == false)
+		commands["PART"]->execute(part_msg);
 	close(fd);
 	client_list.erase(client_list.find(fd));
 	std::cout << "BYE BYE CLIENT" << std::endl;

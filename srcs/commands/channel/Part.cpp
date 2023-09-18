@@ -3,6 +3,7 @@
 Part::Part(Server &p_serv): ICommand(p_serv)
 {}
 
+// TODO : delete channel if no more clients
 void	Part::execute(Message &msg)
 {
 	std::string	reason;
