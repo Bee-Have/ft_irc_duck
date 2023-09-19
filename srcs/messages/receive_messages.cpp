@@ -1,5 +1,30 @@
 #include "ircserv.hpp"
 
+static void	found_new_line(Server &serv, Client emitter, std::string text, int pos_msg)
+{
+	Message	new_msg(emitter);
+
+	while (text.find("\n") != std::string::npos)
+	{
+		if (pos_msg != -1)
+		{
+			serv.msgs.at(pos_msg).text.append(text);
+
+			check_for_cmds(serv, serv.msgs.at(pos_msg));
+			if (serv.msgs.at(pos_msg).text.empty() == true || serv.msgs.at(pos_msg).target.empty() == true)
+				serv.msgs.erase(serv.msgs.begin() + pos_msg);
+		}
+		else
+		{
+			new_msg.text.assign(text.substr(0, text.find("\n") + 1));
+			check_for_cmds(serv, new_msg);
+			if (new_msg.text.empty() == false && new_msg.target.empty() == false)
+				serv.msgs.push_back(new_msg);
+		}
+		text = text.substr(text.find("\n") + 1, text.size());
+	}
+}
+
 /**
  * @brief looks for incomplete messages from a specific client. incomplete means there is no tailing "\r\n"
  * 
@@ -21,6 +46,26 @@ static int	find_incomplete_msg(Server &serv, Client emitter)
 	return (-1);
 }
 
+static void	found_text(Server &serv, Client emitter, std::string text)
+{
+	Message	new_msg(emitter);
+	int		pos_msg = find_incomplete_msg(serv, emitter);
+
+	std::cout << "NEW MSG:" << text << '|' << std::endl;
+	if (text.find("\n") == std::string::npos)
+	{
+		if (pos_msg != -1)
+			serv.msgs.at(pos_msg).text.append(text);
+		else
+		{
+			new_msg.text.append(text);
+			serv.msgs.push_back(new_msg);
+		}
+	}
+	else
+		found_new_line(serv, emitter, text, pos_msg);
+}
+
 /**
  * @brief register any new messages from each of the clients in client_list
  * 
@@ -29,69 +74,23 @@ static int	find_incomplete_msg(Server &serv, Client emitter)
  */
 void	receive_messages(Server &serv, fd_set read_fds)
 {
-	// TODO : simplify this functionm it is way to damn long dammit
 	char		buffer[1024] = {0};
 	int			valread = 0;
-	std::string	tmp;
 
 	for (std::map<int, Client>::iterator it = serv.client_list.begin();
 		it != serv.client_list.end(); ++it)
 	{
-		if (FD_ISSET(it->first, &read_fds) != 0)
+		if (FD_ISSET(it->first, &read_fds) == 0)
+			continue ;
+		valread = read(it->first, buffer, 512);
+		if (valread <= 0)
 		{
-			valread = read(it->first, buffer, 512);
-			if (valread <= 0)
-			{
-				serv.del_client(it->first);
-				if (serv.client_list.empty() == true)
-					break ;
-				it = serv.client_list.begin();
-			}
-			else
-			{
-				Message	new_msg(it->second);
-				int		pos_msg = find_incomplete_msg(serv, it->second);
-
-				tmp.assign(buffer);
-				std::cout << "NEW MSG:" << tmp << '|' << std::endl;
-				if (tmp.find("\n") == std::string::npos)
-				{
-					if (pos_msg != -1)
-						serv.msgs.at(pos_msg).text.append(tmp);
-					else
-					{
-						new_msg.text.append(tmp);
-						serv.msgs.push_back(new_msg);
-					}
-				}
-				else
-				{
-					while (tmp.find("\n") != std::string::npos)
-					{
-						if (pos_msg != -1)
-						{
-							serv.msgs.at(pos_msg).text.append(tmp);
-
-							check_for_cmds(serv, serv.msgs.at(pos_msg));
-							if (serv.msgs.at(pos_msg).text.empty() == true || serv.msgs.at(pos_msg).target.empty() == true)
-								serv.msgs.erase(serv.msgs.begin() + pos_msg);
-						}
-						else
-						{
-							new_msg.text.assign(tmp.substr(0, tmp.find("\n") + 1));
-							check_for_cmds(serv, new_msg);
-							if (new_msg.text.empty() == false && new_msg.target.empty() == false)
-							{
-								// std::cout << "SAVING MSG TO SEND" << std::endl;
-								// serv.msgs.reserve(serv.msgs.size() + 2);
-								serv.msgs.push_back(new_msg);
-							}
-						}
-						tmp = tmp.substr(tmp.find("\n") + 1, tmp.size());
-						// std::cout << "string::tmp:" << tmp << '|' << std::endl;
-					}
-				}
-			}
+			serv.del_client(it->first);
+			if (serv.client_list.empty() == true)
+				break ;
+			it = serv.client_list.begin();
 		}
+		else
+			found_text(serv, it->second, buffer);
 	}
 }

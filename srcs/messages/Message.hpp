@@ -18,7 +18,6 @@ class Client;
 class Message
 {
 private:
-	// TODO wouldn't it be more practical if this value was a public const static ?
 	int	_emitter;
 
 	Message();
@@ -26,8 +25,7 @@ private:
 	void	replace_rpl_err_text(std::string replace);
 
 public:
-	// TODO :maybe change this to nickname since there are : nickname, username, realname
-	std::string	emitter_name;
+	std::string	emitter_nick;
 	std::set<int>	target;
 	std::string		text;
 	std::string		cmd;
@@ -35,7 +33,6 @@ public:
 
 	Message(const Message &cpy);
 	Message(const Client &emitter);
-	Message(int emitter, std::string p_name);
 	~Message();
 
 	Message	&operator=(const Message &assign);

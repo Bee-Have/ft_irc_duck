@@ -22,13 +22,13 @@ void	User::execute(Message &msg)
 	ss << (now->tm_year + 1900) << '-' << (now->tm_mon + 1) << '-' << now->tm_mday;
 	ss >> date;
 
-	if (msg.emitter_name.empty() == true)
-		return (msg.reply_format(ERR_NONICKNAMEGIVEN, "", serv.get_socket()));
+	if (serv.client_list.find(msg.get_emitter())->second.nickname.empty() == true)
+		return (msg.reply_format(ERR_NONICKNAMEGIVEN, "", serv.socket_id));
 	if (msg.cmd_param.find(':') == std::string::npos
 		|| msg.cmd_param.find(' ') == std::string::npos)
-		return (msg.reply_format(ERR_NEEDMOREPARAMS, msg.cmd, serv.get_socket()));
+		return (msg.reply_format(ERR_NEEDMOREPARAMS, msg.cmd, serv.socket_id));
 	if (command_emitter->_realname.empty() == false)
-		return (msg.reply_format(ERR_ALREADYREGISTRED, "", serv.get_socket()));
+		return (msg.reply_format(ERR_ALREADYREGISTRED, "", serv.socket_id));
 
 	command_emitter->_username = msg.cmd_param.substr(0, msg.cmd_param.find(' '));
 	command_emitter->_realname = msg.cmd_param.substr(msg.cmd_param.find(':') + 1, msg.cmd_param.size());

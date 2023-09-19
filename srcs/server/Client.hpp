@@ -2,9 +2,6 @@
 
 #include <string>
 
-// class Server;
-// #include "Pass.hpp"
-
 class Client
 {
 friend struct Pass;
