@@ -15,6 +15,7 @@
 #include "Oper.hpp"
 #include "Join.hpp"
 #include "Part.hpp"
+#include "Invite.hpp"
 #include "Ping.hpp"
 
 // SERVER

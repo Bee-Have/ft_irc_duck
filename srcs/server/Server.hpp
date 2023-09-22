@@ -32,6 +32,7 @@ class Server
 {
 	friend class Join;
 	friend class Part;
+	friend struct Invite;
 private:
 
 	// Server socket creation and identification

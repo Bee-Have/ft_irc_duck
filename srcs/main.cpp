@@ -11,6 +11,7 @@ void	setup_commands(Server &serv)
 	serv.register_command<Oper>("OPER");
 	serv.register_command<Join>("JOIN");
 	serv.register_command<Part>("PART");
+	serv.register_command<Invite>("INVITE");
 	serv.register_command<Ping>("PING");
 }
 
