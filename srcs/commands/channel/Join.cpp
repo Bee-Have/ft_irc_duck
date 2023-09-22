@@ -166,7 +166,15 @@ void	Join::new_chan_member_sucess(Message msg, std::string chan)
 	new_member_warning.target.clear();
 
 	if (serv._channel_list.find(chan)->second._topic.empty() == false)
-		replies.push_back(serv._channel_list.find(chan)->second._topic);
+	{
+		replies.push_back(RPL_TOPIC);
+		replies.push_back(RPL_TOPICWHOTIME);
+		replace.push_back(chan);
+		replace.push_back(serv._channel_list.find(chan)->second._topic);
+		replace.push_back(chan);
+		replace.push_back(serv._channel_list.find(chan)->second._topic_author);
+		replace.push_back(serv._channel_list.find(chan)->second._topic_date);
+	}
 	replies.push_back(RPL_NAMREPLY);
 	// TODO : check when modes is implemented that there isnt a if here to be added
 	replace.push_back("=");

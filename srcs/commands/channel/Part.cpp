@@ -85,6 +85,7 @@ void	Part::success_behaviour(Message *msg, Channel *current)
 		return ;
 	if (client_bitfield == 0)
 		current->_clients.erase(current->_clients.find(msg->get_emitter()));
+	// TODO :send message to new CHANOP to warn him he is the new CHANOP
 	if (current->_is(*client_bitfield, current->CHANOP) == true)
 	{
 		*client_bitfield = *client_bitfield ^ current->CHANOP;

@@ -10,6 +10,7 @@ class Channel
 friend class Server;
 friend struct Join;
 friend struct Part;
+friend struct Topic;
 private:
 	enum ClientStatus
 	{
@@ -20,6 +21,8 @@ private:
 
 	std::string			_name;
 	std::string			_topic;
+	std::string			_topic_date;
+	std::string			_topic_author;
 	std::string			_key;
 	bool				_is_invite_only;
 	std::map<int, int>	_clients;
