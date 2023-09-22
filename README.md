@@ -4,7 +4,7 @@
 
 //particularitee du projet  
 42 subject :  
-https://cdn.intra.42.fr/pdf/pdf/84897/en.subject.pdf  
+https://cdn.intra.42.fr/pdf/pdf/89251/fr.subject.pdf
 RFC docs :  
 https://modern.ircdocs.horse  
 https://datatracker.ietf.org/doc/html/rfc2812  
