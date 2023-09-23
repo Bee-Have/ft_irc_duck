@@ -171,10 +171,15 @@ void	Server::del_client(int fd)
 	{
 		if (it->second._clients.find(fd) != it->second._clients.end())
 		{
-			if (part_msg.cmd_param.empty() == true)
-				part_msg.cmd_param = it->first;
+			if (it->second._is(it->second._clients.find(fd)->second, it->second.MEMBER) == true)
+			{
+				if (part_msg.cmd_param.empty() == true)
+					part_msg.cmd_param = it->first;
+				else
+					part_msg.cmd_param.append("," + it->first);
+			}
 			else
-				part_msg.cmd_param.append("," + it->first);
+				it->second._clients.erase(it->second._clients.find(fd));
 		}
 	}
 	if (part_msg.cmd_param.empty() == false)
