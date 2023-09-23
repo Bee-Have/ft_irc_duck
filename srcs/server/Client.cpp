@@ -14,7 +14,7 @@ Client::Client(void)
  * 
  * @param new_socket the socket the new client is identified by
  */
-Client::Client(int new_socket): _socket(new_socket), _is_registered(false)
+Client::Client(int new_socket) : _socket(new_socket), _is_registered(false)
 {}
 
 /**
@@ -23,7 +23,9 @@ Client::Client(int new_socket): _socket(new_socket), _is_registered(false)
 
  * @param cpy the client to construct the newclient from
  */
-Client::Client(const Client &cpy): _socket(cpy._socket), _is_registered(cpy._is_registered)
+Client::Client(const Client &cpy) :
+	_socket(cpy._socket), _is_registered(cpy._is_registered),
+	_username(cpy._username), _realname(cpy._realname), nickname(cpy.nickname)
 {}
 
 /**
