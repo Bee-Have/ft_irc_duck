@@ -5,7 +5,8 @@ Invite::Invite(Server &p_serv): ICommand(p_serv)
 
 void	Invite::execute(Message &msg)
 {
-	std::vector<std::string>	success_reply(1, RPL_INVITE);
+	Message		msg_invite(msg);
+	std::vector<std::string>	success_reply(1, RPL_INVITING);
 	std::vector<std::string>	success_replace;
 
 	if (is_param_format_good(msg) == false)
@@ -15,10 +16,19 @@ void	Invite::execute(Message &msg)
 	if (are_param_membership_valid(msg) == false)
 		return ;
 
-	channel->_clients[]
+
+	channel->_clients[client] = channel->INVITED;
 	success_replace.push_back(serv.client_list.find(client)->second.nickname);
 	success_replace.push_back(channel->_name);
-	msg.reply_format()
+	msg.reply_format(success_reply, success_replace);
+
+	success_reply.clear();
+	success_reply.push_back(RPL_INVITE);
+
+	msg_invite.reply_format(success_reply, success_replace);
+	msg_invite.target.clear();
+	msg_invite.target.insert(client);
+	serv.msgs.push_back(msg_invite);
 }
 
 bool	Invite::is_param_format_good(Message &msg)
@@ -58,7 +68,7 @@ bool	Invite::do_param_exist_and_set_if_so(Message &msg)
 
 bool	Invite::are_param_membership_valid(Message &msg)
 {
-	if (channel->_clients.find(client) == channel->_clients.end())
+	if (channel->_clients.find(client) != channel->_clients.end())
 	{
 		std::vector<std::string>	reply(1, ERR_USERONCHANNEL);
 		std::vector<std::string>	replace;
