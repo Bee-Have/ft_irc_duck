@@ -3,6 +3,8 @@
 Invite::Invite(Server &p_serv): ICommand(p_serv)
 {}
 
+// TODO : check when mode is implemented that the behaviour does not change
+// specifically with invite only channels, who can invite and who cant
 void	Invite::execute(Message &msg)
 {
 	Message		msg_invite(msg);
