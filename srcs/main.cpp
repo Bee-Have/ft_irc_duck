@@ -36,15 +36,20 @@ int	main(int ac, char** av)
 	ss << tmp;
 	ss >> port;
 
+	Server*	serv;
 	try
 	{
-		Server	serv(port, av[2]);
-		setup_commands(serv);
-		server_loop(serv);
+		serv = new Server(port, av[2]);
 	}
 	catch (std::exception& e)
 	{
 		std::cerr << e.what() << std::endl;
+		return (1);
 	}
+
+	setup_commands(*serv);
+	server_loop(*serv);
+	delete serv;
+
 	return (0);
 }

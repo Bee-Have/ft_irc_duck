@@ -31,7 +31,7 @@ void	server_loop(Server &serv)
 		{
 			if (errno != EINTR) ///< EINTR is not an error, it just means that a signal was caught
 				std::cerr << "ERRNO:" << errno << ':' << strerror(errno) << std::endl;
-			return ;
+			return ; ///< I am not sure that every select error should be fatal
 		}
 		// new client connection
 		if (FD_ISSET(serv.socket_id, &read_fds))
