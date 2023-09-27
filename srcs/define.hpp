@@ -30,7 +30,7 @@
 #define RPL_NAMREPLY "353 <client> <symbol> <channel> :<nick>{ <nick>}\r\n"
 #define RPL_ENDOFNAMES "366 <client> <channel> :End of /NAMES list\r\n"
 //		ERRORS
-#define ERR_NOSUCHNICK "401 <client> :<nickname> :No such nick/channel\r\n"
+#define ERR_NOSUCHNICK "401 <client> :<nickname> :No such nick\r\n"
 #define ERR_NOSUCHCHANNEL "403 <client> <channel> :No such channel\r\n"
 #define ERR_NOTEXTTOSEND "412 <client> :No text to send\r\n"
 #define ERR_NONICKNAMEGIVEN "431 <client> :No nickname given\r\n"
@@ -48,7 +48,14 @@
 #define RPL_JOIN ":<client> JOIN <channel>\r\n"
 #define RPL_PART ":<client> PART <channel>\r\n"
 #define RPL_CLIENTLEFT "908 <client> :Client <nick> just left " SERVERNAME ", bye bye\r\n"
+// MODE
+#define RPL_UMODEIS "221 <usermodes>\r\n"
+#define RPL_CHANNELMODEIS "324 <client> <channel> <modestring> <modearguments>\r\n"
+#define RPL_CREATIONTIME "329 <client> <channel> <creationtime>\r\n"
 // 			ERRRORS
 #define ERR_CANNOTBECOMEOPER "920 <client> :Operator role already fullfiled\r\n"
 #define ERR_NOSUCHOPER "921 <client> :<oper> :No such operator\r\n"
 #define ERR_UNREGISTERED "922 <client> :Client must be registered to proceed\r\n"
+// MODE
+#define ERR_USERSDONTMATCH "502 <client> :Cant change mode for other users\r\n"
+#define ERR_UMODEUNKNOWNMODEFLAG "501 <client> :Unknown MODE flag\r\n"
