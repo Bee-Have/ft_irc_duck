@@ -1,5 +1,6 @@
 #include "Server.hpp"
 #include "ICommand.hpp"
+#include <exception>
 
 /**
  * This should never be used. Server MUST be created with a PORT and PASWORD
@@ -8,8 +9,7 @@ Server::Server(void): _oper_name("Cthulhu"), _oper_pass("R'lyeh"), _oper_socket(
 {
 	if (socket_id < 0)
 	{
-		std::cerr << ERR_SOCKCREATEFAIL;
-		return ;
+		throw std::invalid_argument(ERR_SOCKCREATEFAIL);
 	}
 	_server_addr.sin_family = AF_INET;
 	_server_addr.sin_port = htons(port);
@@ -17,13 +17,11 @@ Server::Server(void): _oper_name("Cthulhu"), _oper_pass("R'lyeh"), _oper_socket(
 
 	if (bind(socket_id, (struct sockaddr *)&_server_addr, sizeof(_server_addr)) < 0)
 	{
-		std::cerr << ERR_SOCKBINDFAIL;
-		return ;
+		throw std::invalid_argument(ERR_SOCKBINDFAIL);
 	}
 	if (listen(socket_id, MAX_CLIENT) < 0)
 	{
-		std::cerr << ERR_SOCKLISTENFAIL;
-		return ;
+		throw std::invalid_argument(ERR_SOCKLISTENFAIL);
 	}
 }
 
@@ -41,8 +39,7 @@ Server::Server(int new_port, char *new_pass): _oper_name("Cthulhu"), _oper_pass(
 	// socket_id = socket(AF_INET, SOCK_STREAM, 0);
 	if (socket_id < 0)
 	{
-		std::cerr << ERR_SOCKCREATEFAIL;
-		return ;
+		throw std::invalid_argument(ERR_SOCKCREATEFAIL);
 	}
 	_server_addr.sin_family = AF_INET;
 	_server_addr.sin_port = htons(port);
@@ -50,13 +47,11 @@ Server::Server(int new_port, char *new_pass): _oper_name("Cthulhu"), _oper_pass(
 
 	if (bind(socket_id, (struct sockaddr *)&_server_addr, sizeof(_server_addr)) < 0)
 	{
-		std::cerr << ERR_SOCKBINDFAIL;
-		return ;
+		throw std::invalid_argument(ERR_SOCKBINDFAIL);
 	}
 	if (listen(socket_id, MAX_CLIENT) < 0)
 	{
-		std::cerr << ERR_SOCKLISTENFAIL;
-		return ;
+		throw std::invalid_argument(ERR_SOCKLISTENFAIL);
 	}
 }
 
@@ -79,8 +74,13 @@ Server::~Server(void)
 	{
 		delete it->second;
 	}
+	// Remove all clients
+	for (std::map<int, Client>::iterator it = client_list.begin();
+		it != client_list.end(); ++it)
+	{
+		close(it->first);
+	}
 	close(socket_id);
-	// client_list.clear();
 }
 
 /**
