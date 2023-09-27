@@ -2,7 +2,7 @@
 // #include "Server.hpp"
 #include <sstream>
 
-void	setup_commands(Server &serv)
+void	setup_commands(Server& serv)
 {
 	serv.register_command<Pass>("PASS");
 	serv.register_command<Nick>("NICK");
@@ -16,7 +16,7 @@ void	setup_commands(Server &serv)
 	serv.register_command<Ping>("PING");
 }
 
-int	main(int ac, char **av)
+int	main(int ac, char** av)
 {
 	std::stringstream	ss;
 	std::string			tmp;
@@ -37,8 +37,20 @@ int	main(int ac, char **av)
 	ss << tmp;
 	ss >> port;
 
-	Server	serv(port, av[2]);
-	setup_commands(serv);
-	server_loop(serv);
+	Server*	serv;
+	try
+	{
+		serv = new Server(port, av[2]);
+	}
+	catch (std::exception& e)
+	{
+		std::cerr << e.what() << std::endl;
+		return (1);
+	}
+
+	setup_commands(*serv);
+	server_loop(*serv);
+	delete serv;
+
 	return (0);
 }
