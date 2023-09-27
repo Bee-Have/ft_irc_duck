@@ -54,5 +54,6 @@ struct Join : public ICommand
 	 */
 	void	join_check_existing_chan(Message msg, Channel *channel);
 	void	new_chan_member_sucess(Message msg, std::string chan);
+	void	special_argument(Message &msg);
 };
 
