@@ -13,6 +13,7 @@ void	setup_commands(Server& serv)
 	serv.register_command<Part>("PART");
 	serv.register_command<Topic>("TOPIC");
 	serv.register_command<Ping>("PING");
+	serv.register_command<Mode>("MODE");
 }
 
 int	main(int ac, char** av)

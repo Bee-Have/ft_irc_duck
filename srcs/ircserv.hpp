@@ -17,6 +17,7 @@
 #include "Part.hpp"
 #include "Topic.hpp"
 #include "Ping.hpp"
+#include "Mode.hpp"
 
 // SERVER
 void	server_loop(Server &serv);
