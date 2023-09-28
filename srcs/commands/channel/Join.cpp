@@ -142,7 +142,7 @@ void	Join::join_check_existing_chan(Message msg, Channel *channel)
 		serv.msgs.push_back(error);
 	}
 	if (channel->_is(channel->_clients.find(msg.get_emitter())->second, channel->INVITED) == true)
-		channel->_clients.find(msg.get_emitter())->second |= channel->MEMBER;
+		channel->_clients.find(msg.get_emitter())->second = channel->MEMBER;
 	else
 	{
 		if (channel->_is_invite_only == true)
