@@ -15,14 +15,14 @@ void	Invite::execute(Message &msg)
 		return ;
 	if (do_param_exist_and_set_if_so(msg) == false)
 		return ;
-	if (are_param_membership_valid(msg) == false)
-		return ;
-
 
 	channel->_clients[client] = channel->INVITED;
 	success_replace.push_back(serv.client_list.find(client)->second.nickname);
 	success_replace.push_back(channel->_name);
 	msg.reply_format(success_reply, success_replace);
+
+	if (are_param_membership_valid(msg) == false)
+		return ;
 
 	success_reply.clear();
 	success_reply.push_back(RPL_INVITE);
@@ -72,11 +72,14 @@ bool	Invite::are_param_membership_valid(Message &msg)
 {
 	if (channel->_clients.find(client) != channel->_clients.end())
 	{
-		std::vector<std::string>	reply(1, ERR_USERONCHANNEL);
-		std::vector<std::string>	replace;
-		replace.push_back(serv.client_list.find(client)->second.nickname);
-		replace.push_back(channel->_name);
-		msg.reply_format(reply, replace);
+		if (channel->_is(channel->_clients.find(client)->second, channel->MEMBER) == true)
+		{
+			std::vector<std::string>	reply(1, ERR_USERONCHANNEL);
+			std::vector<std::string>	replace;
+			replace.push_back(serv.client_list.find(client)->second.nickname);
+			replace.push_back(channel->_name);
+			msg.reply_format(reply, replace);
+		}
 		return (false);
 	}
 	if (channel->_clients.find(msg.get_emitter()) == channel->_clients.end())

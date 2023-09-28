@@ -16,4 +16,3 @@ struct Invite : public ICommand
 	bool	do_param_exist_and_set_if_so(Message &msg);
 	bool	are_param_membership_valid(Message &msg);
 };
-
