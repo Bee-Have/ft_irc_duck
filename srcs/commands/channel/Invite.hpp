@@ -4,12 +4,13 @@
 
 struct Invite : public ICommand
 {
-	Channel *channel;
-	int		client;
-
 	Invite(Server &p_serv);
 
 	void	execute(Message &msg);
+
+	private :
+	Channel *channel;
+	int		client;
 
 	bool	is_param_format_good(Message &msg);
 	bool	do_param_exist_and_set_if_so(Message &msg);

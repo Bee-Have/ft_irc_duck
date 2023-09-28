@@ -7,6 +7,9 @@ void	Join::execute(Message &msg)
 {
 	std::string					tmp;
 
+	keys.clear();
+	channels.clear();
+
 	if (msg.cmd_param.compare("0") == 0)
 		return (special_argument(msg));
 	if (msg.cmd_param.find_first_of(" ") != msg.cmd_param.find_last_of(" "))

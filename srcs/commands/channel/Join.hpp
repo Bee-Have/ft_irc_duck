@@ -8,14 +8,14 @@
 
 struct Join : public ICommand
 {
-	std::vector<std::string>	channels;
-	std::vector<std::string>	keys;
-
 	Join(Server &p_serv);
 
 	void	execute(Message &msg);
 	
 	private :
+	std::vector<std::string>	channels;
+	std::vector<std::string>	keys;
+
 	/**
 	 * @brief This function will setup the error for too many spaces in JOIN parameters.
 	 * 
