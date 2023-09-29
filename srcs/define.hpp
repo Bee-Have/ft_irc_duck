@@ -4,6 +4,7 @@
 #define SERVERNAME "ircserv"
 #define VERSION "2.31"
 #define NICK_GOOD_CHARACTERS "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-[]\\`_{}|"
+#define KICK_DEFAULT_COMMENT "No comment has been provided"
 
 //	SERVER
 //		REPLIES
