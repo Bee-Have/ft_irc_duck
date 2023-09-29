@@ -44,12 +44,3 @@ bool	Channel::_is(int bitfield, int enumval) const
 		return (true);
 	return (false);
 }
-
-void	Channel::add_new_member(int new_member)
-{
-	if (_clients.find(new_member) == _clients.end())
-		_clients[new_member] = 0;
-	if (_is(_clients.find(new_member)->second, MEMBER) == true)
-		return ;
-	_clients[new_member] |= MEMBER;
-}

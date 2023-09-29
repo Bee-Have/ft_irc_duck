@@ -92,9 +92,8 @@ void	Part::success_behaviour(Message *msg, Channel *current)
 		*client_bitfield = *client_bitfield ^ current->CHANOP;
 		if (are_there_other_chanops(current) == false)
 			assign_next_chanop(current);
-		if (current->_is(*client_bitfield, current->INVITED) == false)
-			current->_clients.erase(current->_clients.find(msg->get_emitter()));
 	}
+	current->_clients.erase(current->_clients.find(msg->get_emitter()));
 	warning_client_leaving.reply_format(RPL_PART, current->_name, serv.socket_id);
 	warning_client_leaving.target.clear();
 	for (std::map<int, int>::iterator it = current->_clients.begin() ;

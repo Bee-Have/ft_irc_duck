@@ -25,7 +25,7 @@ MESSAGES = Message.cpp receive_messages.cpp send_messages.cpp parsing.cpp
 CMD_CONNECTION = Pass.cpp Nick.cpp User.cpp
 CMD_MESSAGE = Privmsg.cpp
 CMD_MANAGEMENT = Oper.cpp
-CMD_CHANNEL = Join.cpp Part.cpp Topic.cpp
+CMD_CHANNEL = Join.cpp Part.cpp Invite.cpp Topic.cpp
 CMD_MISC = Ping.cpp
 
 SRC = main.cpp $(SERVER) $(CHANNEL) $(MESSAGES) \
