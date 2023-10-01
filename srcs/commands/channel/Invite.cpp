@@ -16,7 +16,6 @@ void	Invite::execute(Message &msg)
 	if (do_param_exist_and_set_if_so(msg) == false)
 		return ;
 
-	channel->_clients[client] = channel->INVITED;
 	success_replace.push_back(serv.client_list.find(client)->second.nickname);
 	success_replace.push_back(channel->_name);
 	msg.reply_format(success_reply, success_replace);
@@ -24,6 +23,7 @@ void	Invite::execute(Message &msg)
 	if (are_param_membership_valid(msg) == false)
 		return ;
 
+	channel->_clients[client] |= channel->INVITED;
 	success_reply.clear();
 	success_reply.push_back(RPL_INVITE);
 
