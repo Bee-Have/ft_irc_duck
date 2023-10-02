@@ -13,14 +13,20 @@ void	Kick::execute(Message& msg)
 	if (msg.cmd_param.empty() == true || msg.cmd_param.find(' ') == std::string::npos)
 		return (msg.reply_format(ERR_NEEDMOREPARAMS, msg.cmd, serv.socket_id));
 
+	std::cout << "BEFORE [" << msg.cmd_param << "]\n";
+
 	chan_name = msg.cmd_param.substr(0, msg.cmd_param.find(' '));
 	msg.cmd_param = msg.cmd_param.substr(msg.cmd_param.find(' ') + 1, msg.cmd_param.size());
+
+	std::cout << "CUT OUT CHAN [" << msg.cmd_param << "]\n";
+
 	if (serv._channel_list.find(chan_name) == serv._channel_list.end())
 		return (msg.reply_format(ERR_NOSUCHCHANNEL, chan_name, serv.socket_id));
 	channel = &serv._channel_list.find(chan_name)->second;
 	if (is_issuer_membership_valid(msg, *channel) == false)
 		return ;
 	register_comment(msg);
+
 	targets = return_kick_target(msg);
 
 	kick_targets_if_member(msg, targets, channel);
@@ -66,6 +72,8 @@ void	Kick::register_comment(Message &msg)
 	{
 		comment = msg.cmd_param.substr(msg.cmd_param.find(':') + 1, msg.cmd_param.size());
 		msg.cmd_param = msg.cmd_param.substr(0, msg.cmd_param.find(':'));
+		if (*msg.cmd_param.rbegin() == ' ')
+			msg.cmd_param.erase(msg.cmd_param.end() - 1);
 	}
 	else
 		comment = KICK_DEFAULT_COMMENT;
