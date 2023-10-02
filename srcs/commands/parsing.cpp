@@ -20,9 +20,13 @@ static void	parsing_cmds(Server &serv, Message &msg)
 
 	if (msg.text.empty() == false && msg.text.find(' ') == std::string::npos)
 	{
-		if (serv.commands.find(msg.text) != serv.commands.end())
+		if (msg.text.find("QUIT") != std::string::npos)
+			msg.cmd = "QUIT";
+		else if (serv.commands.find(msg.text) != serv.commands.end())
+		{
 			msg.reply_format(ERR_NEEDMOREPARAMS, msg.text, serv.socket_id);
-		return ;
+			return ;
+		}
 	}
 	else
 	{
