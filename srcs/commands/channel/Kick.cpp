@@ -20,26 +20,42 @@ void	Kick::execute(Message& msg)
 	channel = &serv._channel_list.find(chan_name)->second;
 	if (is_issuer_membership_valid(msg, *channel) == false)
 		return ;
-	if (msg.cmd_param.find(':') != std::string::npos)
-	{
-		comment = msg.cmd_param.substr(msg.cmd_param.find(':') + 1, msg.cmd_param.size());
-		msg.cmd_param = msg.cmd_param.substr(0, msg.cmd_param.find(':'));
-	}
-
-	std::cout << "CHANNEL [" << chan_name << ']' << std::endl;
+	register_comment(msg);
 	targets = return_kick_target(msg);
-	for (std::vector<std::string>::iterator it = targets.begin();
-		it != targets.end(); ++it)
-	{
-		std::cout << "[" << *it << ']';
-	}
-	std::cout << std::endl;
 
 	for (std::vector<std::string>::iterator it = targets.begin();
 		it != targets.end(); ++it)
 	{
+		Message	reply(serv.client_list.find(msg.get_emitter())->second);
 		int	current_target = serv.get_client_by_nickname(*it);
-		if (channel->_clients.find(current_target) == )
+		if (channel->_clients.find(current_target) == channel->_clients.end()
+			|| channel->_is(channel->_clients.find(current_target)->second, channel->MEMBER) == false)
+		{
+			std::vector<std::string>	error(1, ERR_USERNOTINCHANNEL);
+			std::vector<std::string>	replace;
+			replace.push_back(*it);
+			replace.push_back(chan_name);
+			reply.reply_format(error, replace);
+			serv.msgs.push_back(reply);
+		}
+		else
+		{
+			std::vector<std::string>	rpl(1, RPL_KICK);
+			std::vector<std::string>	replace;
+
+			replace.push_back(chan_name);
+			replace.push_back(*it);
+			replace.push_back(comment);
+			reply.reply_format(rpl, replace);
+			for (std::map<int, int>::iterator it_target = channel->_clients.begin();
+				it_target != channel->_clients.end(); ++it_target)
+			{
+				if (channel->_is(it_target->second, channel->MEMBER) == true)
+					reply.target.insert(it_target->first);
+			}
+			channel->_clients.erase(current_target);
+			serv.msgs.push_back(reply);
+		}
 	}
 }
 
@@ -77,3 +93,13 @@ bool	Kick::is_issuer_membership_valid(Message &msg, Channel channel)
 	return (true);
 }
 
+void	Kick::register_comment(Message &msg)
+{
+	if (msg.cmd_param.find(':') != std::string::npos)
+	{
+		comment = msg.cmd_param.substr(msg.cmd_param.find(':') + 1, msg.cmd_param.size());
+		msg.cmd_param = msg.cmd_param.substr(0, msg.cmd_param.find(':'));
+	}
+	else
+		comment = KICK_DEFAULT_COMMENT;
+}
