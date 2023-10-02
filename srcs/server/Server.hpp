@@ -32,6 +32,7 @@ class Server
 {
 	friend struct Join;
 	friend struct Part;
+	friend struct Quit;
 	// TODO :make a function to get a channel with a specific name
 	friend struct Invite;
 	friend struct Topic;
