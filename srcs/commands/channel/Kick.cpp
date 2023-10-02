@@ -23,40 +23,7 @@ void	Kick::execute(Message& msg)
 	register_comment(msg);
 	targets = return_kick_target(msg);
 
-	for (std::vector<std::string>::iterator it = targets.begin();
-		it != targets.end(); ++it)
-	{
-		Message	reply(serv.client_list.find(msg.get_emitter())->second);
-		int	current_target = serv.get_client_by_nickname(*it);
-		if (channel->_clients.find(current_target) == channel->_clients.end()
-			|| channel->_is(channel->_clients.find(current_target)->second, channel->MEMBER) == false)
-		{
-			std::vector<std::string>	error(1, ERR_USERNOTINCHANNEL);
-			std::vector<std::string>	replace;
-			replace.push_back(*it);
-			replace.push_back(chan_name);
-			reply.reply_format(error, replace);
-			serv.msgs.push_back(reply);
-		}
-		else
-		{
-			std::vector<std::string>	rpl(1, RPL_KICK);
-			std::vector<std::string>	replace;
-
-			replace.push_back(chan_name);
-			replace.push_back(*it);
-			replace.push_back(comment);
-			reply.reply_format(rpl, replace);
-			for (std::map<int, int>::iterator it_target = channel->_clients.begin();
-				it_target != channel->_clients.end(); ++it_target)
-			{
-				if (channel->_is(it_target->second, channel->MEMBER) == true)
-					reply.target.insert(it_target->first);
-			}
-			channel->_clients.erase(current_target);
-			serv.msgs.push_back(reply);
-		}
-	}
+	kick_targets_if_member(msg, targets, channel);
 }
 
 std::vector<std::string>	Kick::return_kick_target(Message& msg)
@@ -102,4 +69,41 @@ void	Kick::register_comment(Message &msg)
 	}
 	else
 		comment = KICK_DEFAULT_COMMENT;
+}
+
+void	Kick::kick_targets_if_member(Message &msg, std::vector<std::string>targets, Channel *channel)
+{
+	for (std::vector<std::string>::iterator it = targets.begin();
+		it != targets.end(); ++it)
+	{
+		Message	reply(serv.client_list.find(msg.get_emitter())->second);
+		std::vector<std::string>	rpl;
+		std::vector<std::string>	replace;
+		int	current_target = serv.get_client_by_nickname(*it);
+
+		if (channel->_clients.find(current_target) == channel->_clients.end()
+			|| channel->_is(channel->_clients.find(current_target)->second, channel->MEMBER) == false)
+		{
+			rpl.push_back(ERR_USERNOTINCHANNEL);
+			replace.push_back(*it);
+			replace.push_back(channel->_name);
+			reply.reply_format(rpl, replace);
+		}
+		else
+		{
+			rpl.push_back(RPL_KICK);
+			replace.push_back(channel->_name);
+			replace.push_back(*it);
+			replace.push_back(comment);
+			reply.reply_format(rpl, replace);
+			for (std::map<int, int>::iterator it_target = channel->_clients.begin();
+				it_target != channel->_clients.end(); ++it_target)
+			{
+				if (channel->_is(it_target->second, channel->MEMBER) == true)
+					reply.target.insert(it_target->first);
+			}
+			channel->_clients.erase(current_target);
+		}
+		serv.msgs.push_back(reply);
+	}
 }

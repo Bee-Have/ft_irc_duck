@@ -14,5 +14,5 @@ struct Kick : public ICommand
 	std::vector<std::string>	return_kick_target(Message& msg);
 	bool	is_issuer_membership_valid(Message &msg, Channel channel);
 	void	register_comment(Message &msg);
-	// void	
+	void	kick_targets_if_member(Message &msg, std::vector<std::string>targets, Channel *channel);
 };
