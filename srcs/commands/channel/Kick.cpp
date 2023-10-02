@@ -7,6 +7,7 @@ void	Kick::execute(Message& msg)
 {
 	std::string					chan_name;
 	std::vector<std::string>	targets;
+	Channel	*channel;
 
 	comment.clear();
 	if (msg.cmd_param.empty() == true || msg.cmd_param.find(' ') == std::string::npos)
@@ -16,7 +17,9 @@ void	Kick::execute(Message& msg)
 	msg.cmd_param = msg.cmd_param.substr(msg.cmd_param.find(' ') + 1, msg.cmd_param.size());
 	if (serv._channel_list.find(chan_name) == serv._channel_list.end())
 		return (msg.reply_format(ERR_NOSUCHCHANNEL, chan_name, serv.socket_id));
-
+	channel = &serv._channel_list.find(chan_name)->second;
+	if (is_issuer_membership_valid(msg, *channel) == false)
+		return ;
 	if (msg.cmd_param.find(':') != std::string::npos)
 	{
 		comment = msg.cmd_param.substr(msg.cmd_param.find(':') + 1, msg.cmd_param.size());
@@ -31,6 +34,13 @@ void	Kick::execute(Message& msg)
 		std::cout << "[" << *it << ']';
 	}
 	std::cout << std::endl;
+
+	for (std::vector<std::string>::iterator it = targets.begin();
+		it != targets.end(); ++it)
+	{
+		int	current_target = serv.get_client_by_nickname(*it);
+		if (channel->_clients.find(current_target) == )
+	}
 }
 
 std::vector<std::string>	Kick::return_kick_target(Message& msg)
@@ -52,8 +62,18 @@ std::vector<std::string>	Kick::return_kick_target(Message& msg)
 	return (target_list);
 }
 
-// bool	Kick::is_issuer_membershiip_valid(Message &msg, std::string channel)
-// {
-// 	if ()
-// }
+bool	Kick::is_issuer_membership_valid(Message &msg, Channel channel)
+{
+	if (channel._clients.find(msg.get_emitter()) == channel._clients.end())
+	{
+		msg.reply_format(ERR_NOTONCHANNEL, channel._name, serv.socket_id);
+		return (false);
+	}
+	if (channel._is(channel._clients.find(msg.get_emitter())->second, channel.CHANOP) == false)
+	{
+		msg.reply_format(ERR_CHANOPRIVSNEEDED, channel._name, serv.socket_id);
+		return (false);
+	}
+	return (true);
+}
 

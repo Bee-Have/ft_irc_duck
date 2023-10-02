@@ -12,6 +12,7 @@ friend struct Join;
 friend struct Part;
 friend struct Invite;
 friend struct Topic;
+friend struct Kick;
 private:
 	enum ClientStatus
 	{
