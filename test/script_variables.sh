@@ -1,0 +1,14 @@
+#!/bin/bash
+
+export CLIENT_NUMBER=0
+export CLIENT_NAME="client-$CLIENT_NUMBER"
+
+export IP_ADDRESS="127.0.0.1"
+export PORT=8080
+
+export SERVER_PATH="./"
+export SERVER_PASSWORD="YEAH_THIS_IS_A_CLEAR_PASSWORD_BUT_THIS_IS_FOR_TEST_PURPOSES"
+
+export LOG_FOLDER="./logs"
+
+export USER_INPUT=""

@@ -44,6 +44,9 @@ $(OBJ_DIR):
 $(OBJ_DIR)/%.o: %.cpp | $(OBJ_DIR)
 	$(CXX) $(CXXFLAGS) $(IFLAGS) -c $< -o $@
 
+test: $(NAME)
+	./test/test.sh
+
 clean:
 	rm -rf $(OBJ_DIR)
 
@@ -51,5 +54,6 @@ re: clean all
 
 fclean: clean
 	rm -f $(NAME)
+	rm -rf logs
 
-.PHONY: all clean re fclean
+.PHONY: all clean re fclean test
