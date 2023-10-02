@@ -15,6 +15,10 @@ NICK
 USER  
 PRIVMSG (client to client)  
 OPER  
+JOIN  
+PART  
+INVITE  
+TOPIC  
 PING  
 
 //utilisation du projet
