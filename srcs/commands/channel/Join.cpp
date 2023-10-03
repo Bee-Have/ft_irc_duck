@@ -133,7 +133,7 @@ void	Join::join_check_existing_chan(Message msg, Channel *channel)
 {
 	Message	error(serv.client_list.find(msg.get_emitter())->second);
 
-	if (channel->_is(channel->_clients.find(msg.get_emitter())->second, channel->MEMBER) == true)
+	if (channel->is(channel->_clients.find(msg.get_emitter())->second, channel->MEMBER) == true)
 		return ;
 	if (channel->_key.empty() == false
 		&& (keys.empty() == true || channel->_key != *keys.begin()))
@@ -141,7 +141,7 @@ void	Join::join_check_existing_chan(Message msg, Channel *channel)
 		error.reply_format(ERR_BADCHANNELKEY, channel->_name, serv.socket_id);
 		serv.msgs.push_back(error);
 	}
-	if (channel->_is(channel->_clients.find(msg.get_emitter())->second, channel->INVITED) == true)
+	if (channel->is(channel->_clients.find(msg.get_emitter())->second, channel->INVITED) == true)
 		channel->_clients.find(msg.get_emitter())->second = channel->MEMBER;
 	else
 	{
@@ -186,10 +186,10 @@ void	Join::new_chan_member_sucess(Message msg, std::string chan)
 	for (std::map<int, int>::iterator it = channel_cpy._clients.begin();
 		it != channel_cpy._clients.end(); ++it)
 	{
-		if (channel_cpy._is(it->second, channel_cpy.MEMBER) == false)
+		if (channel_cpy.is(it->second, channel_cpy.MEMBER) == false)
 			continue ;
 		std::string	nick(serv.client_list.find(it->first)->second.nickname);
-		if (channel_cpy._is(it->second, channel_cpy.CHANOP) == true)
+		if (channel_cpy.is(it->second, channel_cpy.CHANOP) == true)
 			nick.insert(0, "@");
 		replace.push_back(nick);
 		if (it->first != msg.get_emitter())

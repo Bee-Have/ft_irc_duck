@@ -38,7 +38,7 @@ Channel	&Channel::operator=(const Channel &assign)
 	return (*this);
 }
 
-bool	Channel::_is(int bitfield, int enumval) const
+bool	Channel::is(int bitfield, int enumval) const
 {
 	if ((bitfield & enumval) != 0)
 		return (true);

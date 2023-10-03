@@ -39,9 +39,9 @@ private:
 
 	Channel	&operator=(const Channel &assign);
 
-	bool	_is(int bitfield, int enumval) const;
 
 public:
+	bool	is(int bitfield, int enumval) const;
 	Channel(const Channel &cpy);
 	~Channel();
 
