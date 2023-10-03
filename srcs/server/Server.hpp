@@ -35,6 +35,7 @@ class Server
 	// TODO :make a function to get a channel with a specific name
 	friend struct Invite;
 	friend struct Topic;
+	friend struct Kick;
 private:
 
 	// Server socket creation and identification

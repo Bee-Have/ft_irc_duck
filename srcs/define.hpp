@@ -4,6 +4,7 @@
 #define SERVERNAME "ircserv"
 #define VERSION "2.31"
 #define NICK_GOOD_CHARACTERS "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-[]\\`_{}|"
+#define KICK_DEFAULT_COMMENT "No comment has been provided"
 
 //	SERVER
 //		REPLIES
@@ -37,6 +38,7 @@
 #define ERR_NONICKNAMEGIVEN "431 <client> :No nickname given\r\n"
 #define ERR_ERRONEUSNICKNAME "432 <client> <nick> :Erroneus nickname\r\n"
 #define ERR_NICKNAMEINUSE "433 <client> <nick> :Nickname is already in use\r\n"
+#define ERR_USERNOTINCHANNEL "441 <client> <nick> <channel> :They aren't on that channel\r\n"
 #define ERR_NOTONCHANNEL "442 <client> <channel> :You're not on that channel\r\n"
 #define ERR_USERONCHANNEL "443 <client> <nick> <channel> :is already on channel\r\n"
 #define ERR_NEEDMOREPARAMS "461 <client> <command> :Not enough parameters\r\n"
@@ -50,6 +52,7 @@
 #define RPL_JOIN ":<client> JOIN <channel>\r\n"
 #define RPL_PART ":<client> PART <channel>\r\n"
 #define RPL_INVITE ":<client> INVITE <nick> <channel>\r\n"
+#define RPL_KICK ":<client> KICK <channel> <nick> :<comment>\r\n"
 #define RPL_CLIENTLEFT "908 <client> :Client <nick> just left " SERVERNAME ", bye bye\r\n"
 // 			ERRRORS
 #define ERR_CANNOTBECOMEOPER "920 <client> :Operator role already fullfiled\r\n"

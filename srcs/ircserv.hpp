@@ -17,6 +17,7 @@
 #include "Part.hpp"
 #include "Invite.hpp"
 #include "Topic.hpp"
+#include "Kick.hpp"
 #include "Ping.hpp"
 
 // SERVER
