@@ -41,8 +41,11 @@ private:
 
 
 public:
-	bool	is(int bitfield, int enumval) const;
 	Channel(const Channel &cpy);
 	~Channel();
 
+	bool	is(int bitfield, int enumval) const;
+	void	del_client(int client);
+	bool	are_there_other_chanops();
+	void	assign_next_chanop();
 };
