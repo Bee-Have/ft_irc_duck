@@ -5,7 +5,8 @@
 #define VERSION "2.31"
 #define NICK_GOOD_CHARACTERS "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-[]\\`_{}|"
 #define KICK_DEFAULT_COMMENT "No comment has been provided"
-
+#define QUIT_MANUAL "Manual disconnection through commands"
+#define QUIT_FORCE "Forcible disconnection from client"
 //	SERVER
 //		REPLIES
 #define RPL_USAGE "000 " SERVERNAME " usage : ./ircserv <port> <password>\r\n"
@@ -53,7 +54,7 @@
 #define RPL_PART ":<client> PART <channel>\r\n"
 #define RPL_INVITE ":<client> INVITE <nick> <channel>\r\n"
 #define RPL_KICK ":<client> KICK <channel> <nick> :<comment>\r\n"
-#define RPL_ERROR ":<client> ERROR :<comment>\r\n"
+#define RPL_ERROR ":<server> ERROR :<comment>\r\n"
 #define RPL_QUIT ":<client> QUIT <comment>\r\n"
 #define RPL_CLIENTLEFT "908 <client> :Client <nick> just left " SERVERNAME ", bye bye\r\n"
 // 			ERRRORS
