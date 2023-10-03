@@ -10,13 +10,14 @@ struct Part : public ICommand
 
 	void	execute(Message &msg);
 
-	private :
+	
 	void	split_channels(std::string &p_params);
 	void	loop_check(Message *msg);
+	// TODO : this should be in the channel, not PART
 	void	assign_next_chanop(Channel *current);
 	void	success_behaviour(Message *msg, Channel *current);
 	// checks
+	// TODO : These two also
 	bool	are_there_other_chanops(Channel *current);
-	private :
 	bool	delete_chan_if_empty(Channel *current);
 };

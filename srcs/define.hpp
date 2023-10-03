@@ -53,6 +53,8 @@
 #define RPL_PART ":<client> PART <channel>\r\n"
 #define RPL_INVITE ":<client> INVITE <nick> <channel>\r\n"
 #define RPL_KICK ":<client> KICK <channel> <nick> :<comment>\r\n"
+#define RPL_ERROR ":<client> ERROR :<comment>\r\n"
+#define RPL_QUIT ":<client> QUIT <comment>\r\n"
 #define RPL_CLIENTLEFT "908 <client> :Client <nick> just left " SERVERNAME ", bye bye\r\n"
 // 			ERRRORS
 #define ERR_CANNOTBECOMEOPER "920 <client> :Operator role already fullfiled\r\n"

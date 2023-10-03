@@ -17,6 +17,7 @@ class Client;
 
 class Message
 {
+	friend struct Quit;
 private:
 	int	_emitter;
 
