@@ -27,6 +27,7 @@ stopServer ()
 {
 	echo "Stopping server"
 	killall nc
+	killall tail
 	killall -s SIGINT ircserv
 	if [ $? -ne 0 ]; then
 		echo "Server failed to stop"
@@ -46,35 +47,50 @@ connectionInfo ()
 
 connectFake ()
 {
-	while [ $CLIENT_NUMBER -lt $1 ]; do
-		nc $IP_ADDRESS $PORT < <(connectionInfo) -i 1 > $LOG_FOLDER/$CLIENT_NAME.log 2>&1 &
+	while [ $CLIENT_ID -lt $1 ]; do
+		connectionInfo > ./logs/.client-$CLIENT_ID-input.log
+		tail -f ./logs/.client-$CLIENT_ID-input.log | nc $IP_ADDRESS $PORT -i 1 > $LOG_FOLDER/$CLIENT_NAME.log 2>&1 &
 		if [ $? -ne 0 ]; then
 			echo "Connection failed"
 			stopServer 1
 		fi
+		NC_PID[$CLIENT_ID]=$!
 		echo "$CLIENT_NAME connected to $IP_ADDRESS:$PORT"
-		CLIENT_NUMBER=$((CLIENT_NUMBER+1))
-		CLIENT_NAME="client-$CLIENT_NUMBER"
+		CLIENT_ID=$((CLIENT_ID+1))
+		CLIENT_NAME="client-$CLIENT_ID"
 	done
 }
 
-connectTester ()
+attachSTDIN ()
 {
-	CLIENT_NAME="tester"
-	echo "tester connecting to $IP_ADDRESS:$PORT"
-	nc -NC $IP_ADDRESS $PORT < <(./test/tester_input.sh)
-	if [ $? -ne 0 ]; then
-		echo "Connection failed"
-		stopServer 1
+	if [ -z "$1" ]; then
+		echo "No client number specified"
+		return
 	fi
+	if [ $1 -ge $CLIENT_NUMBER ]; then
+		echo "Client number out of range"
+		return
+	fi
+	echo "Attaching stdin to (client-$1)"
+	CURRENT_INPUT=./logs/.client-$1-input.log
 }
 
 run ()
 {
 	createLogFolder
 	startServer
-	connectFake 3
-	connectTester
+	connectFake $CLIENT_NUMBER
+	attachSTDIN 0
+	while [ "$USER_INPUT" != "t-quit" ]; do
+		read USER_INPUT
+		if [ "$USER_INPUT" == "t-attach" ]; then
+			printf "Enter client number[0-%s]: " $((CLIENT_NUMBER-1))
+			read USER_INPUT
+			attachSTDIN $USER_INPUT
+			continue
+		fi
+		echo -en "$USER_INPUT\n" >> $CURRENT_INPUT
+	done
 	stopServer 0
 }
 
