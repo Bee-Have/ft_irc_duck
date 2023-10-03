@@ -110,7 +110,7 @@ void	Kick::kick_targets_if_member(Message &msg, std::vector<std::string>targets,
 				if (channel->is(it_target->second, channel->MEMBER) == true)
 					reply.target.insert(it_target->first);
 			}
-			channel->_clients.erase(current_target);
+			channel->del_client(msg.get_emitter());
 		}
 		serv.msgs.push_back(reply);
 	}
