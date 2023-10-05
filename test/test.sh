@@ -67,12 +67,16 @@ attachSTDIN ()
 		echo "No client number specified"
 		return
 	fi
-	if [ $1 -ge $CLIENT_NUMBER ]; then
+	if [ $1 -ge $CLIENT_NUMBER ] || [ $1 -lt 0 ]; then
 		echo "Client number out of range"
 		return
 	fi
-	echo "Attaching stdin to (client-$1)"
-	CURRENT_INPUT=./logs/.client-$1-input.log
+	local id=$1
+	if [ "$id" -eq "-0" ]; then
+		id="0"
+	fi
+	echo "Attaching stdin to (client-$id)"
+	CURRENT_INPUT=./logs/.client-$id-input.log
 }
 
 run ()
