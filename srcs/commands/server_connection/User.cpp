@@ -32,6 +32,8 @@ void	User::execute(Message &msg)
 	if (command_emitter->_realname.empty() == false)
 		return (setup_error_no_nickname(msg, ERR_ALREADYREGISTRED, ""));
 
+	command_emitter->_is_registered = true;
+
 	command_emitter->_username = msg.cmd_param.substr(0, msg.cmd_param.find(' '));
 	command_emitter->_realname = msg.cmd_param.substr(msg.cmd_param.find(':') + 1, msg.cmd_param.size());
 
