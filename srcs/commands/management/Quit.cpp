@@ -26,7 +26,8 @@ void	Quit::execute(Message& msg)
 	msg.target.clear();
 	msg.target.insert(sender);
 	serv.msgs.push_back(msg);
-	serv.del_client(sender);
+	if (manual_quit == true)
+		serv.del_client(sender);
 }
 
 void	Quit::leave_all_channels(Message& msg, std::string comment)

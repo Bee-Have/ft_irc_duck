@@ -169,7 +169,6 @@ void	Server::del_client(int fd)
 		if (quit_cmd != NULL)
 			quit_cmd->manual_quit = true;
 	}
-	// del_client_from_msgs(fd);
 	client_list.erase(client_list.find(fd));
 	close(fd);
 	std::cout << "BYE BYE CLIENT" << std::endl;
