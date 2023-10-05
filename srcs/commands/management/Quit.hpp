@@ -12,4 +12,5 @@ struct Quit : public ICommand
 
 	private :
 	void	leave_all_channels(Message& msg, std::string comment);
+	void	del_client_from_msgs(int fd);
 };

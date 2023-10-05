@@ -71,7 +71,6 @@ public:
 	// client managment
 	void	add_client();
 	void	del_client(int fd);
-	void	del_client_from_msgs(int fd);
 
 	// select prerequisites
 	int		get_max_fd() const;
