@@ -85,10 +85,14 @@ void	receive_messages(Server &serv, fd_set read_fds)
 		valread = read(it->first, buffer, 512);
 		if (valread <= 0)
 		{
-			serv.del_client(it->first);
+			Message	new_msg(it->second);
+			Quit*	quit_cmd = dynamic_cast<Quit *>(serv.commands["QUIT"]);
+
+			if (quit_cmd != NULL)
+				quit_cmd->manual_quit = false;
+			serv.commands["QUIT"]->execute(new_msg);
 			if (serv.client_list.empty() == true)
 				break ;
-			it = serv.client_list.begin();
 		}
 		else
 			found_text(serv, it->second, buffer);

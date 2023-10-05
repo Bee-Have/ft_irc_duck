@@ -148,27 +148,8 @@ void	Server::add_client(void)
  */
 void	Server::del_client(int fd)
 {
-	Message	part_msg(client_list.find(fd)->second);
-	bool	quit = false;
-
-	std::cout << "DEL_CLIENT [" << fd << "] \n";
-	for (std::vector<Message>::iterator it = msgs.begin(); it != msgs.end(); ++it)
-	{
-		std::cout << "MSG [" << it->cmd << "][" << *it->target.begin() << "]\n";
-		if (it->cmd == "QUIT" && *it->target.begin() == fd)
-			quit = true;
-	}
-	if (quit == false)
-	{
-		std::cout << "SHOULD NOT" << std::endl;
-		Message	quit_requirement(client_list.find(fd)->second);
-		Quit* quit_cmd = dynamic_cast<Quit *>(commands["QUIT"]);
-		if (quit_cmd != NULL)
-			quit_cmd->manual_quit = false;
-		commands["QUIT"]->execute(quit_requirement);
-		if (quit_cmd != NULL)
-			quit_cmd->manual_quit = true;
-	}
+	if (client_list.find(fd) == client_list.end())
+		return ;
 	client_list.erase(client_list.find(fd));
 	close(fd);
 	std::cout << "BYE BYE CLIENT" << std::endl;

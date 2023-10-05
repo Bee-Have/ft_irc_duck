@@ -47,17 +47,15 @@ static void	merge_msgs(Server &serv)
 	}
 }
 
-/**
- * @brief temprorary debug function to print all messages
- */
-// static void	print_msgs(Server &serv)
-// {
-// 	std::cout << "START PRINT MSGS:";
-// 	for (std::vector<Message>::iterator it = serv.msgs.begin(); it != serv.msgs.end(); ++it)
-// 	{
-// 		std::cout << "it:" << it->text;
-// 	}
-// }
+static void	handle_leaving_clients(Server& serv, Message msg, int client)
+{
+	std::string check(SERVERNAME);
+
+	check.append(" ERROR :");
+	if (msg.get_emitter() == serv.socket_id
+		&& msg.text.find(check) != std::string::npos)
+		serv.del_client(client);
+}
 
 /**
  * @brief This function messages to the target (Server::msgs->target) if :
@@ -91,6 +89,7 @@ void	send_messages(Server &serv, fd_set &write_fds)
 				std::cout << "about to send" << std::endl;
 				send(*it_fd, it_msg->text.c_str(), it_msg->text.size(), 0);
 				FD_CLR(*it_fd, &write_fds);
+				handle_leaving_clients(serv, *it_msg, *it_fd);
 				it_msg->target.erase(it_fd);
 				if (it_msg->target.empty() == true)
 				{

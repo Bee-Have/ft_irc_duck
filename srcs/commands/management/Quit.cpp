@@ -19,15 +19,13 @@ void	Quit::execute(Message& msg)
 		del_client_from_msgs(sender);
 	}
 	msg._emitter = serv.socket_id;
-	if (manual_quit == true)
-		msg.reply_format(RPL_ERROR, QUIT_MANUAL, serv.socket_id);
-	else
-		msg.reply_format(RPL_ERROR, QUIT_FORCE, serv.socket_id);
+	if (manual_quit == false)
+		return (serv.del_client(sender));
+	msg.reply_format(RPL_ERROR, QUIT_MANUAL, serv.socket_id);
 	msg.target.clear();
 	msg.target.insert(sender);
 	serv.msgs.push_back(msg);
-	if (manual_quit == true)
-		serv.del_client(sender);
+	manual_quit = true;
 }
 
 void	Quit::leave_all_channels(Message& msg, std::string comment)
