@@ -5,7 +5,10 @@ Join::Join(Server &p_serv): ICommand(p_serv)
 
 void	Join::execute(Message &msg)
 {
-	std::string					tmp;
+	std::string		tmp;
+
+	keys.clear();
+	channels.clear();
 
 	if (msg.cmd_param.compare("0") == 0)
 		return (special_argument(msg));
@@ -139,7 +142,7 @@ void	Join::join_check_existing_chan(Message msg, Channel *channel)
 		serv.msgs.push_back(error);
 	}
 	if (channel->_is(channel->_clients.find(msg.get_emitter())->second, channel->INVITED) == true)
-		serv._channel_list.find(channel->_name)->second.add_new_member(msg.get_emitter());
+		channel->_clients.find(msg.get_emitter())->second = channel->MEMBER;
 	else
 	{
 		if (channel->_is_invite_only == true)
@@ -148,7 +151,7 @@ void	Join::join_check_existing_chan(Message msg, Channel *channel)
 			serv.msgs.push_back(error);
 		}
 		else
-			serv._channel_list.find(channel->_name)->second.add_new_member(msg.get_emitter());
+			channel->_clients[msg.get_emitter()] = channel->MEMBER;
 	}
 	if (error.text.empty() == true)
 		new_chan_member_sucess(msg, channel->_name);
@@ -183,6 +186,8 @@ void	Join::new_chan_member_sucess(Message msg, std::string chan)
 	for (std::map<int, int>::iterator it = channel_cpy._clients.begin();
 		it != channel_cpy._clients.end(); ++it)
 	{
+		if (channel_cpy._is(it->second, channel_cpy.MEMBER) == false)
+			continue ;
 		std::string	nick(serv.client_list.find(it->first)->second.nickname);
 		if (channel_cpy._is(it->second, channel_cpy.CHANOP) == true)
 			nick.insert(0, "@");

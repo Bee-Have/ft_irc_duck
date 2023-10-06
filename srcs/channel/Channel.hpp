@@ -10,7 +10,9 @@ class Channel
 friend class Server;
 friend struct Join;
 friend struct Part;
+friend struct Invite;
 friend struct Topic;
+friend struct Kick;
 private:
 	enum ClientStatus
 	{
@@ -33,7 +35,6 @@ private:
 	Channel	&operator=(const Channel &assign);
 
 	bool	_is(int bitfield, int enumval) const;
-	void	add_new_member(int new_member);
 
 public:
 	Channel(const Channel &cpy);

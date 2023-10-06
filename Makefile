@@ -25,7 +25,7 @@ MESSAGES = Message.cpp receive_messages.cpp send_messages.cpp parsing.cpp
 CMD_CONNECTION = Pass.cpp Nick.cpp User.cpp
 CMD_MESSAGE = Privmsg.cpp
 CMD_MANAGEMENT = Oper.cpp Mode.cpp
-CMD_CHANNEL = Join.cpp Part.cpp Topic.cpp
+CMD_CHANNEL = Join.cpp Part.cpp Invite.cpp Topic.cpp Kick.cpp
 CMD_MISC = Ping.cpp
 
 SRC = main.cpp $(SERVER) $(CHANNEL) $(MESSAGES) \
@@ -44,6 +44,9 @@ $(OBJ_DIR):
 $(OBJ_DIR)/%.o: %.cpp | $(OBJ_DIR)
 	$(CXX) $(CXXFLAGS) $(IFLAGS) -c $< -o $@
 
+test: $(NAME)
+	./test/test.sh
+
 clean:
 	rm -rf $(OBJ_DIR)
 
@@ -51,5 +54,6 @@ re: clean all
 
 fclean: clean
 	rm -f $(NAME)
+	rm -rf logs
 
-.PHONY: all clean re fclean
+.PHONY: all clean re fclean test
