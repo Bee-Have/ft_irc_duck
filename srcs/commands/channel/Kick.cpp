@@ -58,7 +58,7 @@ bool	Kick::is_issuer_membership_valid(Message &msg, Channel channel)
 		msg.reply_format(ERR_NOTONCHANNEL, channel._name, serv.socket_id);
 		return (false);
 	}
-	if (channel._is(channel._clients.find(msg.get_emitter())->second, channel.CHANOP) == false)
+	if (channel.is(channel._clients.find(msg.get_emitter())->second, channel.CHANOP) == false)
 	{
 		msg.reply_format(ERR_CHANOPRIVSNEEDED, channel._name, serv.socket_id);
 		return (false);
@@ -90,7 +90,7 @@ void	Kick::kick_targets_if_member(Message &msg, std::vector<std::string>targets,
 		int	current_target = serv.get_client_by_nickname(*it);
 
 		if (channel->_clients.find(current_target) == channel->_clients.end()
-			|| channel->_is(channel->_clients.find(current_target)->second, channel->MEMBER) == false)
+			|| channel->is(channel->_clients.find(current_target)->second, channel->MEMBER) == false)
 		{
 			rpl.push_back(ERR_USERNOTINCHANNEL);
 			replace.push_back(*it);
@@ -107,10 +107,10 @@ void	Kick::kick_targets_if_member(Message &msg, std::vector<std::string>targets,
 			for (std::map<int, int>::iterator it_target = channel->_clients.begin();
 				it_target != channel->_clients.end(); ++it_target)
 			{
-				if (channel->_is(it_target->second, channel->MEMBER) == true)
+				if (channel->is(it_target->second, channel->MEMBER) == true)
 					reply.target.insert(it_target->first);
 			}
-			channel->_clients.erase(current_target);
+			channel->del_client(msg.get_emitter());
 		}
 		serv.msgs.push_back(reply);
 	}

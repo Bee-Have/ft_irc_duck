@@ -15,11 +15,11 @@
  */
 struct User : public ICommand
 {
-	// Client						&command_emitter;
 	std::vector<std::string>	replies;
 	std::vector<std::string>	replace;
 
 	User(Server &p_server);
 
 	void	execute(Message &msg);
+	void	setup_error_no_nickname(Message &msg, std::string error, std::string replace);
 };

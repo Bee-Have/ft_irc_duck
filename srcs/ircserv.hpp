@@ -13,6 +13,7 @@
 #include "User.hpp"
 #include "Privmsg.hpp"
 #include "Oper.hpp"
+#include "Quit.hpp"
 #include "Join.hpp"
 #include "Part.hpp"
 #include "Invite.hpp"

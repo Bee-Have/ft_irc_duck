@@ -21,7 +21,7 @@ void	Topic::execute(Message &msg)
 	std::cout << "TOPIC [" << new_topic << "]\n";
 	if (channel->_clients.find(msg.get_emitter()) == channel->_clients.end())
 		return (msg.reply_format(ERR_NOTONCHANNEL, channel->_name, serv.socket_id));
-	if (channel->_is(channel->_clients.find(msg.get_emitter())->second, channel->CHANOP) == false)
+	if (channel->is(channel->_clients.find(msg.get_emitter())->second, channel->CHANOP) == false)
 		return (msg.reply_format(ERR_CHANOPRIVSNEEDED, channel->_name, serv.socket_id));
 	change_topic(msg, channel, new_topic);
 }

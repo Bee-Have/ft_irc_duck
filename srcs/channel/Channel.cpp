@@ -38,9 +38,53 @@ Channel	&Channel::operator=(const Channel &assign)
 	return (*this);
 }
 
-bool	Channel::_is(int bitfield, int enumval) const
+bool	Channel::is(int bitfield, int enumval) const
 {
 	if ((bitfield & enumval) != 0)
 		return (true);
 	return (false);
+}
+
+void	Channel::del_client(int client)
+{
+	if (_clients.find(client) == _clients.end())
+		return ;
+	
+	int	*bitfield = &_clients.find(client)->second;
+
+	if (is(*bitfield, MEMBER) == true)
+	{
+		*bitfield = *bitfield ^ MEMBER;
+		if(is(*bitfield, CHANOP) == true)
+		{
+			*bitfield = *bitfield ^ CHANOP;
+			if (are_there_other_chanops() == false)
+				assign_next_chanop();
+		}
+	}
+	_clients.erase(client);
+}
+
+bool	Channel::are_there_other_chanops()
+{
+	for (std::map<int, int>::iterator it = _clients.begin();
+		it != _clients.end(); ++it)
+	{
+		if (is(it->second, CHANOP) == true)
+			return (true);
+	}
+	return (false);
+}
+
+void	Channel::assign_next_chanop()
+{
+	for (std::map<int, int>::iterator it = _clients.begin() ;
+		it != _clients.end() ; ++it)
+	{
+		if (is(it->second, MEMBER) == true)
+		{
+			it->second = it->second | CHANOP;
+			return ;
+		}
+	}
 }

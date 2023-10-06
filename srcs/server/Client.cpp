@@ -14,7 +14,8 @@ Client::Client(void)
  * 
  * @param new_socket the socket the new client is identified by
  */
-Client::Client(int new_socket) : _socket(new_socket), _is_registered(false)
+Client::Client(int new_socket) :
+	_socket(new_socket), _is_authenticated(false), _is_registered(false)
 {}
 
 /**
@@ -24,8 +25,9 @@ Client::Client(int new_socket) : _socket(new_socket), _is_registered(false)
  * @param cpy the client to construct the newclient from
  */
 Client::Client(const Client &cpy) :
-	_socket(cpy._socket), _is_registered(cpy._is_registered),
-	_username(cpy._username), _realname(cpy._realname), nickname(cpy.nickname)
+	_socket(cpy._socket), _is_authenticated(cpy._is_authenticated),
+	_is_registered(cpy._is_registered), _username(cpy._username),
+	_realname(cpy._realname), nickname(cpy.nickname)
 {}
 
 /**
@@ -42,6 +44,7 @@ Client	&Client::operator=(const Client &assign)
 	if (this != &assign)
 	{
 		_socket = assign._socket;
+		_is_authenticated = assign._is_authenticated;
 		_is_registered = assign._is_registered;
 		nickname.assign(assign.nickname);
 		_realname.assign(assign._realname);
@@ -58,4 +61,9 @@ int	Client::get_socket(void) const
 bool	Client::get_is_registered(void) const
 {
 	return (_is_registered);
+}
+
+bool	Client::get_is_authenticated(void) const
+{
+	return (_is_authenticated);
 }
