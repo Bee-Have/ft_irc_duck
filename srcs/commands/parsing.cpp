@@ -37,7 +37,14 @@ static void	parsing_cmds(Server &serv, Message &msg)
 	else
 	{
 		msg.cmd = msg.text.substr(0, space_pos);
-		msg.cmd_param = msg.text.substr(msg.text.find_first_not_of(" \t", space_pos));
+		size_t param_start_pos = msg.text.find_first_not_of(" \t", space_pos);
+		if (param_start_pos != std::string::npos)
+			msg.cmd_param = msg.text.substr(param_start_pos);
+		else
+			msg.cmd_param = msg.text.substr(space_pos);
+		
+		if (msg.cmd != "USER" && msg.cmd != "PRIVMSG")
+			msg.cmd_param.erase(msg.cmd_param.find_last_not_of(" \t") + 1);
 	}
 	msg.text.clear();
 }
