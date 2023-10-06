@@ -151,6 +151,8 @@ void	Server::del_client(int fd)
 	if (client_list.find(fd) == client_list.end())
 		return ;
 	client_list.erase(client_list.find(fd));
+	if (fd == _oper_socket)
+		_oper_socket = -1;
 	close(fd);
 	std::cout << "BYE BYE CLIENT" << std::endl;
 }
