@@ -16,6 +16,7 @@ void	Mode::execute(Message& msg)
 	_usermodes.clear();
 	_reset_modes();
 
+	std::string	parameters;
 	std::string	name;
 
 	if (msg.cmd_param.find(' ') == std::string::npos)
@@ -28,6 +29,12 @@ void	Mode::execute(Message& msg)
 	if (msg.cmd_param[0] != '+' && msg.cmd_param[0] != '-')
 		return (msg.reply_format(ERR_MODEBADFORMAT, "", serv.socket_id));
 
+	if (msg.cmd_param.find(' ') != std::string::npos)
+	{
+		parameters = msg.cmd_param.substr(msg.cmd_param.find(' ') + 1);
+		msg.cmd_param = msg.cmd_param.substr(0, msg.cmd_param.find(' '));
+	}
+
 	std::cout << "NAME [" << name << ']' << std::endl;
 	if (name[0] == '#' || name[0] == '&')
 		std::cout << "ITS A CHANNEL" << std::endl;
@@ -37,19 +44,22 @@ void	Mode::execute(Message& msg)
 		std::cout << "PARAM [" << msg.cmd_param << ']' << std::endl;
 		_client_handling(msg, name);
 	}
-	_add_usermodes(msg);
+	_apply_usermodes(msg, parameters);
+	_format_usermodes();
+	if (_usermodes.empty() == false)
+		msg.reply_format(RPL_UMODEIS, _usermodes, serv.socket_id);
+}
+
+void	Mode::_apply_usermodes(Message& msg, std::string parameters)
+{
+	_client_i(msg);
+	_client_O(msg, parameters);
 }
 
 void	Mode::_client_handling(Message& msg, std::string nick)
 {
 	char	sign;
-	std::string	parameters;
 
-	if (msg.cmd_param.find(' ') != std::string::npos)
-	{
-		parameters = msg.cmd_param.substr(msg.cmd_param.find(' ') + 1);
-		msg.cmd_param = msg.cmd_param.substr(0, msg.cmd_param.find(' '));
-	}
 	if (serv.get_client_by_nickname(nick) == -1)
 		return (msg.reply_format(ERR_NOSUCHNICK, nick, serv.socket_id));
 	if (serv.get_client_by_nickname(nick) != msg.get_emitter())
@@ -58,72 +68,76 @@ void	Mode::_client_handling(Message& msg, std::string nick)
 		it != msg.cmd_param.end(); ++it)
 	{
 		if (*it == '+' || *it == '-')
+		{
 			sign = *it;
+			continue;
+		}
+		if (*it == 'i' || *it == 'O')
+			_all_usermodes[*it] = (sign == '+') ? ADD : REMOVE;
 		else
 		{
-			if (*it == 'i')
-				_client_i(msg, sign);
-			else if (*it == 'O')
-				_client_O(msg, sign, parameters);
-			else
-			{
-				Message response(msg);
-				response.reply_format(ERR_UMODEUNKNOWNMODEFLAG, "", serv.socket_id);
-				serv.msgs.push_back(response);
-			}
+			Message response(msg);
+			response.reply_format(ERR_UMODEUNKNOWNMODEFLAG, "", serv.socket_id);
+			serv.msgs.push_back(response);
 		}
 	}
-	std::cout << '\n' << "USERMODE [" << _usermodes << ']' << std::endl;
-	msg.reply_format(RPL_UMODEIS, _usermodes, serv.socket_id);
 }
 
-void	Mode::_client_i(Message& msg, char sign)
+void	Mode::_client_i(Message& msg)
 {
 	int& i = _all_usermodes['i'];
 
-	if (sign == '+')
+	if (i == UNCHANGED)
+		return ;
+	else if (i == ADD)
 	{
-		i = ADD;
-		serv.client_list.find(msg.get_emitter())->second._is_invisible = true;
+		if (serv.client_list.find(msg.get_emitter())->second._is_invisible == true)
+			i = UNCHANGED;
+		else
+			serv.client_list.find(msg.get_emitter())->second._is_invisible = true;
 	}
-	else
+	else if (i == REMOVE)
 	{
-		i = REMOVE;
-		serv.client_list.find(msg.get_emitter())->second._is_invisible = false;
+		if (serv.client_list.find(msg.get_emitter())->second._is_invisible == false)
+			i = UNCHANGED;
+		else
+			serv.client_list.find(msg.get_emitter())->second._is_invisible = false;
 	}
 	std::cout << "INVISIBLE [" << serv.client_list.find(msg.get_emitter())->second._is_invisible << ']';
 }
 
-void	Mode::_client_O(Message& msg, char sign, std::string param)
+void	Mode::_client_O(Message& msg, std::string param)
 {
 	Message response(msg);
 	int& O = _all_usermodes['O'];
 
-	if (sign == '+')
+	if (O == UNCHANGED)
+		return ;
+	else if (O == ADD)
 	{
 		response.cmd = "OPER";
 		response.cmd_param = param;
 		serv.commands["OPER"]->execute(response);
 		serv.msgs.push_back(response);
-		if (response.text.find("381 ") != std::string::npos)
-			O = ADD;
+		if (response.text.find("381 ") == std::string::npos)
+			O = UNCHANGED;
 	}
-	else
+	else if (O == REMOVE)
 	{
 		if (serv._oper_socket != msg.get_emitter())
 		{
 			response.reply_format(ERR_NOPRIVILEGES, "", serv.socket_id);
 			serv.msgs.push_back(response);
+			O = UNCHANGED;
 		}
 		else
 		{
 			serv._oper_socket = -1;
-			O = REMOVE;
 		}
 	}
 }
 
-void	Mode::_add_usermodes(Message& msg)
+void	Mode::_format_usermodes()
 {
 	for (std::map<char, int>::iterator it = _all_usermodes.begin();
 		it != _all_usermodes.end(); ++it)
@@ -135,7 +149,4 @@ void	Mode::_add_usermodes(Message& msg)
 		if (it->second != UNCHANGED)
 			_usermodes.push_back(it->first);
 	}
-
-	if (_usermodes.empty() == false)
-		msg.reply_format(RPL_UMODEIS, _usermodes, serv.socket_id);
 }
