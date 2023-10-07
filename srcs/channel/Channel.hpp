@@ -30,7 +30,7 @@ private:
 	std::string			_key;
 	bool				_is_invite_only;
 	bool				_is_topic_restricted;
-	int					_channel_member_limit;
+	int					_member_limit;
 	std::map<int, int>	_clients;
 
 	Channel();

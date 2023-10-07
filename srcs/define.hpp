@@ -48,6 +48,7 @@
 #define ERR_NEEDMOREPARAMS "461 <client> <command> :Not enough parameters\r\n"
 #define ERR_ALREADYREGISTRED "462 <client> :You may not reregister\r\n"
 #define ERR_PASSWDMISMATCH "464 <client> :Password incorrect\r\n"
+#define ERR_CHANNELISFULL "471 <client> <channel> :Cannot join channel (+l)\r\n"
 #define ERR_INVITEONLYCHAN "473 <client> <channel> :Cannot join channel (+i)\r\n"
 #define ERR_BADCHANNELKEY "475 <client> <channel> :Cannot join channel (+k)\r\n"
 #define ERR_NOPRIVILEGES "481 <client> :Permission Denied- You're not an IRC operator\r\n"
