@@ -34,22 +34,25 @@ void	Mode::execute(Message& msg)
 	_reset_modes();
 
 	std::string	parameters;
-	std::string	name;
+	std::string	name = msg.cmd_param.substr(0, msg.cmd_param.find_first_of(" \t\0\r\n"));
+	const size_t space_pos = msg.cmd_param.find_first_of(" \t");
 
-	if (msg.cmd_param.find(' ') == std::string::npos)
-		return (_current_mode(msg, msg.cmd_param));
+	if (serv.get_client_by_nickname(name) == -1)
+		return (msg.reply_format(ERR_NOSUCHNICK, name, serv.socket_id));
+	if (serv.get_client_by_nickname(name) != msg.get_emitter())
+		return (msg.reply_format(ERR_USERSDONTMATCH, "", serv.socket_id));
+	if (space_pos == std::string::npos)
+		return (_current_mode(msg, name));
 	else
-	{
-		name = msg.cmd_param.substr(0, msg.cmd_param.find(' '));
-		msg.cmd_param = msg.cmd_param.substr(msg.cmd_param.find(' ') + 1);
-	}
+		msg.cmd_param = msg.cmd_param.substr(space_pos + 1);
 	if (msg.cmd_param[0] != '+' && msg.cmd_param[0] != '-')
 		return (msg.reply_format(ERR_MODEBADFORMAT, "", serv.socket_id));
 
-	if (msg.cmd_param.find(' ') != std::string::npos)
+	size_t param_start = msg.cmd_param.find_first_of(" \t");
+	if (param_start != std::string::npos)
 	{
-		parameters = msg.cmd_param.substr(msg.cmd_param.find(' ') + 1);
-		msg.cmd_param = msg.cmd_param.substr(0, msg.cmd_param.find(' '));
+		parameters = msg.cmd_param.substr(param_start + 1);
+		msg.cmd_param = msg.cmd_param.substr(0, param_start);
 	}
 
 	std::cout << "NAME [" << name << ']' << std::endl;
@@ -59,7 +62,7 @@ void	Mode::execute(Message& msg)
 	{
 		std::cout << "ITS A CLIENT" << std::endl;
 		std::cout << "PARAM [" << msg.cmd_param << ']' << std::endl;
-		_client_handling(msg, name);
+		_client_handling(msg);
 	}
 	_apply_usermodes(msg, parameters);
 	_format_usermodes();
@@ -73,14 +76,10 @@ void	Mode::_apply_usermodes(Message& msg, std::string parameters)
 	_client_O(msg, parameters);
 }
 
-void	Mode::_client_handling(Message& msg, std::string nick)
+void	Mode::_client_handling(Message& msg)
 {
 	char	sign;
 
-	if (serv.get_client_by_nickname(nick) == -1)
-		return (msg.reply_format(ERR_NOSUCHNICK, nick, serv.socket_id));
-	if (serv.get_client_by_nickname(nick) != msg.get_emitter())
-		return (msg.reply_format(ERR_USERSDONTMATCH, "", serv.socket_id));
 	for (std::string::iterator it = msg.cmd_param.begin();
 		it != msg.cmd_param.end(); ++it)
 	{
