@@ -38,6 +38,7 @@
 #define ERR_TOOMANYPARAM "400 <client> <command> :Too many parameters\r\n"
 #define ERR_NOSUCHNICK "401 <client> :<nickname> :No such nick/channel\r\n"
 #define ERR_NOSUCHCHANNEL "403 <client> <channel> :No such channel\r\n"
+#define ERR_CANNOTSENDTOCHAN "404 <client> <channel> :Cannot send to channel\r\n"
 #define ERR_NOTEXTTOSEND "412 <client> :No text to send\r\n"
 #define ERR_NONICKNAMEGIVEN "431 <client> :No nickname given\r\n"
 #define ERR_ERRONEUSNICKNAME "432 <client> <nick> :Erroneus nickname\r\n"

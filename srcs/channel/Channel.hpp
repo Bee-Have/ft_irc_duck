@@ -14,6 +14,7 @@ friend struct Invite;
 friend struct Topic;
 friend struct Kick;
 friend struct Quit;
+friend struct Privmsg;
 
 private:
 	enum ClientStatus
