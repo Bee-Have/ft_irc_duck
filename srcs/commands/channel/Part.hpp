@@ -5,6 +5,7 @@
 struct Part : public ICommand
 {
 	std::vector<std::string>	channels;
+	std::string	reason;
 
 	Part(Server &p_serv);
 
