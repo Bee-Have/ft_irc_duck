@@ -3,17 +3,19 @@
 Channel::Channel(void) : _is_invite_only(false)
 {}
 
-Channel::Channel(int creator, std::string new_name) : _name(new_name), _is_invite_only(false)
+Channel::Channel(int creator, std::string new_name) :
+	_name(new_name), _is_invite_only(false), _is_topic_restricted(true),
+	_channel_member_limit(-1)
 {
 	int	bitfield = MEMBER | CHANOP;
 	_clients[creator] = bitfield;
 }
 
 Channel::Channel(const Channel &cpy) :
-	_name(cpy._name),
-	_topic(cpy._topic),
-	_key(cpy._key),
+	_name(cpy._name), _topic(cpy._topic), _key(cpy._key),
 	_is_invite_only(cpy._is_invite_only),
+	_is_topic_restricted(cpy._is_topic_restricted),
+	_channel_member_limit(cpy._channel_member_limit),
 	_clients(cpy._clients)
 {}
 
@@ -28,6 +30,8 @@ Channel	&Channel::operator=(const Channel &assign)
 		_topic.assign(assign._topic);
 		_key.assign(assign._key);
 		_is_invite_only = assign._is_invite_only;
+		_is_topic_restricted = assign._is_topic_restricted;
+		_channel_member_limit = assign._channel_member_limit;
 		_clients.clear();
 		for (std::map<int, int>::const_iterator it = assign._clients.begin();
 			it != assign._clients.end(); ++it)
