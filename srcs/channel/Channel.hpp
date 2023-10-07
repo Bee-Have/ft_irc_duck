@@ -15,9 +15,6 @@ friend struct Topic;
 friend struct Kick;
 friend struct Quit;
 
-// TODO : wouldn't it be better to have a function here to del a client from the channel ?
-// that way its handled by the channel and not the commands.
-// the channel can do all the necessary steps to change chanop privileges
 private:
 	enum ClientStatus
 	{
