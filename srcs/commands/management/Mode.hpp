@@ -14,4 +14,6 @@ struct Mode : public ICommand
 	std::vector<std::string>	_umode;
 	// Contains "i/t/k/l"
 	std::vector<std::string>	_cmode;
+
+	void	client_handling(Message& msg, std::string nick);
 };

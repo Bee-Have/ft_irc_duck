@@ -11,6 +11,7 @@
 #include "Pass.hpp"
 #include "Nick.hpp"
 #include "User.hpp"
+#include "Mode.hpp"
 #include "Privmsg.hpp"
 #include "Oper.hpp"
 #include "Join.hpp"
@@ -19,7 +20,6 @@
 #include "Topic.hpp"
 #include "Kick.hpp"
 #include "Ping.hpp"
-#include "Mode.hpp"
 
 // SERVER
 void	server_loop(Server &serv);

@@ -14,7 +14,8 @@ Client::Client(void)
  * 
  * @param new_socket the socket the new client is identified by
  */
-Client::Client(int new_socket) : _socket(new_socket), _is_registered(false)
+Client::Client(int new_socket) :
+	_socket(new_socket), _is_registered(false), _is_invisible(false)
 {}
 
 /**
@@ -25,7 +26,9 @@ Client::Client(int new_socket) : _socket(new_socket), _is_registered(false)
  */
 Client::Client(const Client &cpy) :
 	_socket(cpy._socket), _is_registered(cpy._is_registered),
-	_username(cpy._username), _realname(cpy._realname), nickname(cpy.nickname)
+	_username(cpy._username), _realname(cpy._realname),
+	_is_invisible(cpy._is_invisible), nickname(cpy.nickname)
+	
 {}
 
 /**
@@ -46,6 +49,7 @@ Client	&Client::operator=(const Client &assign)
 		nickname.assign(assign.nickname);
 		_realname.assign(assign._realname);
 		_username.assign(assign._username);
+		_is_invisible = assign._is_invisible;
 	}
 	return (*this);
 }
@@ -58,4 +62,9 @@ int	Client::get_socket(void) const
 bool	Client::get_is_registered(void) const
 {
 	return (_is_registered);
+}
+
+bool	Client::get_is_invisible(void) const
+{
+	return (_is_invisible);
 }
