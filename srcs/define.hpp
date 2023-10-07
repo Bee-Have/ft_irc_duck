@@ -32,6 +32,7 @@
 #define RPL_ENDOFNAMES "366 <client> <channel> :End of /NAMES list\r\n"
 #define RPL_YOUREOPER "381 <client> :You are now an IRC operator\r\n"
 //		ERRORS
+#define ERR_TOOMANYPARAM "400 <client> <command> :Too many parameters\r\n"
 #define ERR_NOSUCHNICK "401 <client> :<nickname> :No such nick/channel\r\n"
 #define ERR_NOSUCHCHANNEL "403 <client> <channel> :No such channel\r\n"
 #define ERR_NOTEXTTOSEND "412 <client> :No text to send\r\n"
@@ -50,7 +51,7 @@
 //		CUSTOM
 // 			REPLIES
 #define RPL_JOIN ":<client> JOIN <channel>\r\n"
-#define RPL_PART ":<client> PART <channel>\r\n"
+#define RPL_PART ":<client> PART <channel> :<reason>\r\n"
 #define RPL_INVITE ":<client> INVITE <nick> <channel>\r\n"
 #define RPL_KICK ":<client> KICK <channel> <nick> :<comment>\r\n"
 #define RPL_ERROR ":<server> ERROR :<comment>\r\n"

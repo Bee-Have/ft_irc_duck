@@ -18,11 +18,13 @@ void	Quit::execute(Message& msg)
 	}
 	msg._emitter = serv.socket_id;
 	if (manual_quit == false)
+	{
+		manual_quit = true;
 		return (serv.del_client(sender));
+	}
 	msg.reply_format(RPL_ERROR, QUIT_MANUAL, serv.socket_id);
 	msg.target.clear();
 	msg.target.insert(sender);
-	manual_quit = true;
 }
 
 void	Quit::leave_all_channels(int client, std::string comment)

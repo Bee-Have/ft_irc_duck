@@ -6,20 +6,20 @@ Join::Join(Server &p_serv): ICommand(p_serv)
 void	Join::execute(Message &msg)
 {
 	std::string		tmp;
+	size_t space_pos;
 
 	keys.clear();
 	channels.clear();
 
 	if (msg.cmd_param.compare("0") == 0)
 		return (special_argument(msg));
-	if (msg.cmd_param.find_first_of(" ") != msg.cmd_param.find_last_of(" "))
-		return (join_space_error(msg));
-	if (msg.cmd_param.find(' ') != std::string::npos)
+	space_pos = msg.cmd_param.find_first_of(" ");
+	if (space_pos != std::string::npos)
 	{
 		std::cout << "FOUND KEY" << std::endl;
-		tmp = msg.cmd_param.substr(msg.cmd_param.find(' ') + 1, msg.cmd_param.size());
+		tmp = msg.cmd_param.substr(space_pos + 1);
 		keys = split_join_cmd(tmp);
-		msg.cmd_param.erase(msg.cmd_param.find(' '), msg.cmd_param.size());
+		msg.cmd_param.erase(space_pos);
 	}
 	channels = split_join_cmd(msg.cmd_param);
 	if (msg.cmd_param.empty() == true)
@@ -43,24 +43,6 @@ void	Join::special_argument(Message &msg)
 	}
 	if (msg.cmd_param.empty() == false)
 		serv.commands["PART"]->execute(msg);
-}
-
-void	Join::join_space_error(Message &msg)
-{
-	std::string	channel_name;
-	int			begin;
-	int			end;
-
-	if (msg.cmd_param.find_first_of(",") < msg.cmd_param.find_first_of(" "))
-	{
-		begin = msg.cmd_param.find(",") + 1;
-		if (msg.cmd_param.find(",", begin) < msg.cmd_param.find(" ", msg.cmd_param.find_first_of(" ") + 1))
-			end = msg.cmd_param.find(",", begin) - begin;
-		else
-			end = msg.cmd_param.find(" ", msg.cmd_param.find_first_of(" ") + 1) - begin;
-		channel_name = msg.cmd_param.substr(begin, end);
-	}
-	msg.reply_format(ERR_NOSUCHCHANNEL, channel_name, serv.socket_id);
 }
 
 std::vector<std::string>	Join::split_join_cmd(std::string &str)
@@ -139,7 +121,7 @@ void	Join::join_check_existing_chan(Message msg, Channel *channel)
 		&& (keys.empty() == true || channel->_key != *keys.begin()))
 	{
 		error.reply_format(ERR_BADCHANNELKEY, channel->_name, serv.socket_id);
-		serv.msgs.push_back(error);
+		return (serv.msgs.push_back(error));
 	}
 	if (channel->is(channel->_clients.find(msg.get_emitter())->second, channel->INVITED) == true)
 		channel->_clients.find(msg.get_emitter())->second = channel->MEMBER;
@@ -148,13 +130,12 @@ void	Join::join_check_existing_chan(Message msg, Channel *channel)
 		if (channel->_is_invite_only == true)
 		{
 			error.reply_format(ERR_INVITEONLYCHAN, channel->_name, serv.socket_id);
-			serv.msgs.push_back(error);
+			return (serv.msgs.push_back(error));
 		}
 		else
 			channel->_clients[msg.get_emitter()] = channel->MEMBER;
 	}
-	if (error.text.empty() == true)
-		new_chan_member_sucess(msg, channel->_name);
+	new_chan_member_sucess(msg, channel->_name);
 }
 
 void	Join::new_chan_member_sucess(Message msg, std::string chan)

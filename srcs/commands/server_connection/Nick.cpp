@@ -20,7 +20,7 @@ void	Nick::execute(Message &msg)
 
 	if (msg.cmd_param.empty() == true)
 		return (setup_error(msg, ERR_NONICKNAMEGIVEN, ""));
-	nickname = msg.cmd_param.substr(0, msg.cmd_param.find(' '));
+	nickname = msg.cmd_param;
 	if (is_nickname_allowed(nickname) == false)
 		return (setup_error(msg, ERR_ERRONEUSNICKNAME, nickname));
 	if (serv.get_client_by_nickname(nickname) != -1)

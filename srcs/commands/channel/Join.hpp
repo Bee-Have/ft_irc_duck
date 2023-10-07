@@ -17,12 +17,6 @@ struct Join : public ICommand
 	std::vector<std::string>	keys;
 
 	/**
-	 * @brief This function will setup the error for too many spaces in JOIN parameters.
-	 * 
-	 * @param msg the message to setup as ERR_NOSUCHANNEL (see define.hpp)
-	 */
-	void	join_space_error(Message &msg);
-	/**
 	 * @brief split JOIN parameters to better use them
 	 * @note this function will split the parameters into vector<string>,
 	 * it will be used up to two times, once for the keys (if there are keys),
