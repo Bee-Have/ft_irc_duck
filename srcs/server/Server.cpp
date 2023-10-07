@@ -237,6 +237,14 @@ int	Server::get_client_by_nickname(std::string nickname)
 	return (-1);
 }
 
+Channel*	Server::get_channel_by_name(std::string nickname)
+{
+	std::map<std::string, Channel>::iterator channel(_channel_list.find(nickname));
+	if (channel == _channel_list.end())
+		return (NULL);
+	return (&channel->second);
+}
+
 std::string	Server::oper_command_check(int client, std::string oper, std::string pass)
 {
 	if (_oper_socket != -1)

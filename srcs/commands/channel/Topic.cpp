@@ -11,12 +11,12 @@ void	Topic::execute(Message &msg)
 	if (msg.cmd_param.empty() == true)
 		return (msg.reply_format(ERR_NOSUCHCHANNEL, "", serv.socket_id));
 	channel_name = msg.cmd_param.substr(0, msg.cmd_param.find_first_of(" :\0"));
-	if (serv._channel_list.find(channel_name) == serv._channel_list.end())
+	if (serv.get_channel_by_name(channel_name) == NULL)
 		return (msg.reply_format(ERR_NOSUCHCHANNEL, channel_name, serv.socket_id));
 	if (msg.cmd_param.find(':') == std::string::npos)
-		return (return_topic(msg, &serv._channel_list.find(channel_name)->second));
+		return (return_topic(msg, serv.get_channel_by_name(channel_name)));
 
-	Channel		*channel = &serv._channel_list.find(channel_name)->second;
+	Channel		*channel = serv.get_channel_by_name(channel_name);
 
 	std::cout << "CHAN [" << channel->_name << "]\n";
 	new_topic = msg.cmd_param.substr(msg.cmd_param.find(':') + 1, msg.cmd_param.size());

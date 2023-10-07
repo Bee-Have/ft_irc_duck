@@ -20,9 +20,9 @@ void	Kick::execute(Message& msg)
 
 	std::cout << "CUT OUT CHAN [" << msg.cmd_param << "]\n";
 
-	if (serv._channel_list.find(chan_name) == serv._channel_list.end())
+	if (serv.get_channel_by_name(chan_name) == NULL)
 		return (msg.reply_format(ERR_NOSUCHCHANNEL, chan_name, serv.socket_id));
-	channel = &serv._channel_list.find(chan_name)->second;
+	channel = serv.get_channel_by_name(chan_name);
 	if (is_issuer_membership_valid(msg, *channel) == false)
 		return ;
 	register_comment(msg);
