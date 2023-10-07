@@ -18,8 +18,9 @@ struct Mode : public ICommand
 	std::string	_usermodes;
 	std::map<char, int> _all_usermodes;
 
+	void 	_current_mode(Message& msg, std::string& name);
 	void	_reset_modes();
-	void	_client_handling(Message& msg, std::string nick);
+	void	_client_handling(Message& msg);
 	void	_client_i(Message& msg);
 	void	_client_O(Message& msg, std::string param);
 	void	_format_usermodes();
