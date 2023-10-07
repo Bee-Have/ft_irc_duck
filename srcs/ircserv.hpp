@@ -11,6 +11,7 @@
 #include "Pass.hpp"
 #include "Nick.hpp"
 #include "User.hpp"
+#include "Mode.hpp"
 #include "Privmsg.hpp"
 #include "Oper.hpp"
 #include "Quit.hpp"

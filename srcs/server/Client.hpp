@@ -4,9 +4,10 @@
 
 class Client
 {
+friend class Server;
 friend struct Pass;
 friend struct User;
-friend struct Server;
+friend struct Mode;
 private:
 	Client();
 	Client(int new_socket);
@@ -16,6 +17,8 @@ private:
 	bool		_is_registered;
 	std::string	_username;
 	std::string	_realname;
+
+	bool	_is_invisible;
 
 public:
 	std::string	nickname;
@@ -27,5 +30,6 @@ public:
 
 	int		get_socket() const;
 	bool	get_is_registered() const;
+	bool	get_is_invisible() const;
 	bool	get_is_authenticated() const;
 };

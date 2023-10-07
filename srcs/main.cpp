@@ -7,6 +7,7 @@ void	setup_commands(Server& serv)
 	serv.register_command<Pass>("PASS");
 	serv.register_command<Nick>("NICK");
 	serv.register_command<User>("USER");
+	serv.register_command<Mode>("MODE");
 	serv.register_command<Privmsg>("PRIVMSG");
 	serv.register_command<Oper>("OPER");
 	serv.register_command<Quit>("QUIT");
