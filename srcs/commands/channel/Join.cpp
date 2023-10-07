@@ -117,7 +117,8 @@ void	Join::join_check_existing_chan(Message msg, Channel *channel)
 
 	if (channel->is(channel->_clients.find(msg.get_emitter())->second, channel->MEMBER) == true)
 		return ;
-	if (channel->_clients.size() >= channel->_member_limit)
+	if (channel->_member_limit != -1 &&
+		channel->_clients.size() >= static_cast<size_t>(channel->_member_limit))
 	{
 		error.reply_format(ERR_CHANNELISFULL, channel->_name, serv.socket_id);
 		return (serv.msgs.push_back(error));

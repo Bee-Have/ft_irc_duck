@@ -1,6 +1,9 @@
 #include "Mode.hpp"
 
-Mode::Mode(Server& p_serv) : ICommand(p_serv)
+Mode::Mode(Server& p_serv) :
+	ICommand(p_serv),
+	_usermodes_chars("iO"),
+	_chanmodes_chars("itkol")
 {
 	_reset_modes();
 }
@@ -9,6 +12,12 @@ void Mode::_reset_modes()
 {
 	_all_usermodes['i'] = UNCHANGED;
 	_all_usermodes['O'] = UNCHANGED;
+
+	_all_chanmodes['i'] = UNCHANGED;
+	_all_chanmodes['t'] = UNCHANGED;
+	_all_chanmodes['k'] = UNCHANGED;
+	_all_chanmodes['o'] = UNCHANGED;
+	_all_chanmodes['l'] = UNCHANGED;
 }
 
 void	Mode::_current_mode(Message& msg, std::string& name)
@@ -23,23 +32,28 @@ void	Mode::_current_mode(Message& msg, std::string& name)
 			_all_usermodes['i'] = ADD;
 		if (serv._oper_socket == msg.get_emitter())
 			_all_usermodes['O'] = ADD;
-		_format_usermodes();
-		msg.reply_format(RPL_UMODEIS, _usermodes, serv.socket_id);
+		_format_replymodes();
+		msg.reply_format(RPL_UMODEIS, _replymodes, serv.socket_id);
 	}
 }
 
 void	Mode::execute(Message& msg)
 {
-	_usermodes.clear();
+	_replymodes.clear();
 	_reset_modes();
 
 	std::string	parameters;
 	std::string	name = msg.cmd_param.substr(0, msg.cmd_param.find_first_of(" \t\0\r\n"));
 	const size_t space_pos = msg.cmd_param.find_first_of(" \t");
+	bool is_channel = (name[0] == '#' || name[0] == '&');
+	Channel* channel = serv.get_channel_by_name(name);
+	int	client = serv.get_client_by_nickname(name);
 
-	if (serv.get_client_by_nickname(name) == -1)
+	if (is_channel == false && client == -1)
 		return (msg.reply_format(ERR_NOSUCHNICK, name, serv.socket_id));
-	if (serv.get_client_by_nickname(name) != msg.get_emitter())
+	if (is_channel == true && channel == NULL)
+		return (msg.reply_format(ERR_NOSUCHCHANNEL, name, serv.socket_id));
+	if (client != msg.get_emitter())
 		return (msg.reply_format(ERR_USERSDONTMATCH, "", serv.socket_id));
 	if (space_pos == std::string::npos)
 		return (_current_mode(msg, name));
@@ -55,28 +69,14 @@ void	Mode::execute(Message& msg)
 		msg.cmd_param = msg.cmd_param.substr(0, param_start);
 	}
 
-	std::cout << "NAME [" << name << ']' << std::endl;
-	if (name[0] == '#' || name[0] == '&')
-		std::cout << "ITS A CHANNEL" << std::endl;
-	else
-	{
-		std::cout << "ITS A CLIENT" << std::endl;
-		std::cout << "PARAM [" << msg.cmd_param << ']' << std::endl;
-		_client_handling(msg);
-	}
-	_apply_usermodes(msg, parameters);
-	_format_usermodes();
-	if (_usermodes.empty() == false)
-		msg.reply_format(RPL_UMODEIS, _usermodes, serv.socket_id);
+	_fill_mod_maps(msg, is_channel);
+	_apply_mode_changes(msg, parameters, is_channel);
+	_format_replymodes();
+	if (_replymodes.empty() == false)
+		msg.reply_format(RPL_UMODEIS, _replymodes, serv.socket_id);
 }
 
-void	Mode::_apply_usermodes(Message& msg, std::string parameters)
-{
-	_client_i(msg);
-	_client_O(msg, parameters);
-}
-
-void	Mode::_client_handling(Message& msg)
+void	Mode::_fill_mod_maps(Message& msg, bool is_channel)
 {
 	char	sign;
 
@@ -88,7 +88,9 @@ void	Mode::_client_handling(Message& msg)
 			sign = *it;
 			continue;
 		}
-		if (*it == 'i' || *it == 'O')
+		if (is_channel == true && _chanmodes_chars.find(*it) != std::string::npos)
+			_all_chanmodes[*it] = (sign == '+') ? ADD : REMOVE;
+		else if (is_channel == false && _usermodes_chars.find(*it) != std::string::npos)
 			_all_usermodes[*it] = (sign == '+') ? ADD : REMOVE;
 		else
 		{
@@ -96,6 +98,59 @@ void	Mode::_client_handling(Message& msg)
 			response.reply_format(ERR_UMODEUNKNOWNMODEFLAG, "", serv.socket_id);
 			serv.msgs.push_back(response);
 		}
+	}
+}
+
+void	Mode::_apply_mode_changes(Message& msg, std::string parameters, bool is_channel)
+{
+	if (is_channel == true)
+	{
+		// _channel_i(msg);
+		// _channel_t(msg);
+		// _channel_k(msg, parameters);
+		// _channel_o(msg, parameters);
+		// _channel_l(msg, parameters);
+	}
+	else
+	{
+		_client_i(msg);
+		_client_O(msg, parameters);
+	}
+}
+
+void	Mode::_format_replymodes()
+{
+	for (std::map<char, int>::iterator it = _all_usermodes.begin();
+		it != _all_usermodes.end(); ++it)
+	{
+		if (it->second == ADD)
+			_replymodes.append("+");
+		else if (it->second == REMOVE)
+			_replymodes.append("-");
+		if (it->second != UNCHANGED)
+			_replymodes.push_back(it->first);
+	}
+	{
+		std::string tmp;
+		for (std::string::iterator it = _replymodes.begin(); it != _replymodes.end(); ++it)
+		{
+			if (*it == '+')
+			{
+				if (tmp.find('+') == std::string::npos)
+					tmp.push_back('+');
+				tmp.push_back(*(it + 1));
+			}
+		}
+		for (std::string::iterator it = _replymodes.begin(); it != _replymodes.end(); ++it)
+		{
+			if (*it == '-')
+			{
+				if (tmp.find('-') == std::string::npos)
+					tmp.push_back('-');
+				tmp.push_back(*(it + 1));
+			}
+		}
+		_replymodes = tmp;
 	}
 }
 
@@ -150,41 +205,5 @@ void	Mode::_client_O(Message& msg, std::string param)
 		{
 			serv._oper_socket = -1;
 		}
-	}
-}
-
-void	Mode::_format_usermodes()
-{
-	for (std::map<char, int>::iterator it = _all_usermodes.begin();
-		it != _all_usermodes.end(); ++it)
-	{
-		if (it->second == ADD)
-			_usermodes.append("+");
-		else if (it->second == REMOVE)
-			_usermodes.append("-");
-		if (it->second != UNCHANGED)
-			_usermodes.push_back(it->first);
-	}
-	{
-		std::string tmp;
-		for (std::string::iterator it = _usermodes.begin(); it != _usermodes.end(); ++it)
-		{
-			if (*it == '+')
-			{
-				if (tmp.find('+') == std::string::npos)
-					tmp.push_back('+');
-				tmp.push_back(*(it + 1));
-			}
-		}
-		for (std::string::iterator it = _usermodes.begin(); it != _usermodes.end(); ++it)
-		{
-			if (*it == '-')
-			{
-				if (tmp.find('-') == std::string::npos)
-					tmp.push_back('-');
-				tmp.push_back(*(it + 1));
-			}
-		}
-		_usermodes = tmp;
 	}
 }
