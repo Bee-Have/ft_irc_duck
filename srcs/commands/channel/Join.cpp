@@ -121,7 +121,7 @@ void	Join::join_check_existing_chan(Message msg, Channel *channel)
 		&& (keys.empty() == true || channel->_key != *keys.begin()))
 	{
 		error.reply_format(ERR_BADCHANNELKEY, channel->_name, serv.socket_id);
-		serv.msgs.push_back(error);
+		return (serv.msgs.push_back(error));
 	}
 	if (channel->is(channel->_clients.find(msg.get_emitter())->second, channel->INVITED) == true)
 		channel->_clients.find(msg.get_emitter())->second = channel->MEMBER;
@@ -130,13 +130,12 @@ void	Join::join_check_existing_chan(Message msg, Channel *channel)
 		if (channel->_is_invite_only == true)
 		{
 			error.reply_format(ERR_INVITEONLYCHAN, channel->_name, serv.socket_id);
-			serv.msgs.push_back(error);
+			return (serv.msgs.push_back(error));
 		}
 		else
 			channel->_clients[msg.get_emitter()] = channel->MEMBER;
 	}
-	if (error.text.empty() == true)
-		new_chan_member_sucess(msg, channel->_name);
+	new_chan_member_sucess(msg, channel->_name);
 }
 
 void	Join::new_chan_member_sucess(Message msg, std::string chan)
