@@ -14,9 +14,9 @@ void	Topic::execute(Message &msg)
 	if (serv.get_channel_by_name(channel_name) == NULL)
 		return (msg.reply_format(ERR_NOSUCHCHANNEL, channel_name, serv.socket_id));
 	if (msg.cmd_param.find(':') == std::string::npos)
-		return (return_topic(msg, serv.get_channel_by_name(msg.cmd_param)));
+		return (return_topic(msg, serv.get_channel_by_name(channel_name)));
 
-	Channel		*channel = serv.get_channel_by_name(msg.cmd_param);
+	Channel		*channel = serv.get_channel_by_name(channel_name);
 
 	std::cout << "CHAN [" << channel->_name << "]\n";
 	new_topic = msg.cmd_param.substr(msg.cmd_param.find(':') + 1, msg.cmd_param.size());
