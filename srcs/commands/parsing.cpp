@@ -10,6 +10,9 @@
  */
 static void	parsing_cmds(Server &serv, Message &msg)
 {
+	if (msg.text.empty() == true)
+		return ;
+
 	msg.text.erase(0, msg.text.find_first_not_of(" \t"));
 
 	const size_t newline_pos = msg.text.find("\n");
@@ -34,7 +37,7 @@ static void	parsing_cmds(Server &serv, Message &msg)
 			return ;
 		}
 	}
-	else
+	else if (space_pos != std::string::npos)
 	{
 		msg.cmd = msg.text.substr(0, space_pos);
 		size_t param_start_pos = msg.text.find_first_not_of(" \t", space_pos);
