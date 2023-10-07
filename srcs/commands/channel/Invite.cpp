@@ -50,9 +50,17 @@ bool	Invite::is_param_format_good(Message &msg)
 
 bool	Invite::do_param_exist_and_set_if_so(Message &msg)
 {
-	std::string	nickname(msg.cmd_param.substr(0, msg.cmd_param.find(' ')));
-	std::string	chan_name(msg.cmd_param.substr(msg.cmd_param.find(' ') + 1, msg.cmd_param.size()));
+	int	first_space = msg.cmd_param.find(' ');
+	int	last_space = msg.cmd_param.find_last_of(' ');
+	std::string	nickname(msg.cmd_param.substr(0, first_space));
+	std::string	chan_name(msg.cmd_param.substr(last_space + 1, msg.cmd_param.size()));
 
+	msg.cmd_param = msg.cmd_param.substr(first_space, last_space - first_space);
+	if (msg.cmd_param.find_first_not_of(" ") != std::string::npos)
+	{
+		msg.reply_format(ERR_TOOMANYPARAM, "INVITE", serv.socket_id);
+		return (false);
+	}
 	if (serv.get_channel_by_name(chan_name) == NULL)
 	{
 		msg.reply_format(ERR_NOSUCHCHANNEL, chan_name, serv.socket_id);

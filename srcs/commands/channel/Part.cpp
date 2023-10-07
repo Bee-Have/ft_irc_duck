@@ -5,7 +5,7 @@ Part::Part(Server &p_serv): ICommand(p_serv)
 
 void	Part::execute(Message &msg)
 {
-	std::string	reason;
+	reason.clear();
 
 	if (msg.cmd_param.find(" ") != std::string::npos)
 	{
@@ -78,11 +78,20 @@ bool	Part::delete_chan_if_empty(Channel *current)
 void	Part::success_behaviour(Message *msg, Channel *current)
 {
 	Message	warning_client_leaving(serv.client_list.find(msg->get_emitter())->second);
+	std::vector<std::string> reply;
+	std::vector<std::string> replace;
+	
+	reply.push_back(RPL_PART);
+	replace.push_back(current->_name);
+	if (reason.empty() == true)
+		replace.push_back(KICK_DEFAULT_COMMENT);
+	else
+		replace.push_back(reason);
 
 	current->del_client(msg->get_emitter());
 	if (delete_chan_if_empty(current) == true)
 		return ;
-	warning_client_leaving.reply_format(RPL_PART, current->_name, serv.socket_id);
+	warning_client_leaving.reply_format(reply, replace);
 	warning_client_leaving.target.clear();
 	for (std::map<int, int>::iterator it = current->_clients.begin() ;
 		it != current->_clients.end() ; ++it)

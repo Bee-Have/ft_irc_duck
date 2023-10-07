@@ -6,15 +6,17 @@ Topic::Topic(Server &p_server): ICommand(p_server)
 void	Topic::execute(Message &msg)
 {
 	std::string	new_topic;
+	std::string channel_name;
 
 	if (msg.cmd_param.empty() == true)
 		return (msg.reply_format(ERR_NOSUCHCHANNEL, "", serv.socket_id));
-	if (serv.get_channel_by_name(msg.cmd_param.substr(0, msg.cmd_param.find(' '))) == NULL)
-		return (msg.reply_format(ERR_NOSUCHCHANNEL, msg.cmd_param.substr(0, msg.cmd_param.find(' ')), serv.socket_id));
+	channel_name = msg.cmd_param.substr(0, msg.cmd_param.find_first_of(" :\0"));
+	if (serv.get_channel_by_name(channel_name) == NULL)
+		return (msg.reply_format(ERR_NOSUCHCHANNEL, channel_name, serv.socket_id));
 	if (msg.cmd_param.find(':') == std::string::npos)
 		return (return_topic(msg, serv.get_channel_by_name(msg.cmd_param)));
 
-	Channel		*channel = serv.get_channel_by_name(msg.cmd_param.substr(0, msg.cmd_param.find(':') - 1));
+	Channel		*channel = serv.get_channel_by_name(msg.cmd_param);
 
 	std::cout << "CHAN [" << channel->_name << "]\n";
 	new_topic = msg.cmd_param.substr(msg.cmd_param.find(':') + 1, msg.cmd_param.size());
