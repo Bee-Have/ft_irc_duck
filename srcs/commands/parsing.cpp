@@ -10,7 +10,7 @@
  */
 static void	parsing_cmds(Server &serv, Message &msg)
 {
-	if (msg.text.empty() == true)
+	if (msg.text.empty() == true || msg.text.find_first_not_of(" \n\r\t") == std::string::npos)
 		return ;
 
 	msg.text.erase(0, msg.text.find_first_not_of(" \t"));
