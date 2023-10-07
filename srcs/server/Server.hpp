@@ -33,10 +33,6 @@ class Server
 	friend struct Join;
 	friend struct Part;
 	friend struct Quit;
-	// TODO :make a function to get a channel with a specific name
-	friend struct Invite;
-	friend struct Topic;
-	friend struct Kick;
 private:
 
 	// Server socket creation and identification
@@ -90,5 +86,6 @@ public:
 		commands[name] = new CommandType(*this);
 	};
 	int	get_client_by_nickname(std::string nickname);
+	Channel*	get_channel_by_name(std::string nickname);
 	std::string	oper_command_check(int client, std::string oper, std::string pass);
 };

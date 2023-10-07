@@ -237,6 +237,13 @@ int	Server::get_client_by_nickname(std::string nickname)
 	return (-1);
 }
 
+Channel*	Server::get_channel_by_name(std::string nickname)
+{
+	if (_channel_list.find(nickname) == _channel_list.end())
+		return (NULL);
+	return (&_channel_list.find(nickname)->second);
+}
+
 std::string	Server::oper_command_check(int client, std::string oper, std::string pass)
 {
 	if (_oper_socket != -1)

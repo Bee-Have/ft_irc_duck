@@ -53,7 +53,7 @@ bool	Invite::do_param_exist_and_set_if_so(Message &msg)
 	std::string	nickname(msg.cmd_param.substr(0, msg.cmd_param.find(' ')));
 	std::string	chan_name(msg.cmd_param.substr(msg.cmd_param.find(' ') + 1, msg.cmd_param.size()));
 
-	if (serv._channel_list.find(chan_name) == serv._channel_list.end())
+	if (serv.get_channel_by_name(chan_name) == NULL)
 	{
 		msg.reply_format(ERR_NOSUCHCHANNEL, chan_name, serv.socket_id);
 		return (false);
@@ -63,7 +63,7 @@ bool	Invite::do_param_exist_and_set_if_so(Message &msg)
 		msg.reply_format(ERR_NOSUCHNICK, nickname, serv.socket_id);
 		return (false);
 	}
-	channel = &serv._channel_list.find(chan_name)->second;
+	channel = serv.get_channel_by_name(chan_name);
 	client = serv.get_client_by_nickname(nickname);
 	return (true);
 }
