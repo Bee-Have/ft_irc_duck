@@ -6,20 +6,22 @@ Join::Join(Server &p_serv): ICommand(p_serv)
 void	Join::execute(Message &msg)
 {
 	std::string		tmp;
+	size_t space_pos;
 
 	keys.clear();
 	channels.clear();
 
 	if (msg.cmd_param.compare("0") == 0)
 		return (special_argument(msg));
-	if (msg.cmd_param.find_first_of(" ") != msg.cmd_param.find_last_of(" "))
+	space_pos = msg.cmd_param.find_first_of(" ");
+	if (space_pos != msg.cmd_param.find_last_of(" "))
 		return (join_space_error(msg));
-	if (msg.cmd_param.find(' ') != std::string::npos)
+	if (space_pos != std::string::npos)
 	{
 		std::cout << "FOUND KEY" << std::endl;
-		tmp = msg.cmd_param.substr(msg.cmd_param.find(' ') + 1, msg.cmd_param.size());
+		tmp = msg.cmd_param.substr(space_pos + 1);
 		keys = split_join_cmd(tmp);
-		msg.cmd_param.erase(msg.cmd_param.find(' '), msg.cmd_param.size());
+		msg.cmd_param.erase(space_pos);
 	}
 	channels = split_join_cmd(msg.cmd_param);
 	if (msg.cmd_param.empty() == true)
@@ -48,18 +50,12 @@ void	Join::special_argument(Message &msg)
 void	Join::join_space_error(Message &msg)
 {
 	std::string	channel_name;
-	int			begin;
-	int			end;
+	
+	if (msg.cmd_param.find(',') != std::string::npos)
+		channel_name = msg.cmd_param.substr(msg.cmd_param.find_last_of(',') + 1);
+	else
+		channel_name = msg.cmd_param.substr(msg.cmd_param.find_first_of(' ') + 1, msg.cmd_param.find_last_of(' ') - msg.cmd_param.find_first_of(' '));
 
-	if (msg.cmd_param.find_first_of(",") < msg.cmd_param.find_first_of(" "))
-	{
-		begin = msg.cmd_param.find(",") + 1;
-		if (msg.cmd_param.find(",", begin) < msg.cmd_param.find(" ", msg.cmd_param.find_first_of(" ") + 1))
-			end = msg.cmd_param.find(",", begin) - begin;
-		else
-			end = msg.cmd_param.find(" ", msg.cmd_param.find_first_of(" ") + 1) - begin;
-		channel_name = msg.cmd_param.substr(begin, end);
-	}
 	msg.reply_format(ERR_NOSUCHCHANNEL, channel_name, serv.socket_id);
 }
 
