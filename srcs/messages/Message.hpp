@@ -17,6 +17,10 @@ class Client;
 
 class Message
 {
+	friend struct Pass;
+	friend struct Nick;
+	friend struct User;
+	friend struct Quit;
 private:
 	int	_emitter;
 

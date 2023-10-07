@@ -10,6 +10,7 @@ void	setup_commands(Server& serv)
 	serv.register_command<Mode>("MODE");
 	serv.register_command<Privmsg>("PRIVMSG");
 	serv.register_command<Oper>("OPER");
+	serv.register_command<Quit>("QUIT");
 	serv.register_command<Join>("JOIN");
 	serv.register_command<Part>("PART");
 	serv.register_command<Invite>("INVITE");

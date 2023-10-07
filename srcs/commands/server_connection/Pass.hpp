@@ -12,4 +12,7 @@ struct Pass : public ICommand
 	Pass(Server &p_serv);
 
 	void	execute(Message &msg);
+	
+	private :
+	void	setup_error(Message &msg, std::string error);
 };

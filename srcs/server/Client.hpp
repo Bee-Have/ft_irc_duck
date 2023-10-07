@@ -13,6 +13,7 @@ private:
 	Client(int new_socket);
 
 	int			_socket;
+	bool		_is_authenticated;
 	bool		_is_registered;
 	std::string	_username;
 	std::string	_realname;
@@ -30,4 +31,5 @@ public:
 	int		get_socket() const;
 	bool	get_is_registered() const;
 	bool	get_is_invisible() const;
+	bool	get_is_authenticated() const;
 };

@@ -33,10 +33,7 @@ class Server
 	friend struct Join;
 	friend struct Part;
 	friend struct Mode;
-	// TODO :make a function to get a channel with a specific name
-	friend struct Invite;
-	friend struct Topic;
-	friend struct Kick;
+	friend struct Quit;
 private:
 
 	// Server socket creation and identification
@@ -71,7 +68,6 @@ public:
 	// client managment
 	void	add_client();
 	void	del_client(int fd);
-	void	del_client_from_msgs(int fd);
 
 	// select prerequisites
 	int		get_max_fd() const;
@@ -82,7 +78,6 @@ public:
 	template <typename CommandType>
 	void	register_command(const std::string &name)
 	{
-		// TODO : GUARD : "CommandType" MUST inherit ICommand
 		if (commands.find(name) != commands.end())
 		{
 			std::cerr << ERR_NONUNIQUECOMMAND;
@@ -91,5 +86,6 @@ public:
 		commands[name] = new CommandType(*this);
 	};
 	int	get_client_by_nickname(std::string nickname);
+	Channel*	get_channel_by_name(std::string nickname);
 	std::string	oper_command_check(int client, std::string oper, std::string pass);
 };

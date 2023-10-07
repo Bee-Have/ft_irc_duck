@@ -24,7 +24,7 @@ MESSAGES = Message.cpp receive_messages.cpp send_messages.cpp parsing.cpp
 
 CMD_CONNECTION = Pass.cpp Nick.cpp User.cpp
 CMD_MESSAGE = Privmsg.cpp
-CMD_MANAGEMENT = Oper.cpp Mode.cpp
+CMD_MANAGEMENT = Oper.cpp Mode.cpp Quit.cpp
 CMD_CHANNEL = Join.cpp Part.cpp Invite.cpp Topic.cpp Kick.cpp
 CMD_MISC = Ping.cpp
 

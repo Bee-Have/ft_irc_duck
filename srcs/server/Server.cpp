@@ -1,6 +1,7 @@
 #include "Server.hpp"
 #include "ICommand.hpp"
 #include <exception>
+#include "Quit.hpp"
 
 /**
  * This should never be used. Server MUST be created with a PORT and PASWORD
@@ -135,21 +136,6 @@ void	Server::add_client(void)
 	client_list.insert(std::make_pair(new_client._socket, new_client));
 }
 
-void	Server::del_client_from_msgs(int fd)
-{
-	for (std::vector<Message>::iterator it = msgs.begin(); it != msgs.end(); ++it)
-	{
-		if (it->target.size() == 1 && it->target.find(fd) != it->target.end())
-		{
-			it = msgs.erase(it);
-			if (msgs.empty() == true)
-				break ;
-		}
-		else if (it->target.find(fd) != it->target.end())
-			it->target.erase(it->target.find(fd));
-	}
-}
-
 /**
  * @brief Delete specific client from client list.
  * 
@@ -162,30 +148,12 @@ void	Server::del_client_from_msgs(int fd)
  */
 void	Server::del_client(int fd)
 {
-	Message	part_msg(client_list.find(fd)->second);
-	// delete client from messages
-	// delete client from channels
-	for (std::map<std::string, Channel>::iterator it = _channel_list.begin();
-		it != _channel_list.end(); ++it)
-	{
-		if (it->second._clients.find(fd) != it->second._clients.end())
-		{
-			if (it->second._is(it->second._clients.find(fd)->second, it->second.MEMBER) == true)
-			{
-				if (part_msg.cmd_param.empty() == true)
-					part_msg.cmd_param = it->first;
-				else
-					part_msg.cmd_param.append("," + it->first);
-			}
-			else
-				it->second._clients.erase(it->second._clients.find(fd));
-		}
-	}
-	if (part_msg.cmd_param.empty() == false)
-		commands["PART"]->execute(part_msg);
-	del_client_from_msgs(fd);
-	close(fd);
+	if (client_list.find(fd) == client_list.end())
+		return ;
 	client_list.erase(client_list.find(fd));
+	if (fd == _oper_socket)
+		_oper_socket = -1;
+	close(fd);
 	std::cout << "BYE BYE CLIENT" << std::endl;
 }
 
@@ -267,6 +235,14 @@ int	Server::get_client_by_nickname(std::string nickname)
 			return (it->first);
 	}
 	return (-1);
+}
+
+Channel*	Server::get_channel_by_name(std::string nickname)
+{
+	std::map<std::string, Channel>::iterator channel(_channel_list.find(nickname));
+	if (channel == _channel_list.end())
+		return (NULL);
+	return (&channel->second);
 }
 
 std::string	Server::oper_command_check(int client, std::string oper, std::string pass)

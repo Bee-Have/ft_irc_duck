@@ -50,10 +50,18 @@ bool	Invite::is_param_format_good(Message &msg)
 
 bool	Invite::do_param_exist_and_set_if_so(Message &msg)
 {
-	std::string	nickname(msg.cmd_param.substr(0, msg.cmd_param.find(' ')));
-	std::string	chan_name(msg.cmd_param.substr(msg.cmd_param.find(' ') + 1, msg.cmd_param.size()));
+	int	first_space = msg.cmd_param.find(' ');
+	int	last_space = msg.cmd_param.find_last_of(' ');
+	std::string	nickname(msg.cmd_param.substr(0, first_space));
+	std::string	chan_name(msg.cmd_param.substr(last_space + 1, msg.cmd_param.size()));
 
-	if (serv._channel_list.find(chan_name) == serv._channel_list.end())
+	msg.cmd_param = msg.cmd_param.substr(first_space, last_space - first_space);
+	if (msg.cmd_param.find_first_not_of(" ") != std::string::npos)
+	{
+		msg.reply_format(ERR_TOOMANYPARAM, "INVITE", serv.socket_id);
+		return (false);
+	}
+	if (serv.get_channel_by_name(chan_name) == NULL)
 	{
 		msg.reply_format(ERR_NOSUCHCHANNEL, chan_name, serv.socket_id);
 		return (false);
@@ -63,7 +71,7 @@ bool	Invite::do_param_exist_and_set_if_so(Message &msg)
 		msg.reply_format(ERR_NOSUCHNICK, nickname, serv.socket_id);
 		return (false);
 	}
-	channel = &serv._channel_list.find(chan_name)->second;
+	channel = serv.get_channel_by_name(chan_name);
 	client = serv.get_client_by_nickname(nickname);
 	return (true);
 }
@@ -73,7 +81,7 @@ bool	Invite::are_param_membership_valid(Message &msg)
 	if (channel->_clients.find(client) != channel->_clients.end())
 	{
 		std::cout << "BITFIELD [" << channel->_clients.find(client)->second << ']' << std::endl;
-		if (channel->_is(channel->_clients.find(client)->second, channel->MEMBER) == true)
+		if (channel->is(channel->_clients.find(client)->second, channel->MEMBER) == true)
 		{
 			std::vector<std::string>	reply(1, ERR_USERONCHANNEL);
 			std::vector<std::string>	replace;

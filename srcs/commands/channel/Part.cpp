@@ -1,12 +1,11 @@
 #include "Part.hpp"
 
-// TODO : maybe here instead of finding SPACE for reason, we should look for ":"
 Part::Part(Server &p_serv): ICommand(p_serv)
 {}
 
 void	Part::execute(Message &msg)
 {
-	std::string	reason;
+	reason.clear();
 
 	if (msg.cmd_param.find(" ") != std::string::npos)
 	{
@@ -54,7 +53,7 @@ void	Part::loop_check(Message *msg)
 		}
 		Channel	*current = &serv._channel_list.find(*it)->second;
 		if (current->_clients.find(msg->get_emitter()) == current->_clients.end()
-			|| current->_is(current->_clients.find(msg->get_emitter())->second, current->MEMBER) == false)
+			|| current->is(current->_clients.find(msg->get_emitter())->second, current->MEMBER) == false)
 		{
 			error.reply_format(ERR_NOTONCHANNEL, *it, serv.socket_id);
 			serv.msgs.push_back(error);
@@ -69,7 +68,7 @@ bool	Part::delete_chan_if_empty(Channel *current)
 	for (std::map<int, int>::iterator it = current->_clients.begin() ;
 		it != current->_clients.end() ; ++it)
 	{
-		if (current->_is(it->second, current->MEMBER) == true)
+		if (current->is(it->second, current->MEMBER) == true)
 			return (false);
 	}
 	serv._channel_list.erase(serv._channel_list.find(current->_name));
@@ -79,53 +78,27 @@ bool	Part::delete_chan_if_empty(Channel *current)
 void	Part::success_behaviour(Message *msg, Channel *current)
 {
 	Message	warning_client_leaving(serv.client_list.find(msg->get_emitter())->second);
-	int	*client_bitfield = &current->_clients.find(msg->get_emitter())->second;
+	std::vector<std::string> reply;
+	std::vector<std::string> replace;
+	
+	reply.push_back(RPL_PART);
+	replace.push_back(current->_name);
+	if (reason.empty() == true)
+		replace.push_back(KICK_DEFAULT_COMMENT);
+	else
+		replace.push_back(reason);
 
-	*client_bitfield = *client_bitfield ^ current->MEMBER;
+	current->del_client(msg->get_emitter());
 	if (delete_chan_if_empty(current) == true)
 		return ;
-	if (client_bitfield == 0)
-		current->_clients.erase(current->_clients.find(msg->get_emitter()));
-	// TODO :send message to new CHANOP to warn him he is the new CHANOP
-	if (current->_is(*client_bitfield, current->CHANOP) == true)
-	{
-		*client_bitfield = *client_bitfield ^ current->CHANOP;
-		if (are_there_other_chanops(current) == false)
-			assign_next_chanop(current);
-	}
-	current->_clients.erase(current->_clients.find(msg->get_emitter()));
-	warning_client_leaving.reply_format(RPL_PART, current->_name, serv.socket_id);
+	warning_client_leaving.reply_format(reply, replace);
 	warning_client_leaving.target.clear();
 	for (std::map<int, int>::iterator it = current->_clients.begin() ;
 		it != current->_clients.end() ; ++it)
 	{
-		if (current->_is(it->second, current->MEMBER) == true)
+		if (current->is(it->second, current->MEMBER) == true)
 			warning_client_leaving.target.insert(it->first);
 	}
 	if (warning_client_leaving.target.empty() == false)
 		serv.msgs.push_back(warning_client_leaving);
-}
-
-void	Part::assign_next_chanop(Channel *current)
-{
-	for (std::map<int, int>::iterator it = current->_clients.begin() ;
-		it != current->_clients.end() ; ++it)
-	{
-		if (current->_is(it->second, current->MEMBER) == true)
-		{
-			it->second = it->second | current->CHANOP;
-			return ;
-		}
-	}
-}
-
-bool	Part::are_there_other_chanops(Channel *current)
-{
-	for (std::map<int, int>::iterator it = current->_clients.begin();
-		it != current->_clients.end(); ++it)
-	{
-		if (current->_is(it->second, current->CHANOP) == true)
-			return (true);
-	}
-	return (false);
 }

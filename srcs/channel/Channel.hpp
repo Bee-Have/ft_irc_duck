@@ -13,6 +13,8 @@ friend struct Part;
 friend struct Invite;
 friend struct Topic;
 friend struct Kick;
+friend struct Quit;
+
 private:
 	enum ClientStatus
 	{
@@ -34,10 +36,13 @@ private:
 
 	Channel	&operator=(const Channel &assign);
 
-	bool	_is(int bitfield, int enumval) const;
 
 public:
 	Channel(const Channel &cpy);
 	~Channel();
 
+	bool	is(int bitfield, int enumval) const;
+	void	del_client(int client);
+	bool	are_there_other_chanops();
+	void	assign_next_chanop();
 };

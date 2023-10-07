@@ -6,22 +6,24 @@ Topic::Topic(Server &p_server): ICommand(p_server)
 void	Topic::execute(Message &msg)
 {
 	std::string	new_topic;
+	std::string channel_name;
 
 	if (msg.cmd_param.empty() == true)
 		return (msg.reply_format(ERR_NOSUCHCHANNEL, "", serv.socket_id));
-	if (serv._channel_list.find(msg.cmd_param.substr(0, msg.cmd_param.find(' '))) == serv._channel_list.end())
-		return (msg.reply_format(ERR_NOSUCHCHANNEL, msg.cmd_param.substr(0, msg.cmd_param.find(' ')), serv.socket_id));
+	channel_name = msg.cmd_param.substr(0, msg.cmd_param.find_first_of(" :\0"));
+	if (serv.get_channel_by_name(channel_name) == NULL)
+		return (msg.reply_format(ERR_NOSUCHCHANNEL, channel_name, serv.socket_id));
 	if (msg.cmd_param.find(':') == std::string::npos)
-		return (return_topic(msg, &serv._channel_list.find(msg.cmd_param)->second));
+		return (return_topic(msg, serv.get_channel_by_name(channel_name)));
 
-	Channel		*channel = &serv._channel_list.find(msg.cmd_param.substr(0, msg.cmd_param.find(':') - 1))->second;
+	Channel		*channel = serv.get_channel_by_name(channel_name);
 
 	std::cout << "CHAN [" << channel->_name << "]\n";
 	new_topic = msg.cmd_param.substr(msg.cmd_param.find(':') + 1, msg.cmd_param.size());
 	std::cout << "TOPIC [" << new_topic << "]\n";
 	if (channel->_clients.find(msg.get_emitter()) == channel->_clients.end())
 		return (msg.reply_format(ERR_NOTONCHANNEL, channel->_name, serv.socket_id));
-	if (channel->_is(channel->_clients.find(msg.get_emitter())->second, channel->CHANOP) == false)
+	if (channel->is(channel->_clients.find(msg.get_emitter())->second, channel->CHANOP) == false)
 		return (msg.reply_format(ERR_CHANOPRIVSNEEDED, channel->_name, serv.socket_id));
 	change_topic(msg, channel, new_topic);
 }
