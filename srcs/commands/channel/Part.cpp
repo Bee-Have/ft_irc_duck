@@ -1,6 +1,5 @@
 #include "Part.hpp"
 
-// TODO : maybe here instead of finding SPACE for reason, we should look for ":"
 Part::Part(Server &p_serv): ICommand(p_serv)
 {}
 
