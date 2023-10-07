@@ -1,9 +1,21 @@
 #include "Mode.hpp"
 
-Mode::Mode(Server& p_serv) : ICommand(p_serv) {}
-
-void	Mode::execute(Message &msg)
+Mode::Mode(Server& p_serv) : ICommand(p_serv)
 {
+	_reset_modes();
+}
+
+void Mode::_reset_modes()
+{
+	_all_usermodes['i'] = UNCHANGED;
+	_all_usermodes['O'] = UNCHANGED;
+}
+
+void	Mode::execute(Message& msg)
+{
+	_usermodes.clear();
+	_reset_modes();
+
 	std::string	name;
 
 	if (msg.cmd_param.find(' ') == std::string::npos)
@@ -16,7 +28,6 @@ void	Mode::execute(Message &msg)
 	if (msg.cmd_param[0] != '+' && msg.cmd_param[0] != '-')
 		return (msg.reply_format(ERR_MODEBADFORMAT, "", serv.socket_id));
 
-	usermodes.clear();
 	std::cout << "NAME [" << name << ']' << std::endl;
 	if (name[0] == '#' || name[0] == '&')
 		std::cout << "ITS A CHANNEL" << std::endl;
@@ -24,12 +35,12 @@ void	Mode::execute(Message &msg)
 	{
 		std::cout << "ITS A CLIENT" << std::endl;
 		std::cout << "PARAM [" << msg.cmd_param << ']' << std::endl;
-		client_handling(msg, name);
+		_client_handling(msg, name);
 	}
-	add_usermodes(msg);
+	_add_usermodes(msg);
 }
 
-void	Mode::client_handling(Message& msg, std::string nick)
+void	Mode::_client_handling(Message& msg, std::string nick)
 {
 	char	sign;
 	std::string	parameters;
@@ -43,8 +54,6 @@ void	Mode::client_handling(Message& msg, std::string nick)
 		return (msg.reply_format(ERR_NOSUCHNICK, nick, serv.socket_id));
 	if (serv.get_client_by_nickname(nick) != msg.get_emitter())
 		return (msg.reply_format(ERR_USERSDONTMATCH, "", serv.socket_id));
-	i = UNCHANGED;
-	O = UNCHANGED;
 	for (std::string::iterator it = msg.cmd_param.begin();
 		it != msg.cmd_param.end(); ++it)
 	{
@@ -53,9 +62,9 @@ void	Mode::client_handling(Message& msg, std::string nick)
 		else
 		{
 			if (*it == 'i')
-				client_i(msg, sign);
+				_client_i(msg, sign);
 			else if (*it == 'O')
-				client_O(msg, sign, parameters);
+				_client_O(msg, sign, parameters);
 			else
 			{
 				Message response(msg);
@@ -64,12 +73,14 @@ void	Mode::client_handling(Message& msg, std::string nick)
 			}
 		}
 	}
-	std::cout << '\n' << "USERMODE [" << usermodes << ']' << std::endl;
-	msg.reply_format(RPL_UMODEIS, usermodes, serv.socket_id);
+	std::cout << '\n' << "USERMODE [" << _usermodes << ']' << std::endl;
+	msg.reply_format(RPL_UMODEIS, _usermodes, serv.socket_id);
 }
 
-void	Mode::client_i(Message& msg, char sign)
+void	Mode::_client_i(Message& msg, char sign)
 {
+	int& i = _all_usermodes['i'];
+
 	if (sign == '+')
 	{
 		i = ADD;
@@ -83,9 +94,10 @@ void	Mode::client_i(Message& msg, char sign)
 	std::cout << "INVISIBLE [" << serv.client_list.find(msg.get_emitter())->second._is_invisible << ']';
 }
 
-void	Mode::client_O(Message& msg, char sign, std::string param)
+void	Mode::_client_O(Message& msg, char sign, std::string param)
 {
 	Message response(msg);
+	int& O = _all_usermodes['O'];
 
 	if (sign == '+')
 	{
@@ -111,30 +123,19 @@ void	Mode::client_O(Message& msg, char sign, std::string param)
 	}
 }
 
-void	Mode::add_usermodes(Message& msg)
+void	Mode::_add_usermodes(Message& msg)
 {
-	switch (i)
+	for (std::map<char, int>::iterator it = _all_usermodes.begin();
+		it != _all_usermodes.end(); ++it)
 	{
-	case UNCHANGED :
-		break ;
-	case ADD :
-		usermodes = "+i";
-		break ;
-	case REMOVE :
-		usermodes = "-i";
-		break ;
+		if (it->second == ADD)
+			_usermodes.append("+");
+		else if (it->second == REMOVE)
+			_usermodes.append("-");
+		if (it->second != UNCHANGED)
+			_usermodes.push_back(it->first);
 	}
-	switch (O)
-	{
-	case UNCHANGED :
-		break ;
-	case ADD :
-		usermodes.append("+O");
-		break ;
-	case REMOVE :
-		usermodes.append("-O");
-		break ;
-	}
-	if (usermodes.empty() == false)
-		msg.reply_format(RPL_UMODEIS, usermodes, serv.socket_id);
+
+	if (_usermodes.empty() == false)
+		msg.reply_format(RPL_UMODEIS, _usermodes, serv.socket_id);
 }

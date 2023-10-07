@@ -14,20 +14,13 @@ struct Mode : public ICommand
 		ADD = 1,
 		REMOVE = 2
 	};
-	// Contains "+/-"
-	std::vector<std::string>	_sign;
-	// Contains "o"
-	std::vector<std::string>	_umode;
-	// Contains "i/t/k/l"
-	std::vector<std::string>	_cmode;
 
-	std::string	usermodes;
-	// TODO : transform this into std::map
-	int			i;
-	int			O;
+	std::string	_usermodes;
+	std::map<char, int> _all_usermodes;
 
-	void	client_handling(Message& msg, std::string nick);
-	void	client_i(Message& msg, char sign);
-	void	client_O(Message& msg, char sign, std::string param);
-	void	add_usermodes(Message& msg);
+	void	_reset_modes();
+	void	_client_handling(Message& msg, std::string nick);
+	void	_client_i(Message& msg, char sign);
+	void	_client_O(Message& msg, char sign, std::string param);
+	void	_add_usermodes(Message& msg);
 };
