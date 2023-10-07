@@ -11,6 +11,23 @@ void Mode::_reset_modes()
 	_all_usermodes['O'] = UNCHANGED;
 }
 
+void	Mode::_current_mode(Message& msg, std::string& name)
+{
+	if (name[0] == '#' || name[0] == '&')
+	{
+		//! Channel part not yet implemented
+	}
+	else
+	{
+		if (serv.client_list.find(msg.get_emitter())->second._is_invisible == true)
+			_all_usermodes['i'] = ADD;
+		if (serv._oper_socket == msg.get_emitter())
+			_all_usermodes['O'] = ADD;
+		_format_usermodes();
+		msg.reply_format(RPL_UMODEIS, _usermodes, serv.socket_id);
+	}
+}
+
 void	Mode::execute(Message& msg)
 {
 	_usermodes.clear();
@@ -20,7 +37,7 @@ void	Mode::execute(Message& msg)
 	std::string	name;
 
 	if (msg.cmd_param.find(' ') == std::string::npos)
-		name = msg.cmd_param;
+		return (_current_mode(msg, msg.cmd_param));
 	else
 	{
 		name = msg.cmd_param.substr(0, msg.cmd_param.find(' '));
@@ -88,7 +105,7 @@ void	Mode::_client_i(Message& msg)
 	int& i = _all_usermodes['i'];
 
 	if (i == UNCHANGED)
-		return ;
+		return;
 	else if (i == ADD)
 	{
 		if (serv.client_list.find(msg.get_emitter())->second._is_invisible == true)
@@ -112,7 +129,7 @@ void	Mode::_client_O(Message& msg, std::string param)
 	int& O = _all_usermodes['O'];
 
 	if (O == UNCHANGED)
-		return ;
+		return;
 	else if (O == ADD)
 	{
 		response.cmd = "OPER";
@@ -148,5 +165,27 @@ void	Mode::_format_usermodes()
 			_usermodes.append("-");
 		if (it->second != UNCHANGED)
 			_usermodes.push_back(it->first);
+	}
+	{
+		std::string tmp;
+		for (std::string::iterator it = _usermodes.begin(); it != _usermodes.end(); ++it)
+		{
+			if (*it == '+')
+			{
+				if (tmp.find('+') == std::string::npos)
+					tmp.push_back('+');
+				tmp.push_back(*(it + 1));
+			}
+		}
+		for (std::string::iterator it = _usermodes.begin(); it != _usermodes.end(); ++it)
+		{
+			if (*it == '-')
+			{
+				if (tmp.find('-') == std::string::npos)
+					tmp.push_back('-');
+				tmp.push_back(*(it + 1));
+			}
+		}
+		_usermodes = tmp;
 	}
 }
