@@ -14,8 +14,6 @@ void	Join::execute(Message &msg)
 	if (msg.cmd_param.compare("0") == 0)
 		return (special_argument(msg));
 	space_pos = msg.cmd_param.find_first_of(" ");
-	if (space_pos != msg.cmd_param.find_last_of(" "))
-		return (join_space_error(msg));
 	if (space_pos != std::string::npos)
 	{
 		std::cout << "FOUND KEY" << std::endl;
@@ -45,18 +43,6 @@ void	Join::special_argument(Message &msg)
 	}
 	if (msg.cmd_param.empty() == false)
 		serv.commands["PART"]->execute(msg);
-}
-
-void	Join::join_space_error(Message &msg)
-{
-	std::string	channel_name;
-	
-	if (msg.cmd_param.find(',') != std::string::npos)
-		channel_name = msg.cmd_param.substr(msg.cmd_param.find_last_of(',') + 1);
-	else
-		channel_name = msg.cmd_param.substr(msg.cmd_param.find_first_of(' ') + 1, msg.cmd_param.find_last_of(' ') - msg.cmd_param.find_first_of(' '));
-
-	msg.reply_format(ERR_NOSUCHCHANNEL, channel_name, serv.socket_id);
 }
 
 std::vector<std::string>	Join::split_join_cmd(std::string &str)
