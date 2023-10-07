@@ -32,6 +32,7 @@ class Server
 {
 	friend struct Join;
 	friend struct Part;
+	friend struct Mode;
 	friend struct Quit;
 private:
 

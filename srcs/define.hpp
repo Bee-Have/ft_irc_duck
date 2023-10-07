@@ -25,6 +25,9 @@
 #define RPL_CREATED "003 <client> :This server was created <datetime>\r\n"
 #define RPL_MYINFO "004 <client> " SERVERNAME " " VERSION " NO modes\r\n"
 #define RPL_ISUPPORT "005 <client> 0 :are supported by this server\r\n"
+#define RPL_UMODEIS "221 <client> <usermodes>\r\n"
+#define RPL_CHANNELMODEIS "324 <client> <channel> <modestring> <modearguments>\r\n"
+#define RPL_CREATIONTIME "329 <client> <channel> <creationtime>\r\n"
 #define RPL_TOPIC "332 <client> <channel> :<topic>\r\n"
 #define RPL_TOPICWHOTIME "333 <client> <channel> <nick> <setat>\r\n"
 #define RPL_INVITING "341 <client> <nick> <channel>\r\n"
@@ -47,7 +50,10 @@
 #define ERR_PASSWDMISMATCH "464 <client> :Password incorrect\r\n"
 #define ERR_INVITEONLYCHAN "473 <client> <channel> :Cannot join channel (+i)\r\n"
 #define ERR_BADCHANNELKEY "475 <client> <channel> :Cannot join channel (+k)\r\n"
+#define ERR_NOPRIVILEGES "481 <client> :Permission Denied- You're not an IRC operator\r\n"
 #define ERR_CHANOPRIVSNEEDED "482 <client> <channel> :You're not channel operator\r\n"
+#define ERR_UMODEUNKNOWNMODEFLAG "501 <client> :Unknown MODE flag\r\n"
+#define ERR_USERSDONTMATCH "502 <client> :Cant change mode for other users\r\n"
 //		CUSTOM
 // 			REPLIES
 #define RPL_JOIN ":<client> JOIN <channel>\r\n"
@@ -61,3 +67,4 @@
 #define ERR_CANNOTBECOMEOPER "920 <client> :Operator role already fullfiled\r\n"
 #define ERR_NOSUCHOPER "921 <client> :<oper> :No such operator\r\n"
 #define ERR_UNREGISTERED "922 <client> :Client must be registered to proceed\r\n"
+#define ERR_MODEBADFORMAT "923 <client> MODE :Bad modestring format\r\n"
