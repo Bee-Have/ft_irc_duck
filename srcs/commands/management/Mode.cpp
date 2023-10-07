@@ -20,11 +20,20 @@ void Mode::_reset_modes()
 	_all_chanmodes['l'] = UNCHANGED;
 }
 
-void	Mode::_current_mode(Message& msg, std::string& name)
+void	Mode::_current_mode(Message& msg, Channel* channel)
 {
-	if (name[0] == '#' || name[0] == '&')
+	if (channel != NULL)
 	{
-		//! Channel part not yet implemented
+		if (channel->_is_invite_only == true)
+			_all_chanmodes['i'] = ADD;
+		if (channel->_is_topic_restricted == true)
+			_all_chanmodes['t'] = ADD;
+		if (channel->_key.empty() == false)
+			_all_chanmodes['k'] = ADD;
+		if (channel->are_there_other_chanops() == true)
+			_all_chanmodes['o'] = ADD;
+		if (channel->_member_limit != -1)
+			_all_chanmodes['l'] = ADD;
 	}
 	else
 	{
@@ -32,9 +41,9 @@ void	Mode::_current_mode(Message& msg, std::string& name)
 			_all_usermodes['i'] = ADD;
 		if (serv._oper_socket == msg.get_emitter())
 			_all_usermodes['O'] = ADD;
-		_format_replymodes();
-		msg.reply_format(RPL_UMODEIS, _replymodes, serv.socket_id);
 	}
+	_format_replymodes(channel != NULL);
+	msg.reply_format(RPL_UMODEIS, _replymodes, serv.socket_id);
 }
 
 void	Mode::execute(Message& msg)
@@ -53,10 +62,10 @@ void	Mode::execute(Message& msg)
 		return (msg.reply_format(ERR_NOSUCHNICK, name, serv.socket_id));
 	if (is_channel == true && channel == NULL)
 		return (msg.reply_format(ERR_NOSUCHCHANNEL, name, serv.socket_id));
-	if (client != msg.get_emitter())
+	if (is_channel == false && client != msg.get_emitter())
 		return (msg.reply_format(ERR_USERSDONTMATCH, "", serv.socket_id));
 	if (space_pos == std::string::npos)
-		return (_current_mode(msg, name));
+		return (_current_mode(msg, channel));
 	else
 		msg.cmd_param = msg.cmd_param.substr(space_pos + 1);
 	if (msg.cmd_param[0] != '+' && msg.cmd_param[0] != '-')
@@ -71,7 +80,7 @@ void	Mode::execute(Message& msg)
 
 	_fill_mod_maps(msg, is_channel);
 	_apply_mode_changes(msg, parameters, is_channel);
-	_format_replymodes();
+	_format_replymodes(is_channel);
 	if (_replymodes.empty() == false)
 		msg.reply_format(RPL_UMODEIS, _replymodes, serv.socket_id);
 }
@@ -118,10 +127,12 @@ void	Mode::_apply_mode_changes(Message& msg, std::string parameters, bool is_cha
 	}
 }
 
-void	Mode::_format_replymodes()
+void	Mode::_format_replymodes(bool is_channel)
 {
-	for (std::map<char, int>::iterator it = _all_usermodes.begin();
-		it != _all_usermodes.end(); ++it)
+	std::map<char, int>* modmap = (is_channel == true) ? &_all_chanmodes : &_all_usermodes;
+
+	for (std::map<char, int>::iterator it = modmap->begin();
+		it != modmap->end(); ++it)
 	{
 		if (it->second == ADD)
 			_replymodes.append("+");

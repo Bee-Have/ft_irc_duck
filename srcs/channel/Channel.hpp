@@ -14,6 +14,7 @@ friend struct Invite;
 friend struct Topic;
 friend struct Kick;
 friend struct Quit;
+friend struct Mode;
 
 private:
 	enum ClientStatus
@@ -27,6 +28,8 @@ private:
 	std::string			_topic;
 	std::string			_topic_date;
 	std::string			_topic_author;
+
+	// Mode related variables
 	std::string			_key;
 	bool				_is_invite_only;
 	bool				_is_topic_restricted;
