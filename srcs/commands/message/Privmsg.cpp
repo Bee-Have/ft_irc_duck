@@ -22,14 +22,23 @@ static void get_targets(Message& msg, std::map<std::string, int>& targets)
 	targets[target_name] = -1;
 }
 
-static void add_correct_targets(Server& serv, Message& msg, std::map<std::string, int>& targets)
+void Privmsg::add_correct_targets(Server& serv, Message& msg, std::map<std::string, int>& targets)
 {
-
 	for (std::map<std::string, int>::iterator it = targets.begin(); it != targets.end(); ++it)
 	{
-		if (it->first[0] == '#' || it->first[0] == '&')
+		Channel*	channel(serv.get_channel_by_name(it->first));
+		if (channel != NULL)
 		{
-			// HANDLE CHANNEL MESSAGE
+			if (channel->is(channel->_clients.find(msg.get_emitter())->second, channel->MEMBER) == false)
+			{
+				Message reply_msg(msg);
+				reply_msg.reply_format(ERR_CANNOTSENDTOCHAN, channel->_name, serv.socket_id);
+				serv.msgs.push_back(reply_msg);
+				continue;
+			}
+			for (std::map<int, int>::iterator client = channel->_clients.begin();
+				client != channel->_clients.end(); ++client)
+				msg.target.insert(client->first);
 		}
 		else
 		{
