@@ -1,4 +1,6 @@
 #include "Channel.hpp"
+#include "Server.hpp"
+#include "Message.hpp"
 
 Channel::Channel(void) : _is_invite_only(false)
 {}
@@ -49,7 +51,7 @@ bool	Channel::is(int bitfield, int enumval) const
 	return (false);
 }
 
-void	Channel::del_client(int client)
+void	Channel::del_client(int client, Server& serv)
 {
 	if (_clients.find(client) == _clients.end())
 		return ;
@@ -63,7 +65,7 @@ void	Channel::del_client(int client)
 		{
 			*bitfield = *bitfield ^ CHANOP;
 			if (are_there_other_chanops() == false)
-				assign_next_chanop();
+				assign_next_chanop(serv);
 		}
 	}
 	_clients.erase(client);
@@ -80,14 +82,18 @@ bool	Channel::are_there_other_chanops()
 	return (false);
 }
 
-void	Channel::assign_next_chanop()
+void	Channel::assign_next_chanop(Server& serv)
 {
 	for (std::map<int, int>::iterator it = _clients.begin() ;
 		it != _clients.end() ; ++it)
 	{
 		if (is(it->second, MEMBER) == true)
 		{
+			Message	warning(serv.client_list.find(it->first)->second);
 			it->second = it->second | CHANOP;
+
+			warning.reply_format(RPL_YOURECHANOP, _name, serv.socket_id);
+			serv.msgs.push_back(warning);
 			return ;
 		}
 	}

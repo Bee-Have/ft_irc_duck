@@ -57,13 +57,14 @@
 #define ERR_USERSDONTMATCH "502 <client> :Cant change mode for other users\r\n"
 //		CUSTOM
 // 			REPLIES
-#define RPL_JOIN ":<client> JOIN <channel>\r\n"
-#define RPL_PART ":<client> PART <channel> :<reason>\r\n"
-#define RPL_INVITE ":<client> INVITE <nick> <channel>\r\n"
-#define RPL_KICK ":<client> KICK <channel> <nick> :<comment>\r\n"
-#define RPL_ERROR ":<server> ERROR :<comment>\r\n"
-#define RPL_QUIT ":<client> QUIT <comment>\r\n"
+#define RPL_JOIN "902 :<client> JOIN <channel>\r\n"
+#define RPL_PART "903 :<client> PART <channel> :<reason>\r\n"
+#define RPL_INVITE "904 :<client> INVITE <nick> <channel>\r\n"
+#define RPL_KICK "905 :<client> KICK <channel> <nick> :<comment>\r\n"
+#define RPL_ERROR "906 :<server> ERROR :<comment>\r\n"
+#define RPL_QUIT "907 :<client> QUIT <comment>\r\n"
 #define RPL_CLIENTLEFT "908 <client> :Client <nick> just left " SERVERNAME ", bye bye\r\n"
+#define RPL_YOURECHANOP "909 <client> <channel> :You are now a channel operator\r\n"
 // 			ERRRORS
 #define ERR_CANNOTBECOMEOPER "920 <client> :Operator role already fullfiled\r\n"
 #define ERR_NOSUCHOPER "921 <client> :<oper> :No such operator\r\n"

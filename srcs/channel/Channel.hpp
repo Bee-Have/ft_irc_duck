@@ -47,7 +47,7 @@ public:
 	~Channel();
 
 	bool	is(int bitfield, int enumval) const;
-	void	del_client(int client);
 	bool	are_there_other_chanops();
-	void	assign_next_chanop();
+	void	del_client(int client, Server& serv);
+	void	assign_next_chanop(Server& serv);
 };

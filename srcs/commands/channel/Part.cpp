@@ -88,7 +88,7 @@ void	Part::success_behaviour(Message *msg, Channel *current)
 	else
 		replace.push_back(reason);
 
-	current->del_client(msg->get_emitter());
+	current->del_client(msg->get_emitter(), serv);
 	if (delete_chan_if_empty(current) == true)
 		return ;
 	warning_client_leaving.reply_format(reply, replace);
