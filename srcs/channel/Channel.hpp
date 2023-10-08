@@ -14,6 +14,7 @@ friend struct Invite;
 friend struct Topic;
 friend struct Kick;
 friend struct Quit;
+friend struct Mode;
 friend struct Privmsg;
 
 private:
@@ -28,8 +29,12 @@ private:
 	std::string			_topic;
 	std::string			_topic_date;
 	std::string			_topic_author;
+
+	// Mode related variables
 	std::string			_key;
 	bool				_is_invite_only;
+	bool				_is_topic_restricted;
+	int					_member_limit;
 	std::map<int, int>	_clients;
 
 	Channel();
@@ -43,7 +48,7 @@ public:
 	~Channel();
 
 	bool	is(int bitfield, int enumval) const;
-	void	del_client(int client);
 	bool	are_there_other_chanops();
-	void	assign_next_chanop();
+	void	del_client(int client, Server& serv);
+	void	assign_next_chanop(Server& serv);
 };

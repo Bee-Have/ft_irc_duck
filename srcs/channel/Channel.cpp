@@ -1,19 +1,23 @@
 #include "Channel.hpp"
+#include "Server.hpp"
+#include "Message.hpp"
 
 Channel::Channel(void) : _is_invite_only(false)
 {}
 
-Channel::Channel(int creator, std::string new_name) : _name(new_name), _is_invite_only(false)
+Channel::Channel(int creator, std::string new_name) :
+	_name(new_name), _is_invite_only(false), _is_topic_restricted(true),
+	_member_limit(-1)
 {
 	int	bitfield = MEMBER | CHANOP;
 	_clients[creator] = bitfield;
 }
 
 Channel::Channel(const Channel &cpy) :
-	_name(cpy._name),
-	_topic(cpy._topic),
-	_key(cpy._key),
+	_name(cpy._name), _topic(cpy._topic), _key(cpy._key),
 	_is_invite_only(cpy._is_invite_only),
+	_is_topic_restricted(cpy._is_topic_restricted),
+	_member_limit(cpy._member_limit),
 	_clients(cpy._clients)
 {}
 
@@ -28,6 +32,8 @@ Channel	&Channel::operator=(const Channel &assign)
 		_topic.assign(assign._topic);
 		_key.assign(assign._key);
 		_is_invite_only = assign._is_invite_only;
+		_is_topic_restricted = assign._is_topic_restricted;
+		_member_limit = assign._member_limit;
 		_clients.clear();
 		for (std::map<int, int>::const_iterator it = assign._clients.begin();
 			it != assign._clients.end(); ++it)
@@ -45,7 +51,7 @@ bool	Channel::is(int bitfield, int enumval) const
 	return (false);
 }
 
-void	Channel::del_client(int client)
+void	Channel::del_client(int client, Server& serv)
 {
 	if (_clients.find(client) == _clients.end())
 		return ;
@@ -59,7 +65,7 @@ void	Channel::del_client(int client)
 		{
 			*bitfield = *bitfield ^ CHANOP;
 			if (are_there_other_chanops() == false)
-				assign_next_chanop();
+				assign_next_chanop(serv);
 		}
 	}
 	_clients.erase(client);
@@ -76,14 +82,18 @@ bool	Channel::are_there_other_chanops()
 	return (false);
 }
 
-void	Channel::assign_next_chanop()
+void	Channel::assign_next_chanop(Server& serv)
 {
 	for (std::map<int, int>::iterator it = _clients.begin() ;
 		it != _clients.end() ; ++it)
 	{
 		if (is(it->second, MEMBER) == true)
 		{
+			Message	warning(serv.client_list.find(it->first)->second);
 			it->second = it->second | CHANOP;
+
+			warning.reply_format(RPL_YOURECHANOP, _name, serv.socket_id);
+			serv.msgs.push_back(warning);
 			return ;
 		}
 	}

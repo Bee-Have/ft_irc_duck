@@ -40,7 +40,7 @@ void	Quit::leave_all_channels(int client, std::string comment)
 		if (it->second._clients.find(client) != it->second._clients.end()
 			&& it->second.is(it->second._clients.find(client)->second, it->second.MEMBER) == true)
 		{
-			it->second.del_client(client);
+			it->second.del_client(client, serv);
 			for (std::map<int, int>::iterator it_target = it->second._clients.begin();
 				it_target != it->second._clients.end(); ++it_target)
 			{

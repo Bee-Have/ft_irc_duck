@@ -1,6 +1,10 @@
 #include "Mode.hpp"
+#include <sstream>
 
-Mode::Mode(Server& p_serv) : ICommand(p_serv)
+Mode::Mode(Server& p_serv) :
+	ICommand(p_serv),
+	_usermodes_chars("iO"),
+	_chanmodes_chars("itkol")
 {
 	_reset_modes();
 }
@@ -9,13 +13,32 @@ void Mode::_reset_modes()
 {
 	_all_usermodes['i'] = UNCHANGED;
 	_all_usermodes['O'] = UNCHANGED;
+
+	_all_chanmodes['i'] = UNCHANGED;
+	_all_chanmodes['t'] = UNCHANGED;
+	_all_chanmodes['k'] = UNCHANGED;
+	_all_chanmodes['o'] = UNCHANGED;
+	_all_chanmodes['l'] = UNCHANGED;
+
+	_mode_params[0] = std::make_pair('\0', "");
+	_mode_params[1] = std::make_pair('\0', "");
+	_mode_params[2] = std::make_pair('\0', "");
 }
 
-void	Mode::_current_mode(Message& msg, std::string& name)
+void	Mode::_current_mode(Message& msg, Channel* channel)
 {
-	if (name[0] == '#' || name[0] == '&')
+	if (channel != NULL)
 	{
-		//! Channel part not yet implemented
+		if (channel->_is_invite_only == true)
+			_all_chanmodes['i'] = ADD;
+		if (channel->_is_topic_restricted == true)
+			_all_chanmodes['t'] = ADD;
+		if (channel->_key.empty() == false)
+			_all_chanmodes['k'] = ADD;
+		if (channel->are_there_other_chanops() == true)
+			_all_chanmodes['o'] = ADD;
+		if (channel->_member_limit != -1)
+			_all_chanmodes['l'] = ADD;
 	}
 	else
 	{
@@ -23,60 +46,109 @@ void	Mode::_current_mode(Message& msg, std::string& name)
 			_all_usermodes['i'] = ADD;
 		if (serv._oper_socket == msg.get_emitter())
 			_all_usermodes['O'] = ADD;
-		_format_usermodes();
-		msg.reply_format(RPL_UMODEIS, _usermodes, serv.socket_id);
 	}
+	_format_replymodes(channel != NULL);
+	msg.reply_format(RPL_UMODEIS, _replymodes, serv.socket_id);
+}
+
+void Mode::_get_mode_params(Message& msg, bool is_channel)
+{
+	size_t param_start = msg.cmd_param.find_first_of(" \t");
+	if (param_start == std::string::npos)
+		return ;
+	std::string tmp_mode_params = msg.cmd_param.substr(param_start + 1);
+	msg.cmd_param = msg.cmd_param.substr(0, param_start);
+
+	if (is_channel == false)
+	{
+			_mode_params[0] = std::make_pair('O', tmp_mode_params);
+	}
+	else
+	{
+		int	i = 0;
+		size_t space_pos = tmp_mode_params.find(" ");
+
+		while (space_pos != std::string::npos)
+		{
+			_mode_params[i].second = tmp_mode_params.substr(0, space_pos);
+			tmp_mode_params = tmp_mode_params.substr(space_pos + 1);
+			space_pos = tmp_mode_params.find(" ");
+			++i;
+			if (i == 3)
+			{
+				Message	warning(msg);
+				warning.reply_format(ERR_TOOMANYPARAM, msg.cmd, serv.socket_id);
+				serv.msgs.push_back(warning);
+				break;
+			}
+		}
+		if (tmp_mode_params.empty() == false && i < 3)
+			_mode_params[i].second = tmp_mode_params;
+	}
+}
+
+void Mode::_map_mode_params(char mode)
+{
+	for (size_t i = 0; i < 3; ++i)
+	{
+		if (_mode_params[i].first == '\0')
+		{
+			_mode_params[i].first = mode;
+			return;
+		}
+		else if (_mode_params[i].first == mode)
+		{
+			return;
+		}
+	}
+}
+
+std::string Mode::_get_param(char mode)
+{
+	for (size_t i = 0; i < 3; ++i)
+	{
+		if (_mode_params[i].first == mode)
+			return (_mode_params[i].second);
+	}
+	return ("");
 }
 
 void	Mode::execute(Message& msg)
 {
-	_usermodes.clear();
+	_replymodes.clear();
 	_reset_modes();
 
-	std::string	parameters;
 	std::string	name = msg.cmd_param.substr(0, msg.cmd_param.find_first_of(" \t\0\r\n"));
 	const size_t space_pos = msg.cmd_param.find_first_of(" \t");
+	Channel* channel = serv.get_channel_by_name(name);
+	bool is_channel = (channel != NULL);
+	int	client = serv.get_client_by_nickname(name);
 
-	if (serv.get_client_by_nickname(name) == -1)
+	if (is_channel == false && client == -1)
 		return (msg.reply_format(ERR_NOSUCHNICK, name, serv.socket_id));
-	if (serv.get_client_by_nickname(name) != msg.get_emitter())
+	if (is_channel == true && channel == NULL)
+		return (msg.reply_format(ERR_NOSUCHCHANNEL, name, serv.socket_id));
+	if (is_channel == false && client != msg.get_emitter())
 		return (msg.reply_format(ERR_USERSDONTMATCH, "", serv.socket_id));
 	if (space_pos == std::string::npos)
-		return (_current_mode(msg, name));
+		return (_current_mode(msg, channel));
 	else
 		msg.cmd_param = msg.cmd_param.substr(space_pos + 1);
 	if (msg.cmd_param[0] != '+' && msg.cmd_param[0] != '-')
 		return (msg.reply_format(ERR_MODEBADFORMAT, "", serv.socket_id));
 
-	size_t param_start = msg.cmd_param.find_first_of(" \t");
-	if (param_start != std::string::npos)
-	{
-		parameters = msg.cmd_param.substr(param_start + 1);
-		msg.cmd_param = msg.cmd_param.substr(0, param_start);
-	}
+	_get_mode_params(msg, is_channel);
+	if (msg.target.empty() == false)
+		return;
 
-	std::cout << "NAME [" << name << ']' << std::endl;
-	if (name[0] == '#' || name[0] == '&')
-		std::cout << "ITS A CHANNEL" << std::endl;
-	else
-	{
-		std::cout << "ITS A CLIENT" << std::endl;
-		std::cout << "PARAM [" << msg.cmd_param << ']' << std::endl;
-		_client_handling(msg);
-	}
-	_apply_usermodes(msg, parameters);
-	_format_usermodes();
-	if (_usermodes.empty() == false)
-		msg.reply_format(RPL_UMODEIS, _usermodes, serv.socket_id);
+	_fill_mod_maps(msg, is_channel);
+	_apply_mode_changes(msg, channel);
+	_format_replymodes(is_channel);
+	if (_replymodes.empty() == false)
+		msg.reply_format(RPL_UMODEIS, _replymodes, serv.socket_id);
 }
 
-void	Mode::_apply_usermodes(Message& msg, std::string parameters)
-{
-	_client_i(msg);
-	_client_O(msg, parameters);
-}
-
-void	Mode::_client_handling(Message& msg)
+void	Mode::_fill_mod_maps(Message& msg, bool is_channel)
 {
 	char	sign;
 
@@ -88,7 +160,9 @@ void	Mode::_client_handling(Message& msg)
 			sign = *it;
 			continue;
 		}
-		if (*it == 'i' || *it == 'O')
+		if (is_channel == true && _chanmodes_chars.find(*it) != std::string::npos)
+			_all_chanmodes[*it] = (sign == '+') ? ADD : REMOVE;
+		else if (is_channel == false && _usermodes_chars.find(*it) != std::string::npos)
 			_all_usermodes[*it] = (sign == '+') ? ADD : REMOVE;
 		else
 		{
@@ -96,6 +170,72 @@ void	Mode::_client_handling(Message& msg)
 			response.reply_format(ERR_UMODEUNKNOWNMODEFLAG, "", serv.socket_id);
 			serv.msgs.push_back(response);
 		}
+		if ((sign == '+' && (*it == 'o' || *it == 'l' || *it == 'k')) ||
+			(sign == '-' && (*it == 'o' || *it == 'k')))
+			_map_mode_params(*it);
+	}
+}
+
+void	Mode::_apply_mode_changes(Message& msg, Channel* channel)
+{
+	if (channel != NULL)
+	{
+		if (channel->is(channel->_clients.find(msg.get_emitter())->second, channel->CHANOP) == false)
+		{
+			_reset_modes();
+			return (msg.reply_format(ERR_CHANOPRIVSNEEDED, channel->_name, serv.socket_id));
+		}
+		_channel_i(msg, channel);
+		_channel_t(msg, channel);
+		_channel_k(msg, channel);
+		_channel_o(msg, channel);
+		_channel_l(msg, channel);
+	}
+	else
+	{
+		_client_i(msg);
+		_client_O(msg);
+	}
+}
+
+void	Mode::_format_replymodes(bool is_channel)
+{
+	std::map<char, int>* modmap = (is_channel == true) ? &_all_chanmodes : &_all_usermodes;
+
+	for (std::map<char, int>::iterator it = modmap->begin();
+		it != modmap->end(); ++it)
+	{
+		if (it->second == ADD)
+			_replymodes.append("+");
+		else if (it->second == REMOVE)
+			_replymodes.append("-");
+		if (it->second != UNCHANGED)
+			_replymodes.push_back(it->first);
+	}
+	{
+		std::string tmp;
+		std::string suffix;
+		for (std::string::iterator it = _replymodes.begin(); it != _replymodes.end(); ++it)
+		{
+			if (*it == '+')
+			{
+				if (tmp.find('+') == std::string::npos)
+					tmp.push_back('+');
+				tmp.push_back(*(it + 1));
+				if (*(it + 1) == 'o')
+					suffix = " " + _get_param('o');
+			}
+		}
+		for (std::string::iterator it = _replymodes.begin(); it != _replymodes.end(); ++it)
+		{
+			if (*it == '-')
+			{
+				if (tmp.find('-') == std::string::npos)
+					tmp.push_back('-');
+				tmp.push_back(*(it + 1));
+			}
+		}
+		_replymodes = tmp + suffix;
 	}
 }
 
@@ -122,7 +262,7 @@ void	Mode::_client_i(Message& msg)
 	std::cout << "INVISIBLE [" << serv.client_list.find(msg.get_emitter())->second._is_invisible << ']';
 }
 
-void	Mode::_client_O(Message& msg, std::string param)
+void	Mode::_client_O(Message& msg)
 {
 	Message response(msg);
 	int& O = _all_usermodes['O'];
@@ -132,7 +272,7 @@ void	Mode::_client_O(Message& msg, std::string param)
 	else if (O == ADD)
 	{
 		response.cmd = "OPER";
-		response.cmd_param = param;
+		response.cmd_param = _mode_params[0].second;
 		serv.commands["OPER"]->execute(response);
 		serv.msgs.push_back(response);
 		if (response.text.find("381 ") == std::string::npos)
@@ -153,38 +293,151 @@ void	Mode::_client_O(Message& msg, std::string param)
 	}
 }
 
-void	Mode::_format_usermodes()
+void	Mode::_channel_i(Message& msg, Channel* channel)
 {
-	for (std::map<char, int>::iterator it = _all_usermodes.begin();
-		it != _all_usermodes.end(); ++it)
+	(void)msg;
+	if (_all_chanmodes['i'] == UNCHANGED)
+		return;
+	else if (_all_chanmodes['i'] == ADD)
 	{
-		if (it->second == ADD)
-			_usermodes.append("+");
-		else if (it->second == REMOVE)
-			_usermodes.append("-");
-		if (it->second != UNCHANGED)
-			_usermodes.push_back(it->first);
+		if (channel->_is_invite_only == true)
+			_all_chanmodes['i'] = UNCHANGED;
+		else
+			channel->_is_invite_only = true;
 	}
+	else if (_all_chanmodes['i'] == REMOVE)
 	{
-		std::string tmp;
-		for (std::string::iterator it = _usermodes.begin(); it != _usermodes.end(); ++it)
+		if (channel->_is_invite_only == false)
+			_all_chanmodes['i'] = UNCHANGED;
+		else
+			channel->_is_invite_only = false;
+	}
+}
+
+void	Mode::_channel_t(Message& msg, Channel* channel)
+{
+	(void)msg;
+	if (_all_chanmodes['t'] == UNCHANGED)
+		return;
+	else if (_all_chanmodes['t'] == ADD)
+	{
+		if (channel->_is_topic_restricted == true)
+			_all_chanmodes['t'] = UNCHANGED;
+		else
+			channel->_is_topic_restricted = true;
+	}
+	else if (_all_chanmodes['t'] == REMOVE)
+	{
+		if (channel->_is_topic_restricted == false)
+			_all_chanmodes['t'] = UNCHANGED;
+		else
+			channel->_is_topic_restricted = false;
+	}
+}
+
+void	Mode::_channel_k(Message& msg, Channel* channel)
+{
+	if (_all_chanmodes['k'] == UNCHANGED)
+		return;
+	std::string param = _get_param('k');
+	if (param.empty() == true)
+	{
+		_all_chanmodes['k'] = UNCHANGED;
+		Message	warning(msg);
+		warning.reply_format(ERR_NEEDMOREPARAMS, msg.cmd, serv.socket_id);
+		serv.msgs.push_back(warning);
+	}
+	if (_all_chanmodes['k'] == ADD)
+	{
+		if (channel->_key == param)
+			_all_chanmodes['k'] = UNCHANGED;
+		else
+			channel->_key = param;
+	}
+	else if (_all_chanmodes['k'] == REMOVE)
+	{
+		if (channel->_key.empty() == true || channel->_key != param)
+			_all_chanmodes['k'] = UNCHANGED;
+		else
+			channel->_key.clear();
+	}
+}
+
+void	Mode::_channel_o(Message& msg, Channel* channel)
+{
+	if (_all_chanmodes['o'] == UNCHANGED)
+		return;
+	std::string param = _get_param('o');
+	int	client = serv.get_client_by_nickname(param);
+	if (param.empty() == true)
+	{
+		_all_chanmodes['o'] = UNCHANGED;
+		Message	warning(msg);
+		warning.reply_format(ERR_NEEDMOREPARAMS, msg.cmd, serv.socket_id);
+		serv.msgs.push_back(warning);
+	}
+	else if (channel->_clients.find(client) == channel->_clients.end())
+	{
+		Message	warning(msg);
+		std::vector<std::string>	reply(1, ERR_USERNOTINCHANNEL);
+		std::vector<std::string>	replace(1, param);
+
+		_all_chanmodes['o'] = UNCHANGED;
+		replace.push_back(channel->_name);
+		warning.reply_format(reply, replace);
+		serv.msgs.push_back(warning);
+	}
+	
+	if (_all_chanmodes['o'] == ADD)
+	{
+		if (channel->is(channel->_clients.find(client)->second, channel->CHANOP) == true)
+			_all_chanmodes['o'] = UNCHANGED;
+		else
 		{
-			if (*it == '+')
-			{
-				if (tmp.find('+') == std::string::npos)
-					tmp.push_back('+');
-				tmp.push_back(*(it + 1));
-			}
+			Message	warning(serv.client_list.find(client)->second);
+			channel->_clients.find(client)->second |= channel->CHANOP;
+			warning.reply_format(RPL_YOURECHANOP, channel->_name, serv.socket_id);
+			serv.msgs.push_back(warning);
 		}
-		for (std::string::iterator it = _usermodes.begin(); it != _usermodes.end(); ++it)
-		{
-			if (*it == '-')
-			{
-				if (tmp.find('-') == std::string::npos)
-					tmp.push_back('-');
-				tmp.push_back(*(it + 1));
-			}
-		}
-		_usermodes = tmp;
+	}
+	else if (_all_chanmodes['o'] == REMOVE)
+	{
+		if (channel->is(channel->_clients.find(client)->second, channel->CHANOP) == false)
+			_all_chanmodes['o'] = UNCHANGED;
+		else
+			channel->_clients.find(client)->second ^= Channel::CHANOP;
+	}
+}
+
+void	Mode::_channel_l(Message& msg, Channel* channel)
+{
+	if (_all_chanmodes['l'] == UNCHANGED)
+		return;
+	std::string param = _get_param('l');
+	std::stringstream ss(param);
+	int new_member_limit;
+
+	ss >> new_member_limit;
+	if (ss.fail() == true || new_member_limit < 0)
+	{
+		_all_chanmodes['l'] = UNCHANGED;
+		Message	warning(msg);
+		warning.reply_format(ERR_NEEDMOREPARAMS, msg.cmd, serv.socket_id);
+		serv.msgs.push_back(warning);
+		return;
+	}
+	if (_all_chanmodes['l'] == ADD)
+	{
+		if (channel->_member_limit == new_member_limit)
+			_all_chanmodes['l'] = UNCHANGED;
+		else
+			channel->_member_limit = new_member_limit;
+	}
+	else if (_all_chanmodes['l'] == REMOVE)
+	{
+		if (channel->_member_limit == -1)
+			_all_chanmodes['l'] = UNCHANGED;
+		else
+			channel->_member_limit = -1;
 	}
 }

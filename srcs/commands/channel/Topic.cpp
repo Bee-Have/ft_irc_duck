@@ -18,14 +18,28 @@ void	Topic::execute(Message &msg)
 
 	Channel		*channel = serv.get_channel_by_name(channel_name);
 
-	std::cout << "CHAN [" << channel->_name << "]\n";
 	new_topic = msg.cmd_param.substr(msg.cmd_param.find(':') + 1, msg.cmd_param.size());
-	std::cout << "TOPIC [" << new_topic << "]\n";
-	if (channel->_clients.find(msg.get_emitter()) == channel->_clients.end())
-		return (msg.reply_format(ERR_NOTONCHANNEL, channel->_name, serv.socket_id));
-	if (channel->is(channel->_clients.find(msg.get_emitter())->second, channel->CHANOP) == false)
-		return (msg.reply_format(ERR_CHANOPRIVSNEEDED, channel->_name, serv.socket_id));
+	if (are_client_credentials_correct(msg, channel) == false)
+		return ;
 	change_topic(msg, channel, new_topic);
+}
+
+bool	Topic::are_client_credentials_correct(Message& msg, Channel *channel)
+{
+	std::map<int, int>::iterator	client_check(channel->_clients.find(msg.get_emitter()));
+
+	if (client_check == channel->_clients.end())
+	{
+		msg.reply_format(ERR_NOTONCHANNEL, channel->_name, serv.socket_id);
+		return (false);
+	}
+	if (channel->_is_topic_restricted == true
+		&& channel->is(client_check->second, channel->CHANOP) == false)
+	{
+		msg.reply_format(ERR_CHANOPRIVSNEEDED, channel->_name, serv.socket_id);
+		return (false);
+	}
+	return (true);
 }
 
 void	Topic::return_topic(Message &msg, Channel *channel)
