@@ -26,7 +26,7 @@
 #define RPL_MYINFO "004 <client> " SERVERNAME " " VERSION " NO modes\r\n"
 #define RPL_ISUPPORT "005 <client> 0 :are supported by this server\r\n"
 #define RPL_UMODEIS "221 <client> <usermodes>\r\n"
-#define RPL_CHANNELMODEIS "324 <client> <channel> <modestring> <modearguments>\r\n"
+#define RPL_CHANNELMODEIS "324 <client> <channel> <modestring>\r\n"
 #define RPL_CREATIONTIME "329 <client> <channel> <creationtime>\r\n"
 #define RPL_TOPIC "332 <client> <channel> :<topic>\r\n"
 #define RPL_TOPICWHOTIME "333 <client> <channel> <nick> <setat>\r\n"

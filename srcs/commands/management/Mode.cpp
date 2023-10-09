@@ -25,6 +25,21 @@ void Mode::_reset_modes()
 	_mode_params[2] = std::make_pair('\0', "");
 }
 
+void Mode::_send_reply(Message& msg, Channel* channel)
+{
+	if (channel != NULL)
+	{
+		std::vector<std::string>	reply(1, RPL_CHANNELMODEIS);
+		std::vector<std::string>	replace;
+
+		replace.push_back(channel->_name);
+		replace.push_back(_replymodes);
+		msg.reply_format(reply, replace);
+	}
+	else
+		msg.reply_format(RPL_UMODEIS, _replymodes, serv.socket_id);
+}
+
 void	Mode::_current_mode(Message& msg, Channel* channel)
 {
 	if (channel != NULL)
@@ -48,20 +63,20 @@ void	Mode::_current_mode(Message& msg, Channel* channel)
 			_all_usermodes['O'] = ADD;
 	}
 	_format_replymodes(channel != NULL);
-	msg.reply_format(RPL_UMODEIS, _replymodes, serv.socket_id);
+	_send_reply(msg, channel);
 }
 
 void Mode::_get_mode_params(Message& msg, bool is_channel)
 {
 	size_t param_start = msg.cmd_param.find_first_of(" \t");
 	if (param_start == std::string::npos)
-		return ;
+		return;
 	std::string tmp_mode_params = msg.cmd_param.substr(param_start + 1);
 	msg.cmd_param = msg.cmd_param.substr(0, param_start);
 
 	if (is_channel == false)
 	{
-			_mode_params[0] = std::make_pair('O', tmp_mode_params);
+		_mode_params[0] = std::make_pair('O', tmp_mode_params);
 	}
 	else
 	{
@@ -145,7 +160,7 @@ void	Mode::execute(Message& msg)
 	_apply_mode_changes(msg, channel);
 	_format_replymodes(is_channel);
 	if (_replymodes.empty() == false)
-		msg.reply_format(RPL_UMODEIS, _replymodes, serv.socket_id);
+		_send_reply(msg, channel);
 }
 
 void	Mode::_fill_mod_maps(Message& msg, bool is_channel)
@@ -387,7 +402,7 @@ void	Mode::_channel_o(Message& msg, Channel* channel)
 		warning.reply_format(reply, replace);
 		serv.msgs.push_back(warning);
 	}
-	
+
 	if (_all_chanmodes['o'] == ADD)
 	{
 		if (channel->is(channel->_clients.find(client)->second, channel->CHANOP) == true)
