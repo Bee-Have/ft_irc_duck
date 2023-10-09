@@ -67,13 +67,10 @@ void	check_for_cmds(Server& serv, Message& msg)
 		return;
 	if (serv.commands.find(msg.cmd) == serv.commands.end())
 		return;
-	std::cout << "CMD FOUND :" << msg.cmd << std::endl;
+	std::cout << "CMD FOUND [" << msg.cmd << ']' << std::endl;
 	if (serv.client_list.find(msg.get_emitter())->second.get_is_registered() == false
 		&& msg.cmd != "PASS" && msg.cmd != "NICK" && msg.cmd != "USER")
 		msg.reply_format(ERR_NOTREGISTERED, "", serv.socket_id);
 	else
-	{
-		std::cout << "TEST" << std::endl;
 		serv.commands[msg.cmd]->execute(msg);
-	}
 }

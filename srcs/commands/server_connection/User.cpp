@@ -84,6 +84,8 @@ void	User::execute(Message& msg)
 	command_emitter->_username = username;
 	command_emitter->_realname = realname;
 
+	if (msg.emitter_nick.empty() == true)
+		msg.emitter_nick = command_emitter->nickname;
 	replace.push_back(command_emitter->nickname);
 	replace.push_back(current_date());
 

@@ -27,8 +27,9 @@ void	Nick::execute(Message &msg)
 		return (setup_error(msg, ERR_NICKNAMEINUSE, nickname));
 	if (serv.client_list.find(msg.get_emitter())->second.get_is_authenticated() == false)
 		return (setup_error(msg, ERR_NOTREGISTERED, ""));
-	serv.client_list.find(msg.get_emitter())->second.nickname = nickname;
+	serv.client_list.find(msg.get_emitter())->second.nickname.assign(nickname);
 	msg.text.clear();
+	add_nick_to_messages(msg, nickname);
 }
 
 void	Nick::setup_error(Message &msg, std::string error, std::string replace)
@@ -39,4 +40,14 @@ void	Nick::setup_error(Message &msg, std::string error, std::string replace)
 	msg.reply_format(error, replace, serv.socket_id);
 	msg.target.clear();
 	msg.target.insert(client);
+}
+
+void	Nick::add_nick_to_messages(Message& msg, std::string nickname)
+{
+	for (std::vector<Message>::iterator it = serv.msgs.begin();
+		it != serv.msgs.end(); ++it)
+	{
+		if (it->_emitter == msg._emitter)
+			it->emitter_nick = nickname;
+	}
 }
