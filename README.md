@@ -13,12 +13,15 @@ https://datatracker.ietf.org/doc/html/rfc2812
 PASS  
 NICK  
 USER  
-PRIVMSG (client to client)  
+MODE  
+PRIVMSG  
 OPER  
+QUIT  
 JOIN  
 PART  
 INVITE  
 TOPIC  
+KICK  
 PING  
 
 //utilisation du projet
