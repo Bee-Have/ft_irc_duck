@@ -34,11 +34,15 @@ void Privmsg::add_correct_targets(Message& msg, std::map<std::string, int>& targ
 				Message reply_msg(msg);
 				reply_msg.reply_format(ERR_CANNOTSENDTOCHAN, channel->_name, serv.socket_id);
 				serv.msgs.push_back(reply_msg);
+				it->second = -2;
 				continue;
 			}
 			for (std::map<int, int>::iterator client = channel->_clients.begin();
 				client != channel->_clients.end(); ++client)
-				msg.target.insert(client->first);
+			{
+				if (client->first != msg.get_emitter())
+					msg.target.insert(client->first);
+			}
 		}
 		else
 		{
@@ -47,6 +51,7 @@ void Privmsg::add_correct_targets(Message& msg, std::map<std::string, int>& targ
 				Message reply_msg(msg);
 				reply_msg.reply_format(ERR_NONICKNAMEGIVEN, "", serv.socket_id);
 				serv.msgs.push_back(reply_msg);
+				it->second = -2;
 				continue;
 			}
 			it->second = serv.get_client_by_nickname(it->first);
@@ -55,6 +60,7 @@ void Privmsg::add_correct_targets(Message& msg, std::map<std::string, int>& targ
 				Message reply_msg(msg);
 				reply_msg.reply_format(ERR_NOSUCHNICK, it->first, serv.socket_id);
 				serv.msgs.push_back(reply_msg);
+				it->second = -2;
 			}
 			else
 				msg.target.insert(it->second);
@@ -83,6 +89,7 @@ void	Privmsg::execute(Message& msg)
 	std::vector<std::string>	reply(1, RPL_PRIVMSG);
 	std::vector<std::string>	replace;
 	std::set<int>	msg_target_cpy;
+	int	target_size(0);
 
 	if (get_text(serv, msg, text) != 0)
 		return;
@@ -93,12 +100,16 @@ void	Privmsg::execute(Message& msg)
 	if (msg.target.empty() == true)
 		return ;
 	msg_target_cpy.swap(msg.target);
-	msg.reply_replace_curly_brackets(*reply.begin(), msg_target_cpy.size());
-	for (std::set<int>::iterator it = msg_target_cpy.begin();
-		it != msg_target_cpy.end(); ++it)
+	for (std::map<std::string, int>::iterator it = targets.begin();
+		it != targets.end(); ++it)
 	{
-		replace.push_back(serv.client_list.find(*it)->second.nickname);
+		if (it->second != -2)
+		{
+			replace.push_back(it->first);
+			++target_size;
+		}
 	}
+	msg.reply_replace_curly_brackets(*reply.begin(), target_size);
 	replace.push_back(text);
 	msg.reply_format(reply, replace);
 	msg.target.clear();

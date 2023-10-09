@@ -59,7 +59,7 @@
 #define ERR_USERSDONTMATCH "502 <client> :Cant change mode for other users\r\n"
 //		CUSTOM
 // 			REPLIES
-#define RPL_PRIVMSG ":<client> PRIVMSG <nick>{,<nick>} :<text>\r\n"
+#define RPL_PRIVMSG ":<client> PRIVMSG <target>{,<target>} :<text>\r\n"
 #define RPL_JOIN ":<client> JOIN <channel>\r\n"
 #define RPL_PART ":<client> PART <channel> :<reason>\r\n"
 #define RPL_INVITE ":<client> INVITE <nick> <channel>\r\n"
