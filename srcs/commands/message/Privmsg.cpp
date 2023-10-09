@@ -22,7 +22,7 @@ static void get_targets(Message& msg, std::map<std::string, int>& targets)
 	targets[target_name] = -1;
 }
 
-void Privmsg::add_correct_targets(Server& serv, Message& msg, std::map<std::string, int>& targets)
+void Privmsg::add_correct_targets(Message& msg, std::map<std::string, int>& targets)
 {
 	for (std::map<std::string, int>::iterator it = targets.begin(); it != targets.end(); ++it)
 	{
@@ -71,7 +71,7 @@ static int get_text(Server& serv, Message& msg, std::string& text)
 		msg.reply_format(ERR_NOTEXTTOSEND, "", serv.socket_id);
 		return (1);
 	}
-	text = msg.cmd_param.substr(column_pos);
+	text = msg.cmd_param.substr(column_pos + 1);
 	msg.cmd_param.erase(column_pos);
 	return (0);
 }
@@ -80,19 +80,27 @@ void	Privmsg::execute(Message& msg)
 {
 	std::map<std::string, int> targets;
 	std::string	text;
+	std::vector<std::string>	reply(1, RPL_PRIVMSG);
+	std::vector<std::string>	replace;
+	std::set<int>	msg_target_cpy;
 
 	if (get_text(serv, msg, text) != 0)
 		return;
 
 	get_targets(msg, targets);
 
+	add_correct_targets(msg, targets);
+	if (msg.target.empty() == true)
+		return ;
+	msg_target_cpy.swap(msg.target);
+	msg.reply_replace_curly_brackets(*reply.begin(), msg_target_cpy.size());
+	for (std::set<int>::iterator it = msg_target_cpy.begin();
+		it != msg_target_cpy.end(); ++it)
+	{
+		replace.push_back(serv.client_list.find(*it)->second.nickname);
+	}
+	replace.push_back(text);
+	msg.reply_format(reply, replace);
 	msg.target.clear();
-
-	add_correct_targets(serv, msg, targets);
-
-	msg.text = ":";
-	msg.text.append(msg.emitter_nick)
-		.append(" PRIVMSG ")
-		.append(text)
-		.append("\r\n");
+	msg.target.swap(msg_target_cpy);
 }

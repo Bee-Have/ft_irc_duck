@@ -1,6 +1,7 @@
 #pragma once
 
 #include <utility>
+#include <set>
 
 #include "ICommand.hpp"
 
@@ -14,5 +15,5 @@ struct Privmsg : public ICommand
 	Privmsg(Server &p_serv);
 
 	void	execute(Message &msg);
-	void	add_correct_targets(Server& serv, Message& msg, std::map<std::string, int>& targets);
+	void	add_correct_targets(Message& msg, std::map<std::string, int>& targets);
 };

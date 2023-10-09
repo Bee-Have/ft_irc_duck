@@ -91,7 +91,7 @@ void	receive_messages(Server &serv, fd_set read_fds)
 			if (quit_cmd != NULL)
 				quit_cmd->manual_quit = false;
 			serv.commands["QUIT"]->execute(new_msg);
-			if (serv.client_list.empty() == true)
+			if (quit_cmd != NULL || serv.client_list.empty() == true)
 				break ;
 		}
 		else
