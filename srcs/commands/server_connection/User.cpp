@@ -70,7 +70,7 @@ void	User::execute(Message& msg)
 	replace.clear();
 
 	if (serv.client_list.find(msg.get_emitter())->second.get_is_authenticated() == false) ///< PASS command has not been called
-		return (setup_error_no_nickname(msg, ERR_UNREGISTERED, ""));
+		return (setup_error_no_nickname(msg, ERR_NOTREGISTERED, ""));
 	if (serv.client_list.find(msg.get_emitter())->second.nickname.empty() == true) ///< NICK command has not been called
 		return (setup_error_no_nickname(msg, ERR_NONICKNAMEGIVEN, ""));
 	if (command_emitter->_realname.empty() == false) ///< USER command has already been called

@@ -26,7 +26,7 @@ void	Nick::execute(Message &msg)
 	if (serv.get_client_by_nickname(nickname) != -1)
 		return (setup_error(msg, ERR_NICKNAMEINUSE, nickname));
 	if (serv.client_list.find(msg.get_emitter())->second.get_is_authenticated() == false)
-		return (setup_error(msg, ERR_UNREGISTERED, ""));
+		return (setup_error(msg, ERR_NOTREGISTERED, ""));
 	serv.client_list.find(msg.get_emitter())->second.nickname = nickname;
 	msg.text.clear();
 }

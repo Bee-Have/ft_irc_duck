@@ -46,6 +46,7 @@
 #define ERR_USERNOTINCHANNEL "441 <client> <nick> <channel> :They aren't on that channel\r\n"
 #define ERR_NOTONCHANNEL "442 <client> <channel> :You're not on that channel\r\n"
 #define ERR_USERONCHANNEL "443 <client> <nick> <channel> :is already on channel\r\n"
+#define ERR_NOTREGISTERED "451 <client> :You have not registered\r\n"
 #define ERR_NEEDMOREPARAMS "461 <client> <command> :Not enough parameters\r\n"
 #define ERR_ALREADYREGISTRED "462 <client> :You may not reregister\r\n"
 #define ERR_PASSWDMISMATCH "464 <client> :Password incorrect\r\n"
@@ -69,5 +70,4 @@
 // 			ERRRORS
 #define ERR_CANNOTBECOMEOPER "920 <client> :Operator role already fullfiled\r\n"
 #define ERR_NOSUCHOPER "921 <client> :<oper> :No such operator\r\n"
-#define ERR_UNREGISTERED "922 <client> :Client must be registered to proceed\r\n"
 #define ERR_MODEBADFORMAT "923 <client> MODE :Bad modestring format\r\n"
