@@ -33,6 +33,7 @@
 #define RPL_INVITING "341 <client> <nick> <channel>\r\n"
 #define RPL_NAMREPLY "353 <client> <symbol> <channel> :<nick>{ <nick>}\r\n"
 #define RPL_ENDOFNAMES "366 <client> <channel> :End of /NAMES list\r\n"
+#define RPL_ENDOFBANLIST "368 <client> <channel> :End of channel ban list\r\n"
 #define RPL_YOUREOPER "381 <client> :You are now an IRC operator\r\n"
 //		ERRORS
 #define ERR_TOOMANYPARAM "400 <client> <command> :Too many parameters\r\n"
