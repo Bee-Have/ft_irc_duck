@@ -186,6 +186,8 @@ void	Mode::execute(Message& msg)
 		return (_current_mode(msg, channel));
 	else
 		msg.cmd_param = msg.cmd_param.substr(space_pos + 1);
+	if (is_channel == true && msg.cmd_param == "b")
+		return (msg.reply_format(RPL_ENDOFBANLIST, channel->_name, serv.socket_id));
 	if (msg.cmd_param[0] != '+' && msg.cmd_param[0] != '-')
 		return (msg.reply_format(ERR_MODEBADFORMAT, "", serv.socket_id));
 
