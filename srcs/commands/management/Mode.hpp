@@ -44,5 +44,5 @@ private:
 	void	_channel_o(Message& msg, Channel* channel); ///< Operator
 	void	_channel_l(Message& msg, Channel* channel); ///< Member limit
 
-	void	_send_reply(Message& msg, Channel* channel);
+	void	_send_reply(Message& msg, Channel* channel, bool has_been_changed);
 };

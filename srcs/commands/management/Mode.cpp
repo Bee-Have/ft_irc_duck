@@ -25,19 +25,34 @@ void Mode::_reset_modes()
 	_mode_params[2] = std::make_pair('\0', "");
 }
 
-void Mode::_send_reply(Message& msg, Channel* channel)
+void Mode::_send_reply(Message& msg, Channel* channel, bool has_been_changed)
 {
-	if (channel != NULL)
+	if (has_been_changed == false)
 	{
-		std::vector<std::string>	reply(1, RPL_CHANNELMODEIS);
+		if (channel != NULL)
+		{
+			std::vector<std::string>	reply(1, RPL_CHANNELMODEIS);
+			std::vector<std::string>	replace;
+
+			replace.push_back(channel->_name);
+			replace.push_back(_replymodes);
+			msg.reply_format(reply, replace);
+		}
+		else
+			msg.reply_format(RPL_UMODEIS, _replymodes, serv.socket_id);
+	}
+	else
+	{
+		std::vector<std::string>	reply(1, RPL_CHANGEMODE);
 		std::vector<std::string>	replace;
 
-		replace.push_back(channel->_name);
+		if (channel != NULL)
+			replace.push_back(channel->_name);
+		else
+			replace.push_back(serv.client_list.find(msg.get_emitter())->second.nickname);
 		replace.push_back(_replymodes);
 		msg.reply_format(reply, replace);
 	}
-	else
-		msg.reply_format(RPL_UMODEIS, _replymodes, serv.socket_id);
 }
 
 void	Mode::_current_mode(Message& msg, Channel* channel)
@@ -63,7 +78,9 @@ void	Mode::_current_mode(Message& msg, Channel* channel)
 			_all_usermodes['O'] = ADD;
 	}
 	_format_replymodes(channel != NULL);
-	_send_reply(msg, channel);
+	if (_replymodes.empty() == true)
+		_replymodes = '+';
+	_send_reply(msg, channel, false);
 }
 
 void Mode::_get_mode_params(Message& msg, bool is_channel)
@@ -160,7 +177,7 @@ void	Mode::execute(Message& msg)
 	_apply_mode_changes(msg, channel);
 	_format_replymodes(is_channel);
 	if (_replymodes.empty() == false)
-		_send_reply(msg, channel);
+		_send_reply(msg, channel, true);
 }
 
 void	Mode::_fill_mod_maps(Message& msg, bool is_channel)

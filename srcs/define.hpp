@@ -66,8 +66,8 @@
 #define RPL_KICK ":<client> KICK <channel> <nick> :<comment>\r\n"
 #define RPL_ERROR ":<server> ERROR :<comment>\r\n"
 #define RPL_QUIT ":<client> QUIT <comment>\r\n"
-#define RPL_CHANGEMODE ":<client> MODE <channel> :<modestring>\r\n"
 #define RPL_CLIENTLEFT ":<client> :Client <nick> just left " SERVERNAME ", bye bye\r\n"
+#define RPL_CHANGEMODE ":<client> MODE <name> :<modestring>\r\n"
 #define RPL_YOURECHANOP ":<client> <channel> :You are now a channel operator\r\n"
 // 			ERRRORS
 #define ERR_CANNOTBECOMEOPER "920 <client> :Operator role already fullfiled\r\n"
