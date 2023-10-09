@@ -52,11 +52,22 @@ void Mode::_send_reply(Message& msg, Channel* channel, bool has_been_changed)
 			replace.push_back(serv.client_list.find(msg.get_emitter())->second.nickname);
 		replace.push_back(_replymodes);
 		msg.reply_format(reply, replace);
+		if (channel != NULL)
+		{
+			for (std::map<int, int>::iterator it = channel->_clients.begin();
+				it != channel->_clients.end(); ++it)
+			{
+				if (it->first != msg.get_emitter())
+					msg.target.insert(it->first);
+			}
+		}
 	}
 }
 
 void	Mode::_current_mode(Message& msg, Channel* channel)
 {
+	std::string channel_suffix;
+
 	if (channel != NULL)
 	{
 		if (channel->_is_invite_only == true)
@@ -64,11 +75,20 @@ void	Mode::_current_mode(Message& msg, Channel* channel)
 		if (channel->_is_topic_restricted == true)
 			_all_chanmodes['t'] = ADD;
 		if (channel->_key.empty() == false)
+		{
 			_all_chanmodes['k'] = ADD;
-		if (channel->are_there_other_chanops() == true)
-			_all_chanmodes['o'] = ADD;
+			if ((channel->_clients.find(msg.get_emitter())->second & Channel::CHANOP) == Channel::CHANOP)
+				_mode_params[0] = std::make_pair('k', channel->_key);
+			else
+				_mode_params[0] = std::make_pair('k', "*");
+		}
 		if (channel->_member_limit != -1)
+		{
 			_all_chanmodes['l'] = ADD;
+			std::stringstream ss;
+			ss << channel->_member_limit;
+			_mode_params[1] = std::make_pair('l', ss.str());
+		}
 	}
 	else
 	{
@@ -254,8 +274,8 @@ void	Mode::_format_replymodes(bool is_channel)
 				if (tmp.find('+') == std::string::npos)
 					tmp.push_back('+');
 				tmp.push_back(*(it + 1));
-				if (*(it + 1) == 'o')
-					suffix = " " + _get_param('o');
+				if (*(it + 1) == 'o' || *(it + 1) == 'l' || *(it + 1) == 'k')
+					suffix += " " + _get_param(*(it + 1));
 			}
 		}
 		for (std::string::iterator it = _replymodes.begin(); it != _replymodes.end(); ++it)
@@ -265,6 +285,8 @@ void	Mode::_format_replymodes(bool is_channel)
 				if (tmp.find('-') == std::string::npos)
 					tmp.push_back('-');
 				tmp.push_back(*(it + 1));
+				if (*(it + 1) == 'o' || *(it + 1) == 'k')
+					suffix += " " + _get_param(*(it + 1));
 			}
 		}
 		_replymodes = tmp + suffix;
