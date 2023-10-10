@@ -18,15 +18,15 @@ void	Nick::execute(Message &msg)
 {
 	std::string	nickname;
 
+	if (serv.client_list.find(msg.get_emitter())->second.get_is_authenticated() == false)
+		return (setup_error(msg, ERR_NOTREGISTERED, ""));
 	if (msg.cmd_param.empty() == true)
 		return (setup_error(msg, ERR_NONICKNAMEGIVEN, ""));
 	nickname = msg.cmd_param;
 	if (is_nickname_allowed(nickname) == false)
 		return (setup_error(msg, ERR_ERRONEUSNICKNAME, nickname));
-	if (serv.get_client_by_nickname(nickname) != -1)
+	if (is_nick_unique(nickname) == false)
 		return (setup_error(msg, ERR_NICKNAMEINUSE, nickname));
-	if (serv.client_list.find(msg.get_emitter())->second.get_is_authenticated() == false)
-		return (setup_error(msg, ERR_NOTREGISTERED, ""));
 	serv.client_list.find(msg.get_emitter())->second.nickname.assign(nickname);
 	msg.text.clear();
 	add_nick_to_messages(msg, nickname);
@@ -50,4 +50,32 @@ void	Nick::add_nick_to_messages(Message& msg, std::string nickname)
 		if (it->_emitter == msg._emitter)
 			it->emitter_nick = nickname;
 	}
+}
+
+static std::string	str_tolower(std::string str)
+{
+	std::string	ret;
+
+	for (std::string::iterator it = str.begin(); it != str.end(); ++it)
+	{
+		if (std::isalpha(*it) == 0)
+			ret.push_back(*it);
+		else
+			ret.push_back(std::tolower(*it));
+	}
+	return (ret);
+}
+
+bool	Nick::is_nick_unique(std::string nickname)
+{
+	std::string	tmp_nick = str_tolower(nickname);
+
+	for (std::map<int, Client>::iterator it = serv.client_list.begin();
+		it != serv.client_list.end(); ++it)
+	{
+		std::string	compare_nick(str_tolower(it->second.nickname));
+		if (tmp_nick == compare_nick)
+			return (false);
+	}
+	return (true);
 }

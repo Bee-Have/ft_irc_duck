@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cctype>
 #include "ICommand.hpp"
 
 /**
@@ -24,4 +25,5 @@ struct Nick : public ICommand
 	void	execute(Message &msg);
 	void	setup_error(Message &msg, std::string error, std::string replace);
 	void	add_nick_to_messages(Message& msg, std::string nickname);
+	bool	is_nick_unique(std::string nickname);
 };
