@@ -1,4 +1,5 @@
 #include "ircserv.hpp"
+#include "Logger.hpp"
 
 #include <csignal>
 
@@ -28,7 +29,7 @@ void	server_loop(Server &serv)
 		if (select(serv.get_max_fd() + 1, &read_fds, &write_fds, NULL, NULL) < 0)
 		{
 			if (errno != EINTR) ///< EINTR is not an error, it just means that a signal was caught
-				std::cerr << "ERRNO:" << errno << ':' << strerror(errno) << std::endl;
+				Logger(error_type, error_lvl) << "ERRNO:" << errno << ':' << strerror(errno);
 			return ; ///< I am not sure that every select error should be fatal
 		}
 		// new client connection

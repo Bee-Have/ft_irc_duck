@@ -1,4 +1,5 @@
 #include "ircserv.hpp"
+#include "Logger.hpp"
 
 /**
  * @brief checks for any empty messages. By empty means msg.target is empty AND there is no tailing "\r\n"
@@ -82,6 +83,8 @@ void	send_messages(Server &serv, fd_set &write_fds)
 			if (FD_ISSET(*it_fd, &write_fds) != 0
 				&& it_msg->text.find("\r\n") != std::string::npos)
 			{
+				Logger(basic_type, minor_lvl) << "Message sent to [" <<
+					*it_fd << "] : {" << it_msg->text.substr(0, it_msg->text.size() - 2) << "}";
 				send(*it_fd, it_msg->text.c_str(), it_msg->text.size(), 0);
 				FD_CLR(*it_fd, &write_fds);
 				handle_leaving_clients(serv, *it_msg, *it_fd);

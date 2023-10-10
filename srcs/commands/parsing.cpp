@@ -1,4 +1,5 @@
 #include "ircserv.hpp"
+#include "Logger.hpp"
 
 /**
  * @brief splits the newly received message into : command and params.
@@ -60,6 +61,8 @@ static void	parsing_cmds(Server& serv, Message& msg)
  */
 void	check_for_cmds(Server& serv, Message& msg)
 {
+	Logger(basic_type, debug_lvl) << "Message received from " <<
+		msg.get_emitter() << " : {\n" << msg.text << "\n}";
 	parsing_cmds(serv, msg);
 	if (msg.target.empty() == false)
 		return;
@@ -69,5 +72,10 @@ void	check_for_cmds(Server& serv, Message& msg)
 		&& msg.cmd != "PASS" && msg.cmd != "NICK" && msg.cmd != "USER")
 		msg.reply_format(ERR_NOTREGISTERED, "", serv.socket_id);
 	else
+	{
+		Logger(basic_type, minor_lvl) << "Command called by [" <<
+			msg.get_emitter() << "]: [" << msg.cmd <<
+			"] With parameters [" << msg.cmd_param << "]";
 		serv.commands[msg.cmd]->execute(msg);
+	}
 }

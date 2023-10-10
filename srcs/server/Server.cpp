@@ -2,6 +2,7 @@
 #include "ICommand.hpp"
 #include <exception>
 #include "Quit.hpp"
+#include "Logger.hpp"
 
 /**
  * This should never be used. Server MUST be created with a PORT and PASWORD
@@ -54,6 +55,7 @@ Server::Server(int new_port, char *new_pass): _oper_name("Cthulhu"), _oper_pass(
 	{
 		throw std::invalid_argument(ERR_SOCKLISTENFAIL);
 	}
+	Logger(major_lvl) << "Server started";
 }
 
 /**
@@ -82,6 +84,7 @@ Server::~Server(void)
 		close(it->first);
 	}
 	close(socket_id);
+	Logger(major_lvl) << "Server stopped";
 }
 
 /**
@@ -114,7 +117,7 @@ void	Server::add_client(void)
 
 	if (new_client._socket < 0)
 	{
-		std::cerr << errno << ' ' << SERVERNAME << " :" << strerror(errno) << "\r\n";
+		Logger(error_type, error_lvl) << errno << ' ' << SERVERNAME << " :" << strerror(errno) << "\r\n";
 		return ;
 	}
 
@@ -129,7 +132,7 @@ void	Server::add_client(void)
 		}
 	}
 	else
-		std::cerr << "Error : " << errno << " : " << strerror(errno) << std::endl;
+		Logger(error_type, error_lvl) << "Error : " << errno << " : " << strerror(errno);
 	client_list.insert(std::make_pair(new_client._socket, new_client));
 }
 
@@ -151,6 +154,7 @@ void	Server::del_client(int fd)
 	if (fd == _oper_socket)
 		_oper_socket = -1;
 	close(fd);
+	Logger(major_lvl) << "Client disconnected on socket " << fd;
 }
 
 /**
