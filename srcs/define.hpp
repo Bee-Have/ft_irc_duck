@@ -24,7 +24,7 @@
 #define RPL_YOURHOST "002 <client> :Your host is " SERVERNAME ", running version " VERSION "\r\n"
 #define RPL_CREATED "003 <client> :This server was created <datetime>\r\n"
 #define RPL_MYINFO "004 <client> " SERVERNAME " " VERSION " NO modes\r\n"
-#define RPL_ISUPPORT "005 <client> 0 :are supported by this server\r\n"
+#define RPL_ISUPPORT "005 <client> <supported> :are supported by this server\r\n"
 #define RPL_UMODEIS "221 <client> <usermodes>\r\n"
 #define RPL_CHANNELMODEIS "324 <client> <channel> <modestring>\r\n"
 #define RPL_CREATIONTIME "329 <client> <channel> <creationtime>\r\n"

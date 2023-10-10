@@ -89,6 +89,7 @@ void	User::execute(Message& msg)
 	replace.push_back(command_emitter->nickname);
 	replace.push_back(current_date());
 
+	_set_isupport();
 	msg.reply_format(replies, replace);
 }
 
@@ -100,4 +101,13 @@ void	User::setup_error_no_nickname(Message& msg, std::string error, std::string 
 	msg.reply_format(error, replace, serv.socket_id);
 	msg.target.clear();
 	msg.target.insert(client);
+}
+
+void	User::_set_isupport(void)
+{
+	std::string supported;
+	
+	supported = "CHANMODES=,ok,l,it CHANTYPES=# MODES=5 NETWORK=" SERVERNAME " NICKLEN=9 PREFIX=(o)@ CASEMAPPING=ascii TARGMAX=";
+
+	replace.push_back(supported);
 }

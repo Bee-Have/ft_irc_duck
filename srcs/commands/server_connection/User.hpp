@@ -22,4 +22,7 @@ struct User : public ICommand
 
 	void	execute(Message &msg);
 	void	setup_error_no_nickname(Message &msg, std::string error, std::string replace);
+
+	private:
+		void	_set_isupport(void);
 };
