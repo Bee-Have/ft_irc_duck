@@ -124,15 +124,12 @@ void	Server::add_client(void)
 	{
 		if (socket_error != 0)
 		{
-			std::cout << "INVALID SOCKET :(" << std::endl;
 			close(new_client._socket);
 			return ;
 		}
 	}
 	else
 		std::cerr << "Error : " << errno << " : " << strerror(errno) << std::endl;
-
-	std::cout << "NEW CLIENT :D" << std::endl;
 	client_list.insert(std::make_pair(new_client._socket, new_client));
 }
 
@@ -154,7 +151,6 @@ void	Server::del_client(int fd)
 	if (fd == _oper_socket)
 		_oper_socket = -1;
 	close(fd);
-	std::cout << "BYE BYE CLIENT" << std::endl;
 }
 
 /**

@@ -79,8 +79,8 @@ public:
 	void	register_command(const std::string &name)
 	{
 		if (commands.find(name) != commands.end())
-		{
-			std::cerr << ERR_NONUNIQUECOMMAND;
+		{std::cerr
+			 << ERR_NONUNIQUECOMMAND;
 			return ;
 		}
 		commands[name] = new CommandType(*this);

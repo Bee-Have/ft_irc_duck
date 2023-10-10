@@ -8,7 +8,6 @@ void handle_exit(int p_signal)
 {
 	(void)p_signal;
 	g_run = false;
-	std::cout << "\nshutdown requested" << std::endl;
 }
 
 /**
@@ -25,7 +24,6 @@ void	server_loop(Server &serv)
 		fd_set read_fds = serv.get_read_fds();
 		fd_set write_fds = serv.get_write_fds();
 
-		std::cout << "about to select()" << std::endl;
 		// select : detect anything on all sockets (server + clients) : new connections, messages, ect...
 		if (select(serv.get_max_fd() + 1, &read_fds, &write_fds, NULL, NULL) < 0)
 		{

@@ -19,7 +19,6 @@ static void	parsing_cmds(Server& serv, Message& msg)
 	const size_t carriage_pos = msg.text.find("\r");
 	const size_t space_pos = msg.text.find(' ');
 
-	std::cout << "PARSING" << std::endl;
 	if (newline_pos != std::string::npos)
 	{
 		msg.text.erase(newline_pos);
@@ -61,13 +60,11 @@ static void	parsing_cmds(Server& serv, Message& msg)
  */
 void	check_for_cmds(Server& serv, Message& msg)
 {
-	std::cout << "MSG:" << msg.text << '|' << std::endl;
 	parsing_cmds(serv, msg);
 	if (msg.target.empty() == false)
 		return;
 	if (serv.commands.find(msg.cmd) == serv.commands.end())
 		return;
-	std::cout << "CMD FOUND [" << msg.cmd << ']' << std::endl;
 	if (serv.client_list.find(msg.get_emitter())->second.get_is_registered() == false
 		&& msg.cmd != "PASS" && msg.cmd != "NICK" && msg.cmd != "USER")
 		msg.reply_format(ERR_NOTREGISTERED, "", serv.socket_id);

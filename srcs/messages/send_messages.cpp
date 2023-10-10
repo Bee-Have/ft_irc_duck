@@ -73,19 +73,15 @@ void	send_messages(Server &serv, fd_set &write_fds)
 	if (serv.msgs.empty() == true)
 		return ;
 	merge_msgs(serv);
-	std::cout << "gonna send msg" << std::endl;
 	for (std::vector<Message>::iterator it_msg = serv.msgs.begin();
 		it_msg != serv.msgs.end(); ++it_msg)
 	{
-		std::cout << "msg:" << it_msg->text << "|";
 		for (std::set<int>::iterator it_fd = it_msg->target.begin();
 			it_fd != it_msg->target.end(); ++it_fd)
 		{
-			std::cout << "TARGET" << std::endl;
 			if (FD_ISSET(*it_fd, &write_fds) != 0
 				&& it_msg->text.find("\r\n") != std::string::npos)
 			{
-				std::cout << "about to send" << std::endl;
 				send(*it_fd, it_msg->text.c_str(), it_msg->text.size(), 0);
 				FD_CLR(*it_fd, &write_fds);
 				handle_leaving_clients(serv, *it_msg, *it_fd);

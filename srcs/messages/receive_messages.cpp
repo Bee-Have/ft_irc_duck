@@ -51,7 +51,6 @@ static void	found_text(Server &serv, Client emitter, std::string text)
 	Message	new_msg(emitter);
 	int		pos_msg = find_incomplete_msg(serv, emitter);
 
-	std::cout << "NEW MSG:" << text << '|' << std::endl;
 	if (text.find("\n") == std::string::npos)
 	{
 		if (pos_msg != -1)

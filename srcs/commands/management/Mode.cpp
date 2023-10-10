@@ -315,7 +315,6 @@ void	Mode::_client_i(Message& msg)
 		else
 			serv.client_list.find(msg.get_emitter())->second._is_invisible = false;
 	}
-	std::cout << "INVISIBLE [" << serv.client_list.find(msg.get_emitter())->second._is_invisible << ']';
 }
 
 void	Mode::_client_O(Message& msg)
