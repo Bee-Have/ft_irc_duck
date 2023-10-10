@@ -29,6 +29,8 @@ void	Nick::execute(Message &msg)
 		return (setup_error(msg, ERR_NICKNAMEINUSE, nickname));
 	serv.client_list.find(msg.get_emitter())->second.nickname.assign(nickname);
 	msg.text.clear();
+	if (serv.client_list.find(msg.get_emitter())->second.get_is_registered() == false)
+		serv.register_client_if_able(msg.get_emitter()); ///< Register the client and send msgs if USER|NICK
 	add_nick_to_messages(msg, nickname);
 }
 

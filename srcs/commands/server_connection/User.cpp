@@ -1,26 +1,7 @@
 #include "User.hpp"
 
-User::User(Server& p_server) : ICommand(p_server), replies(5), replace(2)
-{
-	replies[0] = RPL_WELCOME;
-	replies[1] = RPL_YOURHOST;
-	replies[2] = RPL_CREATED;
-	replies[3] = RPL_MYINFO;
-	replies[4] = RPL_ISUPPORT;
-}
-
-static std::string current_date(void)
-{
-	std::time_t			time = std::time(0);
-	std::tm* now = std::localtime(&time);
-	std::stringstream	ss;
-	std::string			date;
-
-	ss << (now->tm_year + 1900) << '-' << (now->tm_mon + 1) << '-' << now->tm_mday;
-	ss >> date;
-
-	return (date);
-}
+User::User(Server& p_server) : ICommand(p_server)
+{}
 
 static int	get_correct_user_params(const std::string& params, std::string& username, std::string& realname)
 {
@@ -67,30 +48,17 @@ void	User::execute(Message& msg)
 	std::string username;
 	std::string realname;
 
-	replace.clear();
-
 	if (serv.client_list.find(msg.get_emitter())->second.get_is_authenticated() == false) ///< PASS command has not been called
 		return (setup_error_no_nickname(msg, ERR_NOTREGISTERED, ""));
-	if (serv.client_list.find(msg.get_emitter())->second.nickname.empty() == true) ///< NICK command has not been called
-		return (setup_error_no_nickname(msg, ERR_NONICKNAMEGIVEN, ""));
 	if (command_emitter->_realname.empty() == false) ///< USER command has already been called
 		return (setup_error_no_nickname(msg, ERR_ALREADYREGISTRED, ""));
-
 	if (get_correct_user_params(msg.cmd_param, username, realname) == -1)
 		return (setup_error_no_nickname(msg, ERR_NEEDMOREPARAMS, msg.cmd));
-
-	command_emitter->_is_registered = true;
 
 	command_emitter->_username = username;
 	command_emitter->_realname = realname;
 
-	if (msg.emitter_nick.empty() == true)
-		msg.emitter_nick = command_emitter->nickname;
-	replace.push_back(command_emitter->nickname);
-	replace.push_back(current_date());
-
-	_set_isupport();
-	msg.reply_format(replies, replace);
+	serv.register_client_if_able(msg.get_emitter()); ///< Register the client and send msgs if USER|NICK
 }
 
 void	User::setup_error_no_nickname(Message& msg, std::string error, std::string replace)
@@ -101,13 +69,4 @@ void	User::setup_error_no_nickname(Message& msg, std::string error, std::string 
 	msg.reply_format(error, replace, serv.socket_id);
 	msg.target.clear();
 	msg.target.insert(client);
-}
-
-void	User::_set_isupport(void)
-{
-	std::string supported;
-	
-	supported = "CHANMODES=,ok,l,it CHANTYPES=# MODES=5 NETWORK=" SERVERNAME " NICKLEN=9 PREFIX=(o)@ CASEMAPPING=ascii TARGMAX=";
-
-	replace.push_back(supported);
 }

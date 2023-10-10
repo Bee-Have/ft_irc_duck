@@ -61,8 +61,6 @@ static void	parsing_cmds(Server& serv, Message& msg)
  */
 void	check_for_cmds(Server& serv, Message& msg)
 {
-	Logger(basic_type, debug_lvl) << "Message received from " <<
-		msg.get_emitter() << " : {\n" << msg.text << "\n}";
 	parsing_cmds(serv, msg);
 	if (msg.target.empty() == false)
 		return;

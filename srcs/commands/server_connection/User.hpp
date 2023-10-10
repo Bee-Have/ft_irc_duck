@@ -1,9 +1,5 @@
 #pragma once
 
-#include <ctime>
-#include <sstream>
-#include <vector>
-
 #include "ICommand.hpp"
 #include "Client.hpp"
 
@@ -15,14 +11,8 @@
  */
 struct User : public ICommand
 {
-	std::vector<std::string>	replies;
-	std::vector<std::string>	replace;
-
 	User(Server &p_server);
 
 	void	execute(Message &msg);
 	void	setup_error_no_nickname(Message &msg, std::string error, std::string replace);
-
-	private:
-		void	_set_isupport(void);
 };

@@ -7,7 +7,9 @@
 /**
  * This should never be used. Server MUST be created with a PORT and PASWORD
  */
-Server::Server(void): _oper_name("Cthulhu"), _oper_pass("R'lyeh"), _oper_socket(-1), socket_id(socket(AF_INET, SOCK_STREAM, 0)), port(8080), pass("Dragon")
+Server::Server(void):
+	_oper_name("Cthulhu"), _oper_pass("R'lyeh"), _oper_socket(-1),
+	socket_id(socket(AF_INET, SOCK_STREAM, 0)), port(8080), pass("Dragon")
 {
 	if (socket_id < 0)
 	{
@@ -25,6 +27,13 @@ Server::Server(void): _oper_name("Cthulhu"), _oper_pass("R'lyeh"), _oper_socket(
 	{
 		throw std::invalid_argument(ERR_SOCKLISTENFAIL);
 	}
+	_register_replies.reserve(5);
+	_register_replies[0] = RPL_WELCOME;
+	_register_replies[1] = RPL_YOURHOST;
+	_register_replies[2] = RPL_CREATED;
+	_register_replies[3] = RPL_MYINFO;
+	_register_replies[4] = RPL_ISUPPORT;
+	_i_support = "CHANMODES=,ok,l,it CHANTYPES=# MODES=5 NETWORK=" SERVERNAME " NICKLEN=9 PREFIX=(o)@ CASEMAPPING=ascii TARGMAX=";
 }
 
 /**
@@ -36,7 +45,9 @@ Server::Server(void): _oper_name("Cthulhu"), _oper_pass("R'lyeh"), _oper_socket(
  * @param new_port the new port of the server
  * @param new_pass the password of the server
  */
-Server::Server(int new_port, char *new_pass): _oper_name("Cthulhu"), _oper_pass("R'lyeh"), _oper_socket(-1), socket_id(socket(AF_INET, SOCK_STREAM, 0)), port(new_port), pass(new_pass)
+Server::Server(int new_port, char *new_pass):
+	_oper_name("Cthulhu"), _oper_pass("R'lyeh"), _oper_socket(-1),
+	socket_id(socket(AF_INET, SOCK_STREAM, 0)), port(new_port), pass(new_pass)
 {
 	// socket_id = socket(AF_INET, SOCK_STREAM, 0);
 	if (socket_id < 0)
@@ -55,13 +66,24 @@ Server::Server(int new_port, char *new_pass): _oper_name("Cthulhu"), _oper_pass(
 	{
 		throw std::invalid_argument(ERR_SOCKLISTENFAIL);
 	}
+	// _register_replies.clear();
+	_register_replies.reserve(5);
+	_register_replies.push_back(RPL_WELCOME);
+	_register_replies.push_back(RPL_YOURHOST);
+	_register_replies.push_back(RPL_CREATED);
+	_register_replies.push_back(RPL_MYINFO);
+	_register_replies.push_back(RPL_ISUPPORT);
+	_i_support = "CHANMODES=,ok,l,it CHANTYPES=# MODES=5 NETWORK=" SERVERNAME " NICKLEN=9 PREFIX=(o)@ CASEMAPPING=ascii TARGMAX=";
 	Logger(major_lvl) << "Server started";
 }
 
 /**
  * This should never be used. Server MUST be created with a PORT and PASWORD
  */
-Server::Server(const Server &cpy): socket_id(cpy.socket_id), port(cpy.port), pass(cpy.pass)
+Server::Server(const Server &cpy):
+	_register_replies(cpy._register_replies), _i_support(cpy._i_support),
+	_oper_name(cpy._oper_name), _oper_pass(cpy._oper_pass), _oper_socket(cpy._oper_socket),
+	socket_id(cpy.socket_id), port(cpy.port), pass(cpy.pass)
 {
 	(void)cpy;
 }
@@ -255,4 +277,38 @@ std::string	Server::oper_command_check(int client, std::string oper, std::string
 		return (ERR_PASSWDMISMATCH);
 	_oper_socket = client;
 	return (RPL_YOUREOPER);
+}
+
+std::string Server::current_date(void)
+{
+	std::time_t			time = std::time(0);
+	std::tm* now = std::localtime(&time);
+	std::stringstream	ss;
+	std::string			date;
+
+	ss << (now->tm_year + 1900) << '-' << (now->tm_mon + 1) << '-' << now->tm_mday;
+	ss >> date;
+
+	return (date);
+}
+
+void	Server::register_client_if_able(int client)
+{
+	Client	*check(&client_list.find(client)->second);
+	Message	register_warning(*check);
+	std::vector<std::string>	_register_replace;
+
+	if (check->get_is_registered() == true)
+		return ;
+	if (check->nickname.empty() == true)
+		return ;
+	if (check->_realname.empty() == true && check->_username.empty() == true)
+		return ;
+
+	check->_is_registered = true;
+	_register_replace.push_back(check->nickname);
+	_register_replace.push_back(current_date());
+	_register_replace.push_back(_i_support);
+	register_warning.reply_format(_register_replies, _register_replace);
+	msgs.push_back(register_warning);
 }

@@ -3,8 +3,8 @@
 
 static void	found_new_line(Server &serv, Client emitter, std::string text, int pos_msg)
 {
-	Message	new_msg(emitter);
-
+	Logger(basic_type, debug_lvl) << "Message received from " <<
+		emitter.get_socket() << " : {\n" << text << "\n}";
 	while (text.find("\n") != std::string::npos)
 	{
 		if (pos_msg != -1)
@@ -17,6 +17,7 @@ static void	found_new_line(Server &serv, Client emitter, std::string text, int p
 		}
 		else
 		{
+			Message	new_msg(emitter);
 			new_msg.text.assign(text.substr(0, text.find("\n") + 1));
 			check_for_cmds(serv, new_msg);
 			if (new_msg.text.empty() == false && new_msg.target.empty() == false)

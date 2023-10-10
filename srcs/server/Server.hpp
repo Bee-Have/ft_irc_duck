@@ -7,7 +7,10 @@
 // GENERAL
 #include <iostream>
 #include <string>
-// #include <sstream>
+#include <sstream>
+
+// TIME
+#include <ctime>
 
 // IRSSI && SOCKETS
 #include <sys/socket.h>
@@ -39,6 +42,10 @@ private:
 	// Server socket creation and identification
 	struct sockaddr_in	_server_addr;
 	struct sockaddr_in	_client_addr;
+
+	// Client registration
+	std::vector<std::string>	_register_replies;
+	std::string					_i_support;
 
 	// Server operator
 	const std::string	_oper_name;
@@ -85,7 +92,9 @@ public:
 		}
 		commands[name] = new CommandType(*this);
 	};
+	std::string current_date();
 	int	get_client_by_nickname(std::string nickname);
 	Channel*	get_channel_by_name(std::string nickname);
 	std::string	oper_command_check(int client, std::string oper, std::string pass);
+	void		register_client_if_able(int client);
 };
