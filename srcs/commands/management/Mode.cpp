@@ -128,7 +128,7 @@ void Mode::_get_mode_params(Message& msg, bool is_channel)
 			++i;
 			if (i == 3)
 			{
-				Message	warning(msg);
+				Message	warning(serv.client_list.find(msg.get_emitter())->second);
 				warning.reply_format(ERR_TOOMANYPARAM, msg.cmd, serv.socket_id);
 				serv.msgs.push_back(warning);
 				break;
@@ -220,7 +220,7 @@ void	Mode::_fill_mod_maps(Message& msg, bool is_channel)
 			_all_usermodes[*it] = (sign == '+') ? ADD : REMOVE;
 		else
 		{
-			Message response(msg);
+			Message response(serv.client_list.find(msg.get_emitter())->second);
 			response.reply_format(ERR_UMODEUNKNOWNMODEFLAG, "", serv.socket_id);
 			serv.msgs.push_back(response);
 		}
@@ -239,8 +239,8 @@ void	Mode::_apply_mode_changes(Message& msg, Channel* channel)
 			_reset_modes();
 			return (msg.reply_format(ERR_CHANOPRIVSNEEDED, channel->_name, serv.socket_id));
 		}
-		_channel_i(msg, channel);
-		_channel_t(msg, channel);
+		_channel_i(channel);
+		_channel_t(channel);
 		_channel_k(msg, channel);
 		_channel_o(msg, channel);
 		_channel_l(msg, channel);
@@ -319,7 +319,7 @@ void	Mode::_client_i(Message& msg)
 
 void	Mode::_client_O(Message& msg)
 {
-	Message response(msg);
+	Message response(serv.client_list.find(msg.get_emitter())->second);
 	int& O = _all_usermodes['O'];
 
 	if (O == UNCHANGED)
@@ -348,9 +348,8 @@ void	Mode::_client_O(Message& msg)
 	}
 }
 
-void	Mode::_channel_i(Message& msg, Channel* channel)
+void	Mode::_channel_i(Channel* channel)
 {
-	(void)msg;
 	if (_all_chanmodes['i'] == UNCHANGED)
 		return;
 	else if (_all_chanmodes['i'] == ADD)
@@ -369,9 +368,8 @@ void	Mode::_channel_i(Message& msg, Channel* channel)
 	}
 }
 
-void	Mode::_channel_t(Message& msg, Channel* channel)
+void	Mode::_channel_t(Channel* channel)
 {
-	(void)msg;
 	if (_all_chanmodes['t'] == UNCHANGED)
 		return;
 	else if (_all_chanmodes['t'] == ADD)

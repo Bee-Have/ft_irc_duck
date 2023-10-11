@@ -38,8 +38,8 @@ private:
 	void	_client_i(Message& msg); ///< Invisible
 	void	_client_O(Message& msg); ///< Server operator
 
-	void	_channel_i(Message& msg, Channel* channel); ///< Invite Only
-	void	_channel_t(Message& msg, Channel* channel); ///< Topic Restricted
+	void	_channel_i(Channel* channel); ///< Invite Only
+	void	_channel_t(Channel* channel); ///< Topic Restricted
 	void	_channel_k(Message& msg, Channel* channel); ///< Key
 	void	_channel_o(Message& msg, Channel* channel); ///< Operator
 	void	_channel_l(Message& msg, Channel* channel); ///< Member limit
