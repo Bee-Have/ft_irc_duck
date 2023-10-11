@@ -26,7 +26,7 @@ int	User::get_correct_user_params(const std::string& params)
 	if (find_result == std::string::npos)
 		return (-1);
 	third_param_given = true;
-	_host.assign(params.substr(find_result, params.find_first_of(": \t", find_result) - 1 - find_result));
+	_host.assign(params.substr(find_result, params.find_first_of(": \t", find_result) - find_result));
 	find_result = params.find_first_of(": \t", find_result); ///< End of third parameter
 	if (find_result == std::string::npos)
 		return (-1);
@@ -50,7 +50,7 @@ void	User::execute(Message& msg)
 		return (setup_error_no_nickname(msg, ERR_NOTREGISTERED, ""));
 	if (command_emitter->_realname.empty() == false) ///< USER command has already been called
 		return (setup_error_no_nickname(msg, ERR_ALREADYREGISTRED, ""));
-	if (get_correct_user_params(msg.cmd_param, _username, _realname) == -1)
+	if (get_correct_user_params(msg.cmd_param) == -1)
 		return (setup_error_no_nickname(msg, ERR_NEEDMOREPARAMS, msg.cmd));
 
 	command_emitter->_username = _username;

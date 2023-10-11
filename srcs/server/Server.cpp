@@ -167,7 +167,7 @@ void	Server::add_client(void)
  * !(if a message send by the client exists, it will only be deleted if they are no target to send the message to)
  * 
  * @param fd the client defined by it's socket
- */
+*/
 void	Server::del_client(int fd)
 {
 	if (client_list.find(fd) == client_list.end())
@@ -307,6 +307,7 @@ void	Server::register_client_if_able(int client)
 
 	check->_is_registered = true;
 	_register_replace.push_back(check->nickname);
+	_register_replace.push_back(check->host);
 	_register_replace.push_back(current_date());
 	_register_replace.push_back(_i_support);
 	register_warning.reply_format(_register_replies, _register_replace);

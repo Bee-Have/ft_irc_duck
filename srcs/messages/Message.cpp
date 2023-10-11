@@ -13,13 +13,19 @@ Message::Message(const Message &cpy):
 	_emitter(cpy._emitter), _username(cpy._username),
 	emitter_nick(cpy.emitter_nick), host(cpy.host),
 	target(cpy.target), text(cpy.text), cmd(cpy.cmd), cmd_param(cpy.cmd_param)
-{}
+{
+	if (cpy._username.empty() == true)
+		_username = "*";
+}
 
 Message::Message(const Client &emitter):
 	_emitter(emitter.get_socket()), _username(emitter.get_username()),
 	emitter_nick(emitter.nickname),
 	host(emitter.host)
-{}
+{
+	if (emitter.get_username() == "")
+		_username = "*";
+}
 
 Message::~Message(void)
 {
@@ -64,9 +70,20 @@ void	Message::replace_rpl_err_text(std::string replace)
 	text.replace(begin, end, replace);
 }
 
-void	Message::replace_prefix(int socket)
+void	Message::replace_prefix(std::string text, int socket)
 {
-	if (_emitter)
+	bool	is_reply_custom = false;
+	if (text[9] == '!' && text[16] == '@')
+		is_reply_custom = true;
+	if (_emitter == socket)
+		replace_rpl_err_text(SERVERNAME);
+	else
+		replace_rpl_err_text(emitter_nick);
+	if (is_reply_custom == true)
+	{
+		replace_rpl_err_text(_username);
+		replace_rpl_err_text(host);
+	}
 }
 
 /**
@@ -86,10 +103,7 @@ void	Message::reply_format(std::string reply, std::string replace, int socket)
 
 	text.clear();
 	text = reply;
-	if (_emitter == socket)
-		replace_rpl_err_text(SERVERNAME);
-	else
-		replace_rpl_err_text(emitter_nick);
+	replace_prefix(text, socket);
 	if (text.find('<') != std::string::npos)
 		replace_rpl_err_text(replace);
 }
@@ -114,7 +128,7 @@ void	Message::reply_format(std::vector<std::string> &replies, std::vector<std::s
 	for (std::vector<std::string>::iterator it = replies.begin(); it != replies.end(); ++it)
 	{
 		text.append(*it);
-		replace_rpl_err_text(emitter_nick);
+		replace_prefix(*it, -1);
 		while (text.find('<') != std::string::npos)
 		{
 			replace_rpl_err_text(*it_replace);

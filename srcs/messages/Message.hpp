@@ -28,7 +28,7 @@ private:
 	Message();
 	
 	void	replace_rpl_err_text(std::string replace);
-	void	replace_prefix(int socket);
+	void	replace_prefix(std::string text, int socket);
 
 public:
 

@@ -3,8 +3,6 @@
 
 static void	found_new_line(Server &serv, Client emitter, std::string text, int pos_msg)
 {
-	Logger(basic_type, debug_lvl) << "Message received from " <<
-		emitter.get_socket() << " : {\n" << text << "\n}";
 	while (text.find("\n") != std::string::npos)
 	{
 		if (pos_msg != -1)
@@ -96,6 +94,10 @@ void	receive_messages(Server &serv, fd_set read_fds)
 				break ;
 		}
 		else
+		{
+			Logger(basic_type, debug_lvl) << "Message received from " <<
+				it->second.get_socket() << " : {\n" << buffer << "\n}";
 			found_text(serv, it->second, buffer);
+		}
 	}
 }
