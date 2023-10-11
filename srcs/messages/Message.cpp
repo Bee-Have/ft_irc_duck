@@ -9,10 +9,16 @@
 Message::Message(void)
 {}
 
-Message::Message(const Message &cpy): _emitter(cpy._emitter), emitter_nick(cpy.emitter_nick), target(cpy.target), text(cpy.text), cmd(cpy.cmd), cmd_param(cpy.cmd_param)
+Message::Message(const Message &cpy):
+	_emitter(cpy._emitter), _username(cpy._username),
+	emitter_nick(cpy.emitter_nick), host(cpy.host),
+	target(cpy.target), text(cpy.text), cmd(cpy.cmd), cmd_param(cpy.cmd_param)
 {}
 
-Message::Message(const Client &emitter): _emitter(emitter.get_socket()), emitter_nick(emitter.nickname)
+Message::Message(const Client &emitter):
+	_emitter(emitter.get_socket()), _username(emitter.get_username()),
+	emitter_nick(emitter.nickname),
+	host(emitter.host)
 {}
 
 Message::~Message(void)
@@ -25,7 +31,9 @@ Message	&Message::operator=(const Message &assign)
 	if (this != &assign)
 	{
 		_emitter = assign._emitter;
+		_username = assign._username;
 		emitter_nick.assign(assign.emitter_nick);
+		host.assign(assign.host);
 		target.clear();
 		target.insert(assign.target.begin(), assign.target.end());
 		text.assign(assign.text);
@@ -54,6 +62,11 @@ void	Message::replace_rpl_err_text(std::string replace)
 	begin = text.find('<');
 	end = (text.find('>') + 1) - begin;
 	text.replace(begin, end, replace);
+}
+
+void	Message::replace_prefix(int socket)
+{
+	if (_emitter)
 }
 
 /**

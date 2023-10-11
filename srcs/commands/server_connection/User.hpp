@@ -14,5 +14,13 @@ struct User : public ICommand
 	User(Server &p_server);
 
 	void	execute(Message &msg);
-	void	setup_error_no_nickname(Message &msg, std::string error, std::string replace);
+	void	setup_error_no_nickname(Message &msg);
+
+	private :
+	std::string	_username;
+	std::string	_realname;
+	std::string	_host;
+
+	int	get_correct_user_params(const std::string& params);
+
 };

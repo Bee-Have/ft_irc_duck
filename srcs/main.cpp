@@ -18,6 +18,7 @@ void	setup_commands(Server& serv)
 	serv.register_command<Topic>("TOPIC");
 	serv.register_command<Kick>("KICK");
 	serv.register_command<Ping>("PING");
+	serv.register_command<Who>("WHO");
 }
 
 int	main(int ac, char** av)
@@ -27,7 +28,7 @@ int	main(int ac, char** av)
 	int					port;
 
 	Logger::open_log_file("server.log");
-	Logger::accept_importance(all_lvl ^ debug_lvl);
+	Logger::accept_importance(all_lvl/* ^ debug_lvl*/);
 
 	if (ac != 3)
 	{

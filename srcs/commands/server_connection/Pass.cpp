@@ -19,6 +19,7 @@ void	Pass::setup_error(Message &msg, std::string error)
 	int	client = msg.get_emitter();
 
 	msg._emitter = serv.socket_id;
+	msg.host = SERVERNAME;
 	msg.reply_format(error, "", serv.socket_id);
 	msg.target.clear();
 	msg.target.insert(client);

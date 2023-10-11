@@ -26,7 +26,7 @@ CMD_CONNECTION = Pass.cpp Nick.cpp User.cpp
 CMD_MESSAGE = Privmsg.cpp
 CMD_MANAGEMENT = Oper.cpp Mode.cpp Quit.cpp
 CMD_CHANNEL = Join.cpp Part.cpp Invite.cpp Topic.cpp Kick.cpp
-CMD_MISC = Ping.cpp
+CMD_MISC = Ping.cpp Who.cpp
 
 SRC = main.cpp Logger.cpp $(SERVER) $(CHANNEL) $(MESSAGES) \
 	$(CMD_CONNECTION) $(CMD_MESSAGE) $(CMD_MANAGEMENT) $(CMD_CHANNEL) $(CMD_MISC)

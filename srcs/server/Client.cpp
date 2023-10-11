@@ -78,3 +78,8 @@ bool	Client::get_is_authenticated(void) const
 {
 	return (_is_authenticated);
 }
+
+std::string	Client::get_username(void) const
+{
+	return (_username);
+}

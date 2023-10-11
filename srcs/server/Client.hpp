@@ -22,6 +22,7 @@ private:
 
 public:
 	std::string	nickname;
+	std::string	host;
 
 	Client(const Client &cpy);
 	~Client();
@@ -32,4 +33,5 @@ public:
 	bool	get_is_registered() const;
 	bool	get_is_invisible() const;
 	bool	get_is_authenticated() const;
+	std::string	get_username() const;
 };

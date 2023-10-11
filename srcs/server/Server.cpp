@@ -74,7 +74,7 @@ Server::Server(int new_port, char *new_pass):
 	_register_replies.push_back(RPL_MYINFO);
 	_register_replies.push_back(RPL_ISUPPORT);
 	_i_support = "CHANMODES=,ok,l,it CHANTYPES=# MODES=5 NETWORK=" SERVERNAME " NICKLEN=9 PREFIX=(o)@ CASEMAPPING=ascii TARGMAX=";
-	Logger(major_lvl) << "Server started";
+	Logger(major_lvl) << "Server started on socket [" << socket_id << ']';
 }
 
 /**
