@@ -1,4 +1,5 @@
 #include "ircserv.hpp"
+#include "Logger.hpp"
 
 /**
  * @brief checks for any empty messages. By empty means msg.target is empty AND there is no tailing "\r\n"
@@ -10,7 +11,6 @@ static void	check_msgs_to_delete(Server &serv)
 	for (std::vector<Message>::iterator it = serv.msgs.begin();
 		it != serv.msgs.end(); ++it)
 	{
-		std::cout  << "check[" << it->text << ']' << std::endl;
 		if (it->text.find("\r\n") != std::string::npos
 			&& it->text.find("\r\n") + 2 == it->text.size()
 			&& it->target.empty() == true)
@@ -74,19 +74,17 @@ void	send_messages(Server &serv, fd_set &write_fds)
 	if (serv.msgs.empty() == true)
 		return ;
 	merge_msgs(serv);
-	std::cout << "gonna send msg" << std::endl;
 	for (std::vector<Message>::iterator it_msg = serv.msgs.begin();
 		it_msg != serv.msgs.end(); ++it_msg)
 	{
-		std::cout << "msg:" << it_msg->text << "|";
 		for (std::set<int>::iterator it_fd = it_msg->target.begin();
 			it_fd != it_msg->target.end(); ++it_fd)
 		{
-			std::cout << "TARGET" << std::endl;
 			if (FD_ISSET(*it_fd, &write_fds) != 0
 				&& it_msg->text.find("\r\n") != std::string::npos)
 			{
-				std::cout << "about to send" << std::endl;
+				Logger(basic_type, minor_lvl) << "Message sent to [" <<
+					*it_fd << "] : {" << it_msg->text.substr(0, it_msg->text.size() - 2) << "}";
 				send(*it_fd, it_msg->text.c_str(), it_msg->text.size(), 0);
 				FD_CLR(*it_fd, &write_fds);
 				handle_leaving_clients(serv, *it_msg, *it_fd);

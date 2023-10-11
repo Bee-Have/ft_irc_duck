@@ -16,7 +16,6 @@ void	Join::execute(Message &msg)
 	space_pos = msg.cmd_param.find_first_of(" ");
 	if (space_pos != std::string::npos)
 	{
-		std::cout << "FOUND KEY" << std::endl;
 		tmp = msg.cmd_param.substr(space_pos + 1);
 		keys = split_join_cmd(tmp);
 		msg.cmd_param.erase(space_pos);
@@ -75,7 +74,6 @@ void	Join::join_channel(Message msg)
 		{
 			Message	error(serv.client_list.find(msg.get_emitter())->second);
 			error.reply_format(ERR_NOSUCHCHANNEL, *it_chan, serv.socket_id);
-			std::cout << "ERR BAD CHAN [" << error.text << ']' << std::endl;
 			serv.msgs.push_back(error);
 			if (keys.empty() == false)
 				keys.erase(keys.begin());

@@ -28,7 +28,7 @@ CMD_MANAGEMENT = Oper.cpp Mode.cpp Quit.cpp
 CMD_CHANNEL = Join.cpp Part.cpp Invite.cpp Topic.cpp Kick.cpp
 CMD_MISC = Ping.cpp
 
-SRC = main.cpp $(SERVER) $(CHANNEL) $(MESSAGES) \
+SRC = main.cpp Logger.cpp $(SERVER) $(CHANNEL) $(MESSAGES) \
 	$(CMD_CONNECTION) $(CMD_MESSAGE) $(CMD_MANAGEMENT) $(CMD_CHANNEL) $(CMD_MISC)
 
 OBJ = $(addprefix $(OBJ_DIR)/, $(SRC:.cpp=.o))

@@ -1,4 +1,5 @@
 #include "Client.hpp"
+#include "Logger.hpp"
 
 /**
  * @brief Construct a new Client::Client object
@@ -17,7 +18,9 @@ Client::Client(void)
 Client::Client(int new_socket) :
 	_socket(new_socket), _is_authenticated(false),
 	_is_registered(false), _is_invisible(false)
-{}
+{
+	Logger(major_lvl) << "New client connected on socket " << _socket;
+}
 
 /**
  * @brief Construct a new Client::Client object

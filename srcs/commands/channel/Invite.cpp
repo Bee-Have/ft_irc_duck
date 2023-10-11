@@ -80,7 +80,6 @@ bool	Invite::are_param_membership_valid(Message &msg)
 {
 	if (channel->_clients.find(client) != channel->_clients.end())
 	{
-		std::cout << "BITFIELD [" << channel->_clients.find(client)->second << ']' << std::endl;
 		if (channel->is(channel->_clients.find(client)->second, channel->MEMBER) == true)
 		{
 			std::vector<std::string>	reply(1, ERR_USERONCHANNEL);

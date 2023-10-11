@@ -1,4 +1,5 @@
 #include "ircserv.hpp"
+#include "Logger.hpp"
 
 /**
  * @brief splits the newly received message into : command and params.
@@ -19,7 +20,6 @@ static void	parsing_cmds(Server& serv, Message& msg)
 	const size_t carriage_pos = msg.text.find("\r");
 	const size_t space_pos = msg.text.find(' ');
 
-	std::cout << "PARSING" << std::endl;
 	if (newline_pos != std::string::npos)
 	{
 		msg.text.erase(newline_pos);
@@ -61,19 +61,19 @@ static void	parsing_cmds(Server& serv, Message& msg)
  */
 void	check_for_cmds(Server& serv, Message& msg)
 {
-	std::cout << "MSG:" << msg.text << '|' << std::endl;
 	parsing_cmds(serv, msg);
 	if (msg.target.empty() == false)
 		return;
 	if (serv.commands.find(msg.cmd) == serv.commands.end())
 		return;
-	std::cout << "CMD FOUND :" << msg.cmd << std::endl;
 	if (serv.client_list.find(msg.get_emitter())->second.get_is_registered() == false
 		&& msg.cmd != "PASS" && msg.cmd != "NICK" && msg.cmd != "USER")
 		msg.reply_format(ERR_NOTREGISTERED, "", serv.socket_id);
 	else
 	{
-		std::cout << "TEST" << std::endl;
+		Logger(basic_type, minor_lvl) << "Command called by [" <<
+			msg.get_emitter() << "]: [" << msg.cmd <<
+			"] With parameters [" << msg.cmd_param << "]";
 		serv.commands[msg.cmd]->execute(msg);
 	}
 }
