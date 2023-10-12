@@ -96,8 +96,9 @@ void	receive_messages(Server &serv, fd_set read_fds)
 		}
 		else
 		{
-			Logger(basic_type, debug_lvl) << "Message received from " <<
-				it->second.get_socket() << " : {\n" << buffer << "\n}";
+			Logger(basic_type, debug_lvl) << "Message received from [" <<
+				it->second.get_socket() << ":" << it->second.nickname <<
+				"] : {\n" << buffer << "\n}";
 			found_text(serv, it->second, buffer);
 		}
 	}

@@ -19,7 +19,7 @@ Client::Client(int new_socket) :
 	_socket(new_socket), _is_authenticated(false),
 	_is_registered(false), _is_invisible(false)
 {
-	Logger(major_lvl) << "New client connected on socket " << _socket;
+	Logger(major_lvl) << "New client connected on socket [" << _socket << ']';
 }
 
 /**

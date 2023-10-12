@@ -72,8 +72,8 @@ void	check_for_cmds(Server& serv, Message& msg)
 	else
 	{
 		Logger(basic_type, minor_lvl) << "Command called by [" <<
-			msg.get_emitter() << "]: [" << msg.cmd <<
-			"] With parameters [" << msg.cmd_param << "]";
+			msg.get_emitter() << ":" << msg.emitter_nick << "]: [" <<
+			msg.cmd << "] With parameters [" << msg.cmd_param << "]";
 		serv.commands[msg.cmd]->execute(msg);
 	}
 }

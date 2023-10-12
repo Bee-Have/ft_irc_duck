@@ -22,7 +22,6 @@
 //		REPLIES
 #define RPL_WELCOME "001 <client> :Welcome to the Internet Relay Network <nick>!\r\n"
 #define RPL_YOURHOST "002 <client> :Your host is <localhost>, running version " VERSION "\r\n"
-// #define RPL_YOURHOST "002 <client> :Your host is " SERVERNAME ", running version " VERSION "\r\n"
 #define RPL_CREATED "003 <client> :This server was created <datetime>\r\n"
 #define RPL_MYINFO "004 <client> " SERVERNAME " " VERSION " NO modes\r\n"
 #define RPL_ISUPPORT "005 <client> <supported> :are supported by this server\r\n"
