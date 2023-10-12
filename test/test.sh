@@ -12,7 +12,7 @@ createLogFolder ()
 startServer ()
 {
 	echo "Starting server"
-	rm server.log
+	rm -f server.log
 	$SERVER_PATH/ircserv $PORT $SERVER_PASSWORD &
 	while [ ! -s server.log ]; do
 		sleep 1

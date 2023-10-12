@@ -28,11 +28,11 @@ Server::Server(void):
 		throw std::invalid_argument(ERR_SOCKLISTENFAIL);
 	}
 	_register_replies.reserve(5);
-	_register_replies[0] = RPL_WELCOME;
-	_register_replies[1] = RPL_YOURHOST;
-	_register_replies[2] = RPL_CREATED;
-	_register_replies[3] = RPL_MYINFO;
-	_register_replies[4] = RPL_ISUPPORT;
+	_register_replies.push_back(RPL_WELCOME);
+	_register_replies.push_back(RPL_YOURHOST);
+	_register_replies.push_back(RPL_CREATED);
+	_register_replies.push_back(RPL_MYINFO);
+	_register_replies.push_back(RPL_ISUPPORT);
 	_i_support = "CHANMODES=,ok,l,it CHANTYPES=# MODES=5 NETWORK=" SERVERNAME " NICKLEN=9 PREFIX=(o)@ CASEMAPPING=ascii TARGMAX=";
 }
 
@@ -66,7 +66,6 @@ Server::Server(int new_port, char *new_pass):
 	{
 		throw std::invalid_argument(ERR_SOCKLISTENFAIL);
 	}
-	// _register_replies.clear();
 	_register_replies.reserve(5);
 	_register_replies.push_back(RPL_WELCOME);
 	_register_replies.push_back(RPL_YOURHOST);

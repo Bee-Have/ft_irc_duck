@@ -7,10 +7,13 @@ static void	found_new_line(Server &serv, Client emitter, std::string text, int p
 	{
 		if (pos_msg != -1)
 		{
+			if (serv.msgs.empty() == true)
+				serv.msgs.push_back(Message(emitter));
 			serv.msgs.at(pos_msg).text.append(text);
 
 			check_for_cmds(serv, serv.msgs.at(pos_msg));
-			if (serv.msgs.at(pos_msg).text.empty() == true || serv.msgs.at(pos_msg).target.empty() == true)
+			if (serv.msgs.at(pos_msg).text.empty() == true
+				|| serv.msgs.at(pos_msg).target.empty() == true)
 				serv.msgs.erase(serv.msgs.begin() + pos_msg);
 		}
 		else
@@ -39,9 +42,7 @@ static int	find_incomplete_msg(Server &serv, Client emitter)
 	{
 		if (it->get_emitter() == emitter.get_socket()
 			&& it->text.find("\r\n") == std::string::npos)
-		{
-			return (it - serv.msgs.begin());
-		}
+			return (std::distance(serv.msgs.begin(), it));
 	}
 	return (-1);
 }
