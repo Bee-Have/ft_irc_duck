@@ -89,16 +89,13 @@ void	Part::success_behaviour(Message *msg, Channel *current)
 		replace.push_back(reason);
 
 	current->del_client(msg->get_emitter(), serv);
-	if (delete_chan_if_empty(current) == true)
-		return ;
+	delete_chan_if_empty(current);
 	warning_client_leaving.reply_format(reply, replace);
-	warning_client_leaving.target.clear();
 	for (std::map<int, int>::iterator it = current->_clients.begin() ;
 		it != current->_clients.end() ; ++it)
 	{
 		if (current->is(it->second, current->MEMBER) == true)
 			warning_client_leaving.target.insert(it->first);
 	}
-	if (warning_client_leaving.target.empty() == false)
-		serv.msgs.push_back(warning_client_leaving);
+	serv.msgs.push_back(warning_client_leaving);
 }
