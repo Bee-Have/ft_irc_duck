@@ -3,13 +3,11 @@
 
 static void	found_new_line(Server &serv, Client emitter, std::string text, int pos_msg)
 {
-	while (text.find("\n") != std::string::npos)
+	while (text.empty() == false)
 	{
-		if (pos_msg != -1)
+		if (pos_msg != -1 && serv.msgs.empty() == true)
 		{
-			if (serv.msgs.empty() == true)
-				serv.msgs.push_back(Message(emitter));
-			serv.msgs.at(pos_msg).text.append(text);
+			serv.msgs.at(pos_msg).text.append(text.substr(0, text.find("\n") + 1));
 
 			check_for_cmds(serv, serv.msgs.at(pos_msg));
 			if (serv.msgs.at(pos_msg).text.empty() == true
@@ -24,7 +22,7 @@ static void	found_new_line(Server &serv, Client emitter, std::string text, int p
 			if (new_msg.text.empty() == false && new_msg.target.empty() == false)
 				serv.msgs.push_back(new_msg);
 		}
-		text = text.substr(text.find("\n") + 1, text.size());
+		text = text.substr(text.find("\n") + 1);
 	}
 }
 
