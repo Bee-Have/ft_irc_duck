@@ -138,7 +138,7 @@ void	Server::add_client(void)
 
 	if (new_client._socket < 0)
 	{
-		Logger(error_type, error_lvl) << errno << ' ' << SERVERNAME << " :" << strerror(errno) << "\r\n";
+		Logger(error_type, error_lvl) << errno << ' ' << SERVERNAME << " :" << strerror(errno);
 		return ;
 	}
 

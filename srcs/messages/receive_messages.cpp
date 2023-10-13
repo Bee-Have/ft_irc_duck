@@ -1,18 +1,19 @@
 #include "ircserv.hpp"
-#include "Logger.hpp"
 
 static void	found_new_line(Server &serv, Client emitter, std::string text, int pos_msg)
 {
-	while (text.empty() == false)
+	while (text.find("\n") != std::string::npos)
 	{
-		if (pos_msg != -1 && serv.msgs.empty() == true)
+		if (pos_msg != -1)
 		{
+			if (serv.msgs.empty() == true)
+				serv.msgs.push_back(Message(emitter));
 			serv.msgs.at(pos_msg).text.append(text.substr(0, text.find("\n") + 1));
-
 			check_for_cmds(serv, serv.msgs.at(pos_msg));
 			if (serv.msgs.at(pos_msg).text.empty() == true
 				|| serv.msgs.at(pos_msg).target.empty() == true)
 				serv.msgs.erase(serv.msgs.begin() + pos_msg);
+			pos_msg = -1;
 		}
 		else
 		{
@@ -23,6 +24,12 @@ static void	found_new_line(Server &serv, Client emitter, std::string text, int p
 				serv.msgs.push_back(new_msg);
 		}
 		text = text.substr(text.find("\n") + 1);
+	}
+	if (text.empty() == false)
+	{
+		Message	new_msg(emitter);
+		new_msg.text.assign(text);
+		serv.msgs.push_back(new_msg);
 	}
 }
 
@@ -39,7 +46,7 @@ static int	find_incomplete_msg(Server &serv, Client emitter)
 	for (std::vector<Message>::iterator it = serv.msgs.begin(); it != serv.msgs.end(); ++it)
 	{
 		if (it->get_emitter() == emitter.get_socket()
-			&& it->text.find("\r\n") == std::string::npos)
+			&& it->text.find("\n") == std::string::npos)
 			return (std::distance(serv.msgs.begin(), it));
 	}
 	return (-1);
