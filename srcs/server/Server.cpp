@@ -8,7 +8,7 @@
  * This should never be used. Server MUST be created with a PORT and PASWORD
  */
 Server::Server(void):
-	_oper_name("Cthulhu"), _oper_pass("R'lyeh"), _oper_socket(-1),
+	_oper_name("Cthulhu"), _oper_pass("R'lyeh"),
 	socket_id(socket(AF_INET, SOCK_STREAM, 0)), port(8080), pass("Dragon")
 {
 	if (socket_id < 0)
@@ -46,7 +46,7 @@ Server::Server(void):
  * @param new_pass the password of the server
  */
 Server::Server(int new_port, char *new_pass):
-	_oper_name("Cthulhu"), _oper_pass("R'lyeh"), _oper_socket(-1),
+	_oper_name("Cthulhu"), _oper_pass("R'lyeh"),
 	socket_id(socket(AF_INET, SOCK_STREAM, 0)), port(new_port), pass(new_pass)
 {
 	// socket_id = socket(AF_INET, SOCK_STREAM, 0);
@@ -172,8 +172,8 @@ void	Server::del_client(int fd)
 	if (client_list.find(fd) == client_list.end())
 		return ;
 	client_list.erase(client_list.find(fd));
-	if (fd == _oper_socket)
-		_oper_socket = -1;
+	if (_oper_socket.find(fd) == _oper_socket.end())
+		_oper_socket.erase(fd);
 	close(fd);
 	Logger(major_lvl) << "Client disconnected on socket " << fd;
 }
@@ -268,13 +268,11 @@ Channel*	Server::get_channel_by_name(std::string nickname)
 
 std::string	Server::oper_command_check(int client, std::string oper, std::string pass)
 {
-	if (_oper_socket != -1)
-		return (ERR_CANNOTBECOMEOPER);
 	if (_oper_name != oper)
 		return (ERR_NOSUCHOPER);
 	if (_oper_pass != pass)
 		return (ERR_PASSWDMISMATCH);
-	_oper_socket = client;
+	_oper_socket.insert(client);
 	return (RPL_YOUREOPER);
 }
 
