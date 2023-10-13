@@ -23,13 +23,17 @@ class Message
 	friend struct Quit;
 private:
 	int	_emitter;
+	std::string	_username;
 
 	Message();
 	
 	void	replace_rpl_err_text(std::string replace);
+	void	replace_prefix(std::string text, int socket);
 
 public:
+
 	std::string	emitter_nick;
+	std::string	host;
 	std::set<int>	target;
 	std::string		text;
 	std::string		cmd;

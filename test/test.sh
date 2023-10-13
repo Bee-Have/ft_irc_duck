@@ -12,8 +12,9 @@ createLogFolder ()
 startServer ()
 {
 	echo "Starting server"
-	$SERVER_PATH/ircserv $PORT $SERVER_PASSWORD > $LOG_FOLDER/server.log 2>&1 &
-	while [ ! -s $LOG_FOLDER/server.log ]; do
+	rm -f server.log
+	$SERVER_PATH/ircserv $PORT $SERVER_PASSWORD &
+	while [ ! -s server.log ]; do
 		sleep 1
 	done
 	if ! ps | grep -q " $! "; then
@@ -28,9 +29,10 @@ stopServer ()
 	echo "Stopping server"
 	killall nc
 	killall tail
-	killall -s SIGINT ircserv
-	if [ $? -ne 0 ]; then
-		echo "Server failed to stop"
+	pkill -f --signal SIGINT ircserv
+	kill_result=$?
+	if [ $kill_result -ne 0 ]; then
+		echo "Server failed to stop with result $kill_result"
 		exit 1
 	fi
 	echo "Server stopped"
@@ -49,7 +51,7 @@ connectFake ()
 {
 	while [ $CLIENT_ID -lt $1 ]; do
 		connectionInfo > ./logs/.client-$CLIENT_ID-input.log
-		tail -f ./logs/.client-$CLIENT_ID-input.log | nc $IP_ADDRESS $PORT -i 1 > $LOG_FOLDER/$CLIENT_NAME.log 2>&1 &
+		tail -f ./logs/.client-$CLIENT_ID-input.log | nc -C $IP_ADDRESS $PORT > $LOG_FOLDER/$CLIENT_NAME.log 2>&1 &
 		if [ $? -ne 0 ]; then
 			echo "Connection failed"
 			stopServer 1

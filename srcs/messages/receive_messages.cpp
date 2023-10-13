@@ -1,19 +1,19 @@
 #include "ircserv.hpp"
-#include "Logger.hpp"
 
 static void	found_new_line(Server &serv, Client emitter, std::string text, int pos_msg)
 {
-	Logger(basic_type, debug_lvl) << "Message received from " <<
-		emitter.get_socket() << " : {\n" << text << "\n}";
 	while (text.find("\n") != std::string::npos)
 	{
 		if (pos_msg != -1)
 		{
-			serv.msgs.at(pos_msg).text.append(text);
-
+			if (serv.msgs.empty() == true)
+				serv.msgs.push_back(Message(emitter));
+			serv.msgs.at(pos_msg).text.append(text.substr(0, text.find("\n") + 1));
 			check_for_cmds(serv, serv.msgs.at(pos_msg));
-			if (serv.msgs.at(pos_msg).text.empty() == true || serv.msgs.at(pos_msg).target.empty() == true)
+			if (serv.msgs.at(pos_msg).text.empty() == true
+				|| serv.msgs.at(pos_msg).target.empty() == true)
 				serv.msgs.erase(serv.msgs.begin() + pos_msg);
+			pos_msg = -1;
 		}
 		else
 		{
@@ -23,7 +23,13 @@ static void	found_new_line(Server &serv, Client emitter, std::string text, int p
 			if (new_msg.text.empty() == false && new_msg.target.empty() == false)
 				serv.msgs.push_back(new_msg);
 		}
-		text = text.substr(text.find("\n") + 1, text.size());
+		text = text.substr(text.find("\n") + 1);
+	}
+	if (text.empty() == false)
+	{
+		Message	new_msg(emitter);
+		new_msg.text.assign(text);
+		serv.msgs.push_back(new_msg);
 	}
 }
 
@@ -40,10 +46,8 @@ static int	find_incomplete_msg(Server &serv, Client emitter)
 	for (std::vector<Message>::iterator it = serv.msgs.begin(); it != serv.msgs.end(); ++it)
 	{
 		if (it->get_emitter() == emitter.get_socket()
-			&& it->text.find("\r\n") == std::string::npos)
-		{
-			return (it - serv.msgs.begin());
-		}
+			&& it->text.find("\n") == std::string::npos)
+			return (std::distance(serv.msgs.begin(), it));
 	}
 	return (-1);
 }
@@ -96,6 +100,11 @@ void	receive_messages(Server &serv, fd_set read_fds)
 				break ;
 		}
 		else
+		{
+			Logger(basic_type, debug_lvl) << "Message received from [" <<
+				it->second.get_socket() << ":" << it->second.nickname <<
+				"] : {\n" << buffer << "\n}";
 			found_text(serv, it->second, buffer);
+		}
 	}
 }

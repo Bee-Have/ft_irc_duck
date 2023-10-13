@@ -11,8 +11,8 @@ static void	check_msgs_to_delete(Server &serv)
 	for (std::vector<Message>::iterator it = serv.msgs.begin();
 		it != serv.msgs.end(); ++it)
 	{
-		if (it->text.find("\r\n") != std::string::npos
-			&& it->text.find("\r\n") + 2 == it->text.size()
+		if (it->text.find("\n") != std::string::npos
+			&& it->text.find("\n") + 2 == it->text.size()
 			&& it->target.empty() == true)
 		{
 			it = serv.msgs.erase(it);

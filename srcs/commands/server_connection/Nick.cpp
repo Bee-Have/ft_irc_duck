@@ -39,6 +39,7 @@ void	Nick::setup_error(Message &msg, std::string error, std::string replace)
 	int	client = msg.get_emitter();
 
 	msg._emitter = serv.socket_id;
+	msg.host = SERVERNAME;
 	msg.reply_format(error, replace, serv.socket_id);
 	msg.target.clear();
 	msg.target.insert(client);

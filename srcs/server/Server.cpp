@@ -28,11 +28,11 @@ Server::Server(void):
 		throw std::invalid_argument(ERR_SOCKLISTENFAIL);
 	}
 	_register_replies.reserve(5);
-	_register_replies[0] = RPL_WELCOME;
-	_register_replies[1] = RPL_YOURHOST;
-	_register_replies[2] = RPL_CREATED;
-	_register_replies[3] = RPL_MYINFO;
-	_register_replies[4] = RPL_ISUPPORT;
+	_register_replies.push_back(RPL_WELCOME);
+	_register_replies.push_back(RPL_YOURHOST);
+	_register_replies.push_back(RPL_CREATED);
+	_register_replies.push_back(RPL_MYINFO);
+	_register_replies.push_back(RPL_ISUPPORT);
 	_i_support = "CHANMODES=,ok,l,it CHANTYPES=# MODES=5 NETWORK=" SERVERNAME " NICKLEN=9 PREFIX=(o)@ CASEMAPPING=ascii TARGMAX=";
 }
 
@@ -66,7 +66,6 @@ Server::Server(int new_port, char *new_pass):
 	{
 		throw std::invalid_argument(ERR_SOCKLISTENFAIL);
 	}
-	// _register_replies.clear();
 	_register_replies.reserve(5);
 	_register_replies.push_back(RPL_WELCOME);
 	_register_replies.push_back(RPL_YOURHOST);
@@ -74,7 +73,7 @@ Server::Server(int new_port, char *new_pass):
 	_register_replies.push_back(RPL_MYINFO);
 	_register_replies.push_back(RPL_ISUPPORT);
 	_i_support = "CHANMODES=,ok,l,it CHANTYPES=# MODES=5 NETWORK=" SERVERNAME " NICKLEN=9 PREFIX=(o)@ CASEMAPPING=ascii TARGMAX=";
-	Logger(major_lvl) << "Server started";
+	Logger(major_lvl) << "Server started on socket [" << socket_id << ']';
 }
 
 /**
@@ -139,7 +138,7 @@ void	Server::add_client(void)
 
 	if (new_client._socket < 0)
 	{
-		Logger(error_type, error_lvl) << errno << ' ' << SERVERNAME << " :" << strerror(errno) << "\r\n";
+		Logger(error_type, error_lvl) << errno << ' ' << SERVERNAME << " :" << strerror(errno);
 		return ;
 	}
 
@@ -167,7 +166,7 @@ void	Server::add_client(void)
  * !(if a message send by the client exists, it will only be deleted if they are no target to send the message to)
  * 
  * @param fd the client defined by it's socket
- */
+*/
 void	Server::del_client(int fd)
 {
 	if (client_list.find(fd) == client_list.end())
@@ -307,6 +306,7 @@ void	Server::register_client_if_able(int client)
 
 	check->_is_registered = true;
 	_register_replace.push_back(check->nickname);
+	_register_replace.push_back(check->host);
 	_register_replace.push_back(current_date());
 	_register_replace.push_back(_i_support);
 	register_warning.reply_format(_register_replies, _register_replace);

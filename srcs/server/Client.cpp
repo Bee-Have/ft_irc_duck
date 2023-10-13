@@ -19,7 +19,7 @@ Client::Client(int new_socket) :
 	_socket(new_socket), _is_authenticated(false),
 	_is_registered(false), _is_invisible(false)
 {
-	Logger(major_lvl) << "New client connected on socket " << _socket;
+	Logger(major_lvl) << "New client connected on socket [" << _socket << ']';
 }
 
 /**
@@ -32,7 +32,7 @@ Client::Client(const Client &cpy) :
 	_socket(cpy._socket), _is_authenticated(cpy._is_authenticated),
 	_is_registered(cpy._is_registered), _username(cpy._username),
 	_realname(cpy._realname), _is_invisible(cpy._is_invisible),
-	nickname(cpy.nickname)
+	nickname(cpy.nickname), host(cpy.host)
 {}
 
 /**
@@ -51,10 +51,11 @@ Client	&Client::operator=(const Client &assign)
 		_socket = assign._socket;
 		_is_authenticated = assign._is_authenticated;
 		_is_registered = assign._is_registered;
-		nickname.assign(assign.nickname);
 		_realname.assign(assign._realname);
 		_username.assign(assign._username);
 		_is_invisible = assign._is_invisible;
+		nickname.assign(assign.nickname);
+		host.assign(assign.host);
 	}
 	return (*this);
 }
@@ -77,4 +78,9 @@ bool	Client::get_is_invisible(void) const
 bool	Client::get_is_authenticated(void) const
 {
 	return (_is_authenticated);
+}
+
+std::string	Client::get_username(void) const
+{
+	return (_username);
 }

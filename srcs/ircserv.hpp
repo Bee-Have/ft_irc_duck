@@ -21,6 +21,7 @@
 #include "Topic.hpp"
 #include "Kick.hpp"
 #include "Ping.hpp"
+#include "Who.hpp"///< This is not fully implemented
 
 // SERVER
 void	server_loop(Server &serv);
