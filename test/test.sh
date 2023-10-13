@@ -30,8 +30,9 @@ stopServer ()
 	killall nc
 	killall tail
 	pkill -f --signal SIGINT ircserv
-	if [ $? -ne 0 ]; then
-		echo "Server failed to stop"
+	kill_result=$?
+	if [ $kill_result -ne 0 ]; then
+		echo "Server failed to stop with result $kill_result"
 		exit 1
 	fi
 	echo "Server stopped"
