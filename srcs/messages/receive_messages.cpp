@@ -1,5 +1,4 @@
 #include "ircserv.hpp"
-#include "Logger.hpp"
 
 static void	found_new_line(Server &serv, Client emitter, std::string text, int pos_msg)
 {
