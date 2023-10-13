@@ -94,7 +94,7 @@ void	Mode::_current_mode(Message& msg, Channel* channel)
 	{
 		if (serv.client_list.find(msg.get_emitter())->second._is_invisible == true)
 			_all_usermodes['i'] = ADD;
-		if (serv._oper_socket == msg.get_emitter())
+		if (serv._oper_socket.find(msg.get_emitter()) != serv._oper_socket.end())
 			_all_usermodes['O'] = ADD;
 	}
 	_format_replymodes(channel != NULL);
@@ -335,16 +335,14 @@ void	Mode::_client_O(Message& msg)
 	}
 	else if (O == REMOVE)
 	{
-		if (serv._oper_socket != msg.get_emitter())
+		if (serv._oper_socket.find(msg.get_emitter()) == serv._oper_socket.end())
 		{
 			response.reply_format(ERR_NOPRIVILEGES, "", serv.socket_id);
 			serv.msgs.push_back(response);
 			O = UNCHANGED;
 		}
 		else
-		{
-			serv._oper_socket = -1;
-		}
+			serv._oper_socket.erase(msg.get_emitter());
 	}
 }
 

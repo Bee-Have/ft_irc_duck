@@ -3,6 +3,7 @@
 // CONTAINERS
 #include <map>
 #include <vector>
+#include <set>
 
 // GENERAL
 #include <iostream>
@@ -50,7 +51,7 @@ private:
 	// Server operator
 	const std::string	_oper_name;
 	const std::string	_oper_pass;
-	int					_oper_socket;
+	std::set<int>		_oper_socket;
 
 	// channels
 	std::map<std::string, Channel>	_channel_list;

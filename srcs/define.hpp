@@ -72,6 +72,5 @@
 #define RPL_CHANGEMODE ":<client>!<user>@<host> MODE <name> :<modestring>\r\n"
 #define RPL_YOURECHANOP ":<client>!<user>@<host> <channel> :You are now a channel operator\r\n"
 // 			ERRRORS
-#define ERR_CANNOTBECOMEOPER "920 <client> :Operator role already fullfiled\r\n"
 #define ERR_NOSUCHOPER "921 <client> :<oper> :No such operator\r\n"
 #define ERR_MODEBADFORMAT "923 <client> MODE :Bad modestring format\r\n"
