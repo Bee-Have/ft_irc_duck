@@ -464,21 +464,21 @@ void	Mode::_channel_l(Message& msg, Channel* channel)
 {
 	if (_all_chanmodes['l'] == UNCHANGED)
 		return;
-	std::string param = _get_param('l');
-	std::stringstream ss(param);
-	int new_member_limit;
-
-	ss >> new_member_limit;
-	if (ss.fail() == true || new_member_limit < 0)
-	{
-		_all_chanmodes['l'] = UNCHANGED;
-		Message	warning(msg);
-		warning.reply_format(ERR_NEEDMOREPARAMS, msg.cmd, serv.socket_id);
-		serv.msgs.push_back(warning);
-		return;
-	}
 	if (_all_chanmodes['l'] == ADD)
 	{
+		std::string param = _get_param('l');
+		std::stringstream ss(param);
+		int new_member_limit;
+
+		ss >> new_member_limit;
+		if (ss.fail() == true || new_member_limit < 0)
+		{
+			_all_chanmodes['l'] = UNCHANGED;
+			Message	warning(msg);
+			warning.reply_format(ERR_NEEDMOREPARAMS, msg.cmd, serv.socket_id);
+			serv.msgs.push_back(warning);
+			return;
+		}
 		if (channel->_member_limit == new_member_limit)
 			_all_chanmodes['l'] = UNCHANGED;
 		else
